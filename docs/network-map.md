@@ -19,8 +19,8 @@ NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN=...
 Useful refresh flow:
 
 ```bash
-neo-archive sync followers --yes --json
-neo-archive sync following --yes --json
-neo-archive import hydrate-profiles --json
+neoarchive sync followers --yes --json
+neoarchive sync following --yes --json
+neoarchive import hydrate-profiles --json
 ./scripts/bun-canary.sh run --bun dev
 ```

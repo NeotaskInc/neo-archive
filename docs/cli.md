@@ -10,16 +10,16 @@ Designed with `create-cli` defaults:
 
 ## Name
 
-`neo-archive`
+`neoarchive`
 
 ## One-liner
 
-`neo-archive` imports, syncs, searches, and operates on a local Twitter archive.
+`neoarchive` imports, syncs, searches, and operates on a local Twitter archive.
 
 ## Usage
 
 ```text
-neo-archive [global flags] <subcommand> [args]
+neoarchive [global flags] <subcommand> [args]
 ```
 
 ## Global flags
@@ -50,65 +50,65 @@ User config:
 ## Command tree
 
 ```text
-neo-archive init [--demo]
-neo-archive auth status
-neo-archive auth use <transport>
-neo-archive import archive [path]
-neo-archive import tweet <tweet-id-or-url...> --fxtwitter
-neo-archive sync all
-neo-archive sync tweets
-neo-archive sync authored
-neo-archive sync dms
-neo-archive sync bookmarks
-neo-archive sync likes
-neo-archive sync timeline
-neo-archive sync mentions
-neo-archive sync mention-threads
-neo-archive sync followers
-neo-archive sync following
-neo-archive sync lists
-neo-archive lists list
-neo-archive lists members [name]
-neo-archive import tweet <tweet-id-or-url...> --fxtwitter
-neo-archive import thread <tweet-id-or-url> --fxtwitter
-neo-archive import conversation <tweet-id-or-url> --fxtwitter
-neo-archive import profile <handle> --fxtwitter
-neo-archive search tweets <query>
-neo-archive search dms <query>
-neo-archive discuss <query>
-neo-archive today
-neo-archive digest [today|24h|yesterday|week]
-neo-archive mentions export [query]
-neo-archive media fetch
-neo-archive dms list
-neo-archive mute <handle-or-id>
-neo-archive unmute <handle-or-id>
-neo-archive mutes list
-neo-archive blocks list
-neo-archive blocks add <handle-or-id>
-neo-archive blocks remove <handle-or-id>
-neo-archive ban <handle-or-id>
-neo-archive unban <handle-or-id>
-neo-archive show tweet <id>
-neo-archive show thread <id>
-neo-archive show dm <conversation-id>
-neo-archive inbox
-neo-archive serve
-neo-archive graph summary
-neo-archive graph events
-neo-archive graph top-followers
-neo-archive graph unfollowed
-neo-archive graph non-mutual-following
-neo-archive graph mutuals
-neo-archive compose post
-neo-archive compose reply <tweet-id>
-neo-archive db stats
-neo-archive db vacuum
-neo-archive backup export --repo <path>
-neo-archive backup sync --repo <path> --remote <url>
-neo-archive backup import <path>
-neo-archive backup validate <path>
-neo-archive debug transport
+neoarchive init [--demo]
+neoarchive auth status
+neoarchive auth use <transport>
+neoarchive import archive [path]
+neoarchive import tweet <tweet-id-or-url...> --fxtwitter
+neoarchive sync all
+neoarchive sync tweets
+neoarchive sync authored
+neoarchive sync dms
+neoarchive sync bookmarks
+neoarchive sync likes
+neoarchive sync timeline
+neoarchive sync mentions
+neoarchive sync mention-threads
+neoarchive sync followers
+neoarchive sync following
+neoarchive sync lists
+neoarchive lists list
+neoarchive lists members [name]
+neoarchive import tweet <tweet-id-or-url...> --fxtwitter
+neoarchive import thread <tweet-id-or-url> --fxtwitter
+neoarchive import conversation <tweet-id-or-url> --fxtwitter
+neoarchive import profile <handle> --fxtwitter
+neoarchive search tweets <query>
+neoarchive search dms <query>
+neoarchive discuss <query>
+neoarchive today
+neoarchive digest [today|24h|yesterday|week]
+neoarchive mentions export [query]
+neoarchive media fetch
+neoarchive dms list
+neoarchive mute <handle-or-id>
+neoarchive unmute <handle-or-id>
+neoarchive mutes list
+neoarchive blocks list
+neoarchive blocks add <handle-or-id>
+neoarchive blocks remove <handle-or-id>
+neoarchive ban <handle-or-id>
+neoarchive unban <handle-or-id>
+neoarchive show tweet <id>
+neoarchive show thread <id>
+neoarchive show dm <conversation-id>
+neoarchive inbox
+neoarchive serve
+neoarchive graph summary
+neoarchive graph events
+neoarchive graph top-followers
+neoarchive graph unfollowed
+neoarchive graph non-mutual-following
+neoarchive graph mutuals
+neoarchive compose post
+neoarchive compose reply <tweet-id>
+neoarchive db stats
+neoarchive db vacuum
+neoarchive backup export --repo <path>
+neoarchive backup sync --repo <path> --remote <url>
+neoarchive backup import <path>
+neoarchive backup validate <path>
+neoarchive debug transport
 ```
 
 ## Subcommand semantics
@@ -184,7 +184,7 @@ See [Public tweet import](public-tweets.md) for the full privacy and capability 
 - `--push` implies commit and pushes the backup repo
 
 ```bash
-neo-archive backup export --repo ~/Projects/neo-archive-store --commit --push
+neoarchive backup export --repo ~/Projects/neo-archive-store --commit --push
 ```
 
 ### `backup sync`
@@ -196,7 +196,7 @@ neo-archive backup export --repo ~/Projects/neo-archive-store --commit --push
 - commits and pushes the backup repo
 
 ```bash
-neo-archive backup sync --repo ~/Projects/backup-neo-archive --remote https://github.com/steipete/backup-neo-archive.git --json
+neoarchive backup sync --repo ~/Projects/backup-neo-archive --remote https://github.com/steipete/backup-neo-archive.git --json
 ```
 
 Shard contract:
@@ -256,7 +256,7 @@ to the full path of `bash.exe` for a portable or non-standard installation.
 - rebuilds tweet and DM FTS from the JSONL text
 
 ```bash
-neo-archive backup import ~/Projects/neo-archive-store --json
+neoarchive backup import ~/Projects/neo-archive-store --json
 ```
 
 ### `backup validate`
@@ -266,7 +266,7 @@ neo-archive backup import ~/Projects/neo-archive-store --json
 - exits non-zero on validation failure
 
 ```bash
-neo-archive backup validate ~/Projects/neo-archive-store --json
+neoarchive backup validate ~/Projects/neo-archive-store --json
 ```
 
 ### `import archive [path]`
@@ -298,12 +298,12 @@ Flags:
 Examples:
 
 ```bash
-neo-archive import archive --json
-neo-archive import archive ~/Downloads/twitter-archive.zip --json
-neo-archive import archive ~/Downloads/twitter-archive.zip --select tweets --json
-neo-archive import archive ~/Downloads/twitter-archive.zip --select likes,bookmarks --json
-neo-archive import archive ~/Downloads/twitter-archive.zip --select dms --json
-neo-archive import archive ~/Downloads/twitter-archive.zip --select followers,following --json
+neoarchive import archive --json
+neoarchive import archive ~/Downloads/twitter-archive.zip --json
+neoarchive import archive ~/Downloads/twitter-archive.zip --select tweets --json
+neoarchive import archive ~/Downloads/twitter-archive.zip --select likes,bookmarks --json
+neoarchive import archive ~/Downloads/twitter-archive.zip --select dms --json
+neoarchive import archive ~/Downloads/twitter-archive.zip --select followers,following --json
 ```
 
 ### `sync *`
@@ -337,30 +337,30 @@ Common flags:
 Examples:
 
 ```bash
-neo-archive sync authored --mode xurl --limit 100 --json
-neo-archive sync likes --mode auto --limit 100 --refresh --json
-neo-archive sync likes --mode auto --limit 100 --max-pages 5 --early-stop --refresh --json
-neo-archive sync likes --mode xurl --limit 100 --max-pages 70 --pagination-token "$NEXT_TOKEN" --refresh --json
-neo-archive sync bookmarks --mode auto --limit 100 --refresh --json
-neo-archive sync bookmarks --mode auto --limit 100 --max-pages 5 --early-stop --refresh --json
-neo-archive sync bookmarks --mode bird --all --max-pages 5 --limit 100 --refresh --json
-neo-archive sync timeline --limit 100 --refresh --json
-neo-archive sync mentions --mode xurl --limit 100 --max-pages 3 --refresh --json
-neo-archive sync mention-threads --mode bird --limit 30 --delay-ms 1500 --timeout-ms 15000 --json
-neo-archive sync mention-threads --mode xurl --limit 30 --json
-neo-archive sync lists --mode auto --max-lists 20 --member-limit 20 --max-member-pages 1 --delay-ms 1000 --json
+neoarchive sync authored --mode xurl --limit 100 --json
+neoarchive sync likes --mode auto --limit 100 --refresh --json
+neoarchive sync likes --mode auto --limit 100 --max-pages 5 --early-stop --refresh --json
+neoarchive sync likes --mode xurl --limit 100 --max-pages 70 --pagination-token "$NEXT_TOKEN" --refresh --json
+neoarchive sync bookmarks --mode auto --limit 100 --refresh --json
+neoarchive sync bookmarks --mode auto --limit 100 --max-pages 5 --early-stop --refresh --json
+neoarchive sync bookmarks --mode bird --all --max-pages 5 --limit 100 --refresh --json
+neoarchive sync timeline --limit 100 --refresh --json
+neoarchive sync mentions --mode xurl --limit 100 --max-pages 3 --refresh --json
+neoarchive sync mention-threads --mode bird --limit 30 --delay-ms 1500 --timeout-ms 15000 --json
+neoarchive sync mention-threads --mode xurl --limit 30 --json
+neoarchive sync lists --mode auto --max-lists 20 --member-limit 20 --max-member-pages 1 --delay-ms 1000 --json
 ```
 
 Follow graph examples:
 
 ```bash
-neo-archive sync followers --json
-neo-archive sync following --json
-neo-archive sync followers --yes --json
-neo-archive sync following --yes --json
-neo-archive sync followers --mode bird --yes --json
-neo-archive sync followers --yes --max-pages 1 --allow-partial --json
-neo-archive sync followers --yes --refresh --json
+neoarchive sync followers --json
+neoarchive sync following --json
+neoarchive sync followers --yes --json
+neoarchive sync following --yes --json
+neoarchive sync followers --mode bird --yes --json
+neoarchive sync followers --yes --max-pages 1 --allow-partial --json
+neoarchive sync followers --yes --refresh --json
 ```
 
 Follow graph sync uses a 24-hour cache by default. Repeating the same sync command with `--yes` reuses fresh cache unless `--refresh` is passed, which prevents duplicate live reads during agent workflows.
@@ -379,7 +379,7 @@ Follow graph sync uses a 24-hour cache by default. Repeating the same sync comma
 Examples:
 
 ```bash
-neo-archive --json jobs sync-account --account acct_openclaw --limit 100 --max-pages 3 --refresh --allow-bird-account
+neoarchive --json jobs sync-account --account acct_openclaw --limit 100 --max-pages 3 --refresh --allow-bird-account
 tail -n 20 ~/.neo-archive/audit/account-sync.jsonl | jq .
 ```
 
@@ -395,7 +395,7 @@ tail -n 20 ~/.neo-archive/audit/account-sync.jsonl | jq .
 - `--allow-bird-account` asserts those cookies match `--account` for Bird-backed timeline, mentions, and DM steps
 
 ```bash
-neo-archive --json jobs install-account-launchd --account acct_openclaw --program /opt/homebrew/bin/neo-archive --env-path ~/.config/bird/openclaw.env --allow-bird-account
+neoarchive --json jobs install-account-launchd --account acct_openclaw --program /opt/homebrew/bin/neoarchive --env-path ~/.config/bird/openclaw.env --allow-bird-account
 ```
 
 ### `jobs sync-bookmarks`
@@ -415,7 +415,7 @@ Default audit log:
 Examples:
 
 ```bash
-neo-archive --json jobs sync-bookmarks --mode auto --limit 100 --max-pages 5 --refresh
+neoarchive --json jobs sync-bookmarks --mode auto --limit 100 --max-pages 5 --refresh
 tail -n 20 ~/.neo-archive/audit/bookmarks-sync.jsonl | jq .
 ```
 
@@ -430,7 +430,7 @@ tail -n 20 ~/.neo-archive/audit/bookmarks-sync.jsonl | jq .
 - `--runtime <absolute-path>` plus repeatable `--runtime-arg <value>` pins a source launcher to an exact runtime instead of relying on launchd `PATH`
 
 ```bash
-neo-archive --json jobs install-bookmarks-launchd --program /opt/homebrew/bin/neo-archive
+neoarchive --json jobs install-bookmarks-launchd --program /opt/homebrew/bin/neoarchive
 ```
 
 ### `search tweets <query>`
@@ -456,10 +456,10 @@ Flags:
 Examples:
 
 ```bash
-neo-archive search tweets --liked --limit 20 --json
-neo-archive search tweets --bookmarked --limit 20 --json
-neo-archive search tweets "sqlite" --list Builders --limit 50 --json
-neo-archive search tweets "local-first" --fxtwitter --limit 50 --max-pages 3 --json
+neoarchive search tweets --liked --limit 20 --json
+neoarchive search tweets --bookmarked --limit 20 --json
+neoarchive search tweets "sqlite" --list Builders --limit 50 --json
+neoarchive search tweets "local-first" --fxtwitter --limit 50 --max-pages 3 --json
 ```
 
 ### `search dms <query>`
@@ -523,9 +523,9 @@ Flags:
 Examples:
 
 ```bash
-neo-archive discuss "local-first" --mode bird
-neo-archive discuss "sync engine" --question "what changed over time?"
-neo-archive discuss "prototype" --include-dms --limit 500 --max-pages 5 --json
+neoarchive discuss "local-first" --mode bird
+neoarchive discuss "sync engine" --question "what changed over time?"
+neoarchive discuss "prototype" --include-dms --limit 500 --max-pages 5 --json
 ```
 
 ### `whois <query>`
@@ -561,10 +561,10 @@ Flags:
 Examples:
 
 ```bash
-neo-archive whois blacksmith --context 4 --no-xurl-fallback --json
-neo-archive whois "blacksmith guy" --context 4 --no-xurl-fallback --json
-neo-archive whois "github guy" --current-affiliation github --exclude-domain-only
-neo-archive whois blacksmith --tweets --no-xurl-fallback
+neoarchive whois blacksmith --context 4 --no-xurl-fallback --json
+neoarchive whois "blacksmith guy" --context 4 --no-xurl-fallback --json
+neoarchive whois "github guy" --current-affiliation github --exclude-domain-only
+neoarchive whois blacksmith --tweets --no-xurl-fallback
 ```
 
 ### `mentions export [query]`
@@ -594,12 +594,12 @@ Flags:
 Examples:
 
 ```bash
-neo-archive mentions export "agent" --unreplied --limit 10
-neo-archive mentions export --mode bird --limit 20
-neo-archive mentions export --mode xurl --limit 5
-neo-archive mentions export "codex" --mode xurl --limit 5
-neo-archive mentions export --mode xurl --refresh --cache-ttl 30 --limit 5
-neo-archive mentions export --mode xurl --refresh --all --max-pages 9 --limit 100
+neoarchive mentions export "agent" --unreplied --limit 10
+neoarchive mentions export --mode bird --limit 20
+neoarchive mentions export --mode xurl --limit 5
+neoarchive mentions export "codex" --mode xurl --limit 5
+neoarchive mentions export --mode xurl --refresh --cache-ttl 30 --limit 5
+neoarchive mentions export --mode xurl --refresh --all --max-pages 9 --limit 100
 ```
 
 Notes:
@@ -642,10 +642,10 @@ JSON output carries `images_fetched`, `videos_fetched`, `gifs_fetched`, `reused_
 Examples:
 
 ```bash
-neo-archive media fetch --json
-neo-archive media fetch --dry-run --limit 20
-neo-archive media fetch --include-video --video-pacing-ms 1500 --max-bytes 209715200 --json
-neo-archive media fetch --no-include-video --parallel 3 --pacing-ms 250 --json
+neoarchive media fetch --json
+neoarchive media fetch --dry-run --limit 20
+neoarchive media fetch --include-video --video-pacing-ms 1500 --max-bytes 209715200 --json
+neoarchive media fetch --no-include-video --parallel 3 --pacing-ms 250 --json
 ```
 
 ### `profiles replies <handle-or-id>`
@@ -663,7 +663,7 @@ Flags:
 Examples:
 
 ```bash
-neo-archive profiles replies @jpctan --limit 12 --json
+neoarchive profiles replies @jpctan --limit 12 --json
 ```
 
 ### `dms list`
@@ -813,7 +813,7 @@ Flags:
 - `--host <host>`
 - `--port <port>`
 
-`neo-archive serve` binds the production server to `127.0.0.1:3000` by default and
+`neoarchive serve` binds the production server to `127.0.0.1:3000` by default and
 enables local loopback web APIs without a token. `NEO_ARCHIVE_HOST` and
 `NEO_ARCHIVE_PORT` provide environment defaults. Remote access through a trusted
 private proxy requires `NEO_ARCHIVE_ALLOW_REMOTE_WEB=1`. To require an app-level
@@ -828,7 +828,7 @@ server-side account by id or handle; otherwise tools read the default account.
 
 When MCP is configured, startup validates the configuration, selected account,
 and an existing initialized database at the current schema. It does not create
-or migrate the database for MCP. Run `neo-archive init` or import/migrate with a
+or migrate the database for MCP. Run `neoarchive init` or import/migrate with a
 trusted CLI command before starting the server.
 
 HTTP MCP URLs are accepted only for loopback hosts. External MCP URLs must use
@@ -908,17 +908,17 @@ stderr:
 ## Examples
 
 ```bash
-neo-archive init
-neo-archive init --demo
-neo-archive auth status
-neo-archive import archive ~/Downloads/twitter-archive.zip --select tweets,directMessages
-neo-archive sync all --transport xurl
-neo-archive search tweets "openai" --since 2024-01-01 --limit 20
-neo-archive search tweets --since 2020-01-01 --until 2021-01-01 --originals-only --hide-low-quality --limit 500
-neo-archive search dms "invoice" --participant @someone --min-followers 1000
-neo-archive dms list --unreplied --min-followers 500 --min-influence-score 90 --sort followers
-neo-archive inbox --json
-neo-archive serve
-neo-archive graph events --json
-neo-archive compose reply 1891234567890
+neoarchive init
+neoarchive init --demo
+neoarchive auth status
+neoarchive import archive ~/Downloads/twitter-archive.zip --select tweets,directMessages
+neoarchive sync all --transport xurl
+neoarchive search tweets "openai" --since 2024-01-01 --limit 20
+neoarchive search tweets --since 2020-01-01 --until 2021-01-01 --originals-only --hide-low-quality --limit 500
+neoarchive search dms "invoice" --participant @someone --min-followers 1000
+neoarchive dms list --unreplied --min-followers 500 --min-influence-score 90 --sort followers
+neoarchive inbox --json
+neoarchive serve
+neoarchive graph events --json
+neoarchive compose reply 1891234567890
 ```

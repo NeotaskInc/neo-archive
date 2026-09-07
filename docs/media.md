@@ -5,7 +5,7 @@ description: "Local cache of pbs.twimg.com images and video.twimg.com mp4 varian
 
 # Media
 
-`neo-archive media fetch` fills the local originals cache with image, video, and animated-GIF files for tweets that already live in the local SQLite store.
+`neoarchive media fetch` fills the local originals cache with image, video, and animated-GIF files for tweets that already live in the local SQLite store.
 
 ## Posture
 
@@ -51,10 +51,10 @@ Archive-sourced files keep their original archive layout at `~/.neo-archive/medi
 ## CLI
 
 ```bash
-neo-archive media fetch --json
-neo-archive media fetch --dry-run --limit 20
-neo-archive media fetch --include-video --video-pacing-ms 1500 --max-bytes 209715200 --json
-neo-archive media fetch --no-include-video --parallel 3 --pacing-ms 250 --json
+neoarchive media fetch --json
+neoarchive media fetch --dry-run --limit 20
+neoarchive media fetch --include-video --video-pacing-ms 1500 --max-bytes 209715200 --json
+neoarchive media fetch --no-include-video --parallel 3 --pacing-ms 250 --json
 ```
 
 Flags:
@@ -104,7 +104,7 @@ In `--dry-run` mode the envelope also carries `dry_run: true` and a `would_fetch
 
 ```bash
 # every 6 hours, top up the originals cache without hammering CDNs
-neo-archive media fetch --parallel 3 --pacing-ms 500 --video-pacing-ms 1500 --max-bytes 209715200 --json
+neoarchive media fetch --parallel 3 --pacing-ms 500 --video-pacing-ms 1500 --max-bytes 209715200 --json
 ```
 
 ## See also

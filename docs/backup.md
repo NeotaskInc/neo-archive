@@ -60,8 +60,8 @@ The manifest pins per-shard byte counts, row counts, and SHA hashes. Validation 
 Write text shards to a local directory. Validates the manifest by default.
 
 ```bash
-neo-archive backup export --repo ~/Projects/neo-archive-store --json
-neo-archive backup export --repo ~/Projects/neo-archive-store --commit --push
+neoarchive backup export --repo ~/Projects/neo-archive-store --json
+neoarchive backup export --repo ~/Projects/neo-archive-store --commit --push
 ```
 
 Flags:
@@ -79,7 +79,7 @@ Logical shards at or below 48 MiB keep their existing filename. Larger shards be
 The recommended round-trip workflow:
 
 ```bash
-neo-archive backup sync \
+neoarchive backup sync \
   --repo ~/Projects/backup-neo-archive \
   --remote https://github.com/steipete/backup-neo-archive.git \
   --json
@@ -100,7 +100,7 @@ This is what makes neo-archive safe across multiple machines: each machine can s
 ## `backup import`
 
 ```bash
-neo-archive backup import ~/Projects/neo-archive-store --json
+neoarchive backup import ~/Projects/neo-archive-store --json
 ```
 
 Validates the backup first (unless `--no-validate`), then merge-imports rows into local SQLite. Local-only rows are preserved by default.
@@ -116,7 +116,7 @@ Revision topology reconciliation visits only multi-revision or explicitly edge-c
 ## `backup validate`
 
 ```bash
-neo-archive backup validate ~/Projects/neo-archive-store --json
+neoarchive backup validate ~/Projects/neo-archive-store --json
 ```
 
 Checks:

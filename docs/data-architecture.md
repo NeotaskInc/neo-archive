@@ -88,7 +88,7 @@ Why:
 
 Possible later feature:
 
-- `neo-archive auth import-xurl`
+- `neoarchive auth import-xurl`
 - local one-shot import into neo-archive-managed credentials
 - opt-in only
 
@@ -453,7 +453,7 @@ Candidate ranking inputs:
 
 ### Web server mode
 
-`neo-archive serve`
+`neoarchive serve`
 
 - starts the built local production server
 - serves SSR routes and compiled static assets

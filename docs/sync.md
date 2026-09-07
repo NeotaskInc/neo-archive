@@ -5,7 +5,7 @@ description: "Sync authored tweets, Lists, likes, bookmarks, home timeline, ment
 
 # Sync
 
-`neo-archive sync` mirrors the live Twitter surfaces you actually use into the local SQLite store. Every sync command:
+`neoarchive sync` mirrors the live Twitter surfaces you actually use into the local SQLite store. Every sync command:
 
 - pulls from the best live transport for the surface; authored sync uses `xurl`, follow graph sync prefers `bird`, and likes/bookmarks still try `xurl` before `bird`
 - writes into the same canonical tables that archive import uses
@@ -19,7 +19,7 @@ On a fresh database, import your X archive before the first live sync. The archi
 
 The Home and Mentions lanes keep manual sync as the default and offer an opt-in `Auto sync` control. The interval is stored per sync kind and account in local browser storage, with choices from 5 minutes to 1 hour. Runs use the same `/api/sync` job path as the manual button, never overlap, skip while the page is hidden, show the latest result, and back off exponentially after failures.
 
-Web auto-sync runs only while the page is mounted. For durable unattended refresh with lock files and audit logs, use [`neo-archive jobs`](jobs.md).
+Web auto-sync runs only while the page is mounted. For durable unattended refresh with lock files and audit logs, use [`neoarchive jobs`](jobs.md).
 
 ## Common flags
 
@@ -47,8 +47,8 @@ Mirror the authenticated user's authored timeline through `xurl`. Retweets are i
 On a first run with no authored cursor, Neo Archive seeds `since_id` from the newest local archive-backed tweet authored by that account when one exists. Fresh installs with no local baseline full-scan from X and print a stderr cost hint. Pass `--since-id <id>` to override the archive seed deliberately.
 
 ```bash
-neo-archive sync authored --mode xurl --limit 100 --json
-neo-archive sync authored --account acct_primary --mode xurl --limit 100 --json
+neoarchive sync authored --mode xurl --limit 100 --json
+neoarchive sync authored --account acct_primary --mode xurl --limit 100 --json
 ```
 
 Authored tweets land in the canonical `tweets` table and get an `authored` account edge, so shared tweets can also remain home, mention, liked, or bookmarked rows for the same or another account.
@@ -58,13 +58,13 @@ Authored tweets land in the canonical `tweets` table and get an `authored` accou
 Mirror the authenticated user's Likes feed:
 
 ```bash
-neo-archive sync likes --mode auto --limit 100 --refresh --json
-neo-archive sync likes --mode bird --all --max-pages 5 --refresh --json
-neo-archive sync likes --mode auto --limit 100 --max-pages 5 --early-stop --refresh --json
-neo-archive sync likes --mode xurl --limit 100 --max-pages 70 --pagination-token "$NEXT_TOKEN" --refresh --json
+neoarchive sync likes --mode auto --limit 100 --refresh --json
+neoarchive sync likes --mode bird --all --max-pages 5 --refresh --json
+neoarchive sync likes --mode auto --limit 100 --max-pages 5 --early-stop --refresh --json
+neoarchive sync likes --mode xurl --limit 100 --max-pages 70 --pagination-token "$NEXT_TOKEN" --refresh --json
 ```
 
-Liked tweets land in the same `tweets` table as archive imports and can be queried with `neo-archive search tweets --liked`.
+Liked tweets land in the same `tweets` table as archive imports and can be queried with `neoarchive search tweets --liked`.
 
 `--early-stop` halts pagination as soon as one fetched page is 100% already in the local store. Pair it with `--max-pages` on a cron loop: the first run after a long absence walks back as far as `--max-pages` allows, every subsequent run stops at the first saturated page and spends one X API page read instead of `--max-pages` of them. If neither `--all` nor `--max-pages` is present, Neo Archive applies a 10-page cap.
 
@@ -75,13 +75,13 @@ For a bounded backfill, copy `payload.meta.next_token` from one run into `--pagi
 Mirror Bookmarks:
 
 ```bash
-neo-archive sync bookmarks --mode auto --limit 100 --refresh --json
-neo-archive sync bookmarks --mode bird --all --max-pages 5 --limit 100 --refresh --json
-neo-archive sync bookmarks --mode auto --limit 100 --max-pages 5 --early-stop --refresh --json
-neo-archive sync bookmarks --mode xurl --limit 100 --max-pages 70 --pagination-token "$NEXT_TOKEN" --refresh --json
+neoarchive sync bookmarks --mode auto --limit 100 --refresh --json
+neoarchive sync bookmarks --mode bird --all --max-pages 5 --limit 100 --refresh --json
+neoarchive sync bookmarks --mode auto --limit 100 --max-pages 5 --early-stop --refresh --json
+neoarchive sync bookmarks --mode xurl --limit 100 --max-pages 70 --pagination-token "$NEXT_TOKEN" --refresh --json
 ```
 
-Bookmarks are queried via `neo-archive search tweets --bookmarked` and drive the [research](research.md) workflow.
+Bookmarks are queried via `neoarchive search tweets --bookmarked` and drive the [research](research.md) workflow.
 
 `--early-stop` behaves the same way as on `sync likes`: stop paging when a full page is already locally known. Recommended default for any scheduled bookmark sync against a stable account.
 
@@ -90,7 +90,7 @@ Bookmarks are queried via `neo-archive search tweets --bookmarked` and drive the
 Pull the chronological Following timeline through `bird`:
 
 ```bash
-neo-archive sync timeline --limit 100 --refresh --json
+neoarchive sync timeline --limit 100 --refresh --json
 ```
 
 `sync timeline` defaults to the chronological feed, not the algorithmic For You. The home timeline is stored in the same `tweets` table so search, filters, and the web UI's `Home` lane all see one set of rows.
@@ -100,8 +100,8 @@ neo-archive sync timeline --limit 100 --refresh --json
 Read owned X Lists and bounded membership pages through `bird` first, with `xurl` fallback in `auto` mode:
 
 ```bash
-neo-archive sync lists --mode auto --json
-neo-archive sync lists --mode bird --max-lists 20 --member-limit 100 --max-member-pages 3 --delay-ms 1500 --json
+neoarchive sync lists --mode auto --json
+neoarchive sync lists --mode bird --max-lists 20 --member-limit 100 --max-member-pages 3 --delay-ms 1500 --json
 ```
 
 Safe defaults are 20 Lists, 20 members per List, one membership page, and a 1,000 ms delay between Lists. Widen the scan only with `--max-member-pages`; there is no unbounded paging flag. Each stored List reports source, List and member sync timestamps, member/page counts, the rate-limit parameters used, and membership state:
@@ -111,15 +111,15 @@ Safe defaults are 20 Lists, 20 members per List, one membership page, and a 1,00
 - `partial` — a next cursor or page cap remains; unseen members are preserved
 - `error` — latest membership attempt failed; existing edges remain
 
-`neo-archive lists list --json` and `neo-archive lists members <name> --json` inspect only local state. List sync is read-only and never creates or mutates X Lists.
+`neoarchive lists list --json` and `neoarchive lists members <name> --json` inspect only local state. List sync is read-only and never creates or mutates X Lists.
 
 ## sync mentions
 
 Mirror the authenticated user's mentions feed into local SQLite. This is the cron-friendly ingest path that populates `kind='mention'` rows the rest of the pipeline expects:
 
 ```bash
-neo-archive sync mentions --mode xurl --limit 100 --max-pages 3 --refresh --json
-neo-archive sync mentions --mode bird --limit 50 --json
+neoarchive sync mentions --mode xurl --limit 100 --max-pages 3 --refresh --json
+neoarchive sync mentions --mode bird --limit 50 --json
 ```
 
 Flags:
@@ -142,8 +142,8 @@ On a first xurl run without `--since-id` or `--start-time`, Neo Archive seeds `s
 Fetch conversation context for recent mentions through `bird` or `xurl`:
 
 ```bash
-neo-archive sync mention-threads --mode bird --limit 30 --delay-ms 1500 --timeout-ms 15000 --json
-neo-archive sync mention-threads --mode xurl --limit 30 --json
+neoarchive sync mention-threads --mode bird --limit 30 --delay-ms 1500 --timeout-ms 15000 --json
+neoarchive sync mention-threads --mode xurl --limit 30 --json
 ```
 
 Flags:
@@ -164,21 +164,21 @@ Prerequisite: run [`sync mentions`](#sync-mentions) first so the recent mention 
 Followers and following are first-class entities with append-only history. Both syncs record current state plus a `follow_events` row for every change.
 
 ```bash
-neo-archive sync followers --json
-neo-archive sync following --json
-neo-archive sync followers --yes --json
-neo-archive sync following --yes --json
+neoarchive sync followers --json
+neoarchive sync following --json
+neoarchive sync followers --yes --json
+neoarchive sync following --yes --json
 ```
 
 The first two commands are dry runs. Live fetches require `--yes`; pass `--refresh` only when you intentionally want to bypass the 24-hour follow-graph cache. `auto` prefers `bird` for followers/following because the browser-cookie GraphQL path works when OAuth2 follow reads are unavailable.
 
-After the first run, `neo-archive graph events` shows the diff log and `neo-archive graph mutuals` lists current mutuals.
+After the first run, `neoarchive graph events` shows the diff log and `neoarchive graph mutuals` lists current mutuals.
 
 ## sync all
 
 ```bash
-neo-archive sync all --transport xurl
-neo-archive sync all --transport auto
+neoarchive sync all --transport xurl
+neoarchive sync all --transport auto
 ```
 
 `sync all` runs every individual sync in a sane order (likes → bookmarks → timeline → mention-threads → followers → following). It is resumable and rate-limit-aware: if Twitter slows you down, it persists the cursor and exits with code `5` (partial sync) so a scheduler can retry.
@@ -188,9 +188,9 @@ neo-archive sync all --transport auto
 DMs sit on a separate command. `bird` is still the default and required for message-request state; `xurl` can import recent OAuth2 DM events for accepted conversations:
 
 ```bash
-neo-archive dms sync --limit 50 --refresh --json
-neo-archive dms sync --mode auto --limit 50 --refresh --json
-neo-archive dms list --refresh --limit 10 --json
+neoarchive dms sync --limit 50 --refresh --json
+neoarchive dms sync --mode auto --limit 50 --refresh --json
+neoarchive dms list --refresh --limit 10 --json
 ```
 
 See [DMs](dms.md) for the full triage workflow.
@@ -211,7 +211,7 @@ Cache rules:
 - `--cache-ttl <seconds>` overrides the default freshness window
 - write commands invalidate any read cache that overlaps the write
 
-This is what lets `neo-archive mentions export --mode xurl` mirror the `xurl mentions` JSON shape without re-hitting the live API every time.
+This is what lets `neoarchive mentions export --mode xurl` mirror the `xurl mentions` JSON shape without re-hitting the live API every time.
 
 ## Exit codes
 

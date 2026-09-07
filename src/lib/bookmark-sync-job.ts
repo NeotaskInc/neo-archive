@@ -250,7 +250,7 @@ export function runBookmarkSyncJob(
 }
 
 function buildProgramArguments({
-	program = "neo-archive",
+	program = "neoarchive",
 	runtime,
 	runtimeArgs,
 	account,

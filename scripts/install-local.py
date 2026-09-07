@@ -13,27 +13,29 @@ def main():
         raise SystemExit('Build Neo Archive before installing: ./scripts/bun-canary.sh run --bun build')
     runtime = subprocess.check_output([str(root / 'scripts' / 'install-bun-canary.sh')], text=True, timeout=300).strip()
     home = Path.home()
-    command = home / '.local' / 'bin' / 'neo-archive'
+    commands = [home / '.local' / 'bin' / name for name in ('neoarchive', 'neo-archive')]
     marker = '# Neo Archive local installer: ' + str(root)
     wrapper = '#!/bin/sh\n' + marker + '\nexec ' + shlex.quote(runtime) + ' --no-env-file ' + shlex.quote(str(entry)) + ' "$@"\n'
     skill = root / '.agents' / 'skills' / 'neo-archive'
     links = [home / folder / 'skills' / 'neo-archive' for folder in ('.codex', '.claude', '.agents')]
     # Check every destination before changing any installation.
-    if command.is_symlink() or (command.exists() and marker not in command.read_text().splitlines()):
-        raise SystemExit(f'Refusing to overwrite another command: {command}')
+    for command in commands:
+        if command.is_symlink() or (command.exists() and marker not in command.read_text().splitlines()):
+            raise SystemExit(f'Refusing to overwrite another command: {command}')
     for link in links:
         if os.path.lexists(link) and not (link.is_symlink() and link.resolve() == skill):
             raise SystemExit(f'Refusing to overwrite another skill: {link}')
-    command.parent.mkdir(parents=True, exist_ok=True)
-    command.write_text(wrapper)
-    command.chmod(0o755)
+    for command in commands:
+        command.parent.mkdir(parents=True, exist_ok=True)
+        command.write_text(wrapper)
+        command.chmod(0o755)
     for link in links:
         link.parent.mkdir(parents=True, exist_ok=True)
         if not link.is_symlink():
             link.symlink_to(skill, target_is_directory=True)
-    print(f'Installed {command}')
+    print(f'Installed {commands[0]} (compatibility alias: {commands[1].name})')
     print(f'Developer skill: {skill}')
-    print('Run neo-archive --json init, then import and authenticate each real account.')
+    print('Run neoarchive --json init, then import and authenticate each real account.')
 
 
 if __name__ == '__main__':

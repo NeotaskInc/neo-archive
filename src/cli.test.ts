@@ -87,6 +87,11 @@ const packageVersion = (
 const execFileAsyncMock = vi.fn();
 const execFileMock = vi.fn();
 const consoleLogMock = vi.spyOn(console, "log").mockImplementation(() => {});
+// Capture both text logging and JSON written through the stdout stream.
+const captureStdout = (chunk: unknown) => {
+	consoleLogMock(String(chunk).replace(/\n$/, ""));
+	return true;
+};
 
 class FxTwitterErrorMock extends Error {
 	readonly kind: string;
@@ -381,6 +386,7 @@ async function loadCli() {
 
 describe("cli", () => {
 	beforeEach(() => {
+		vi.spyOn(process.stdout, "write").mockImplementation(captureStdout);
 		process.exitCode = 0;
 		consoleLogMock.mockClear();
 		ensureNeoArchiveDirsMock.mockReset();
@@ -725,6 +731,8 @@ describe("cli", () => {
 	});
 
 	afterEach(() => {
+		if (vi.isMockFunction(process.stdout.write))
+			vi.mocked(process.stdout.write).mockRestore();
 		vi.clearAllMocks();
 	});
 
@@ -753,7 +761,7 @@ describe("cli", () => {
 			includeArchives: false,
 		});
 		expect(runProductionServerMock).toHaveBeenCalledWith({
-			packageRoot: expect.stringContaining("neo-archive"),
+			packageRoot: path.resolve(import.meta.dirname, ".."),
 			host: "127.0.0.1",
 			port: 3000,
 			serverVersion: packageVersion,
@@ -978,7 +986,7 @@ describe("cli", () => {
 			expect.stringContaining('"seeded": true'),
 		);
 		expect(consoleLogMock).toHaveBeenCalledWith(
-			expect.stringContaining('"neo-archive serve"'),
+			expect.stringContaining('"neoarchive serve"'),
 		);
 	});
 
@@ -1368,7 +1376,7 @@ describe("cli", () => {
 		}) as never);
 		const stdoutWriteMock = vi
 			.spyOn(process.stdout, "write")
-			.mockImplementation(() => true);
+			.mockImplementation(captureStdout);
 		const { runCli } = await loadCli();
 
 		await runCli(["node", "neo-archive", "--version"]);
@@ -2080,10 +2088,10 @@ describe("cli", () => {
 		]);
 
 		expect(consoleErrorMock).toHaveBeenCalledWith(
-			"neo-archive backup auto-sync failed: pull failed",
+			"neoarchive backup auto-sync failed: pull failed",
 		);
 		expect(consoleErrorMock).toHaveBeenCalledWith(
-			"neo-archive backup sync failed: push failed",
+			"neoarchive backup sync failed: push failed",
 		);
 		expect(listTimelineItemsMock).toHaveBeenCalled();
 		expect(importArchiveMock).toHaveBeenCalledWith("/tmp/x.zip", {
@@ -2132,7 +2140,7 @@ describe("cli", () => {
 		]);
 
 		expect(consoleErrorMock).toHaveBeenCalledWith(
-			"neo-archive backup auto-sync failed: database is locked",
+			"neoarchive backup auto-sync failed: database is locked",
 		);
 		expect(listDmConversationsMock).toHaveBeenCalled();
 		expect(consoleLogMock).toHaveBeenCalledWith(
@@ -3548,7 +3556,7 @@ describe("cli", () => {
 	it("streams digest commands as markdown and json", async () => {
 		const stdoutWriteMock = vi
 			.spyOn(process.stdout, "write")
-			.mockImplementation(() => true);
+			.mockImplementation(captureStdout);
 		streamPeriodDigestMock.mockImplementation(
 			async (
 				_options: unknown,
@@ -3698,7 +3706,7 @@ describe("cli", () => {
 	it("streams keyword discussions as markdown and json", async () => {
 		const stdoutWriteMock = vi
 			.spyOn(process.stdout, "write")
-			.mockImplementation(() => true);
+			.mockImplementation(captureStdout);
 		streamSearchDiscussionMock.mockImplementation(
 			async (
 				_options: unknown,

@@ -4,8 +4,8 @@ Neo Archive keeps followers/following in local SQLite and makes graph queries ca
 
 ## Safety Contract
 
-- `neo-archive graph *` commands never call X.
-- `neo-archive sync followers` and `neo-archive sync following` default to dry-run.
+- `neoarchive graph *` commands never call X.
+- `neoarchive sync followers` and `neoarchive sync following` default to dry-run.
 - Live sync requires `--yes`.
 - `--mode auto` prefers `bird` and falls back to `xurl`; use `--mode xurl` only when the OAuth2 follow endpoints work for the account.
 - Fresh sync cache is reused unless `--refresh` is passed.
@@ -16,8 +16,8 @@ Neo Archive keeps followers/following in local SQLite and makes graph queries ca
 ## Setup
 
 ```bash
-neo-archive init
-neo-archive auth status --json
+neoarchive init
+neoarchive auth status --json
 ```
 
 The default account comes from the local Neo Archive account table. Pass `--account <accountId>` when working with a non-default account.
@@ -27,8 +27,8 @@ The default account comes from the local Neo Archive account table. Pass `--acco
 Always run dry-run first:
 
 ```bash
-neo-archive sync followers --json
-neo-archive sync following --json
+neoarchive sync followers --json
+neoarchive sync following --json
 ```
 
 Dry-run output reports the cache key, whether a fresh cache exists, the page size, caps, and whether a live request would be needed.
@@ -38,22 +38,22 @@ Dry-run output reports the cache key, whether a fresh cache exists, the page siz
 Full refresh:
 
 ```bash
-neo-archive sync followers --yes --json
-neo-archive sync following --yes --json
+neoarchive sync followers --yes --json
+neoarchive sync following --yes --json
 ```
 
 Force a transport only when debugging:
 
 ```bash
-neo-archive sync followers --mode bird --yes --json
-neo-archive sync followers --mode xurl --yes --json
+neoarchive sync followers --mode bird --yes --json
+neoarchive sync followers --mode xurl --yes --json
 ```
 
 Capped refresh for cheaper inspection:
 
 ```bash
-neo-archive sync followers --yes --max-pages 1 --allow-partial --json
-neo-archive sync following --yes --max-pages 1 --allow-partial --json
+neoarchive sync followers --yes --max-pages 1 --allow-partial --json
+neoarchive sync following --yes --max-pages 1 --allow-partial --json
 ```
 
 Capped syncs are recorded as incomplete snapshots for audit, but they are not used to create churn events or update current edges. `--allow-partial` acknowledges that expected warning; it is not a persistence gate.
@@ -61,13 +61,13 @@ Capped syncs are recorded as incomplete snapshots for audit, but they are not us
 Repeat runs with the same account, page size, and caps reuse fresh cache:
 
 ```bash
-neo-archive sync followers --yes --json
+neoarchive sync followers --yes --json
 ```
 
 Force a new live fetch only when needed:
 
 ```bash
-neo-archive sync followers --yes --refresh --json
+neoarchive sync followers --yes --refresh --json
 ```
 
 ## Agent Query Commands
@@ -75,17 +75,17 @@ neo-archive sync followers --yes --refresh --json
 After at least one complete follower and following snapshot, agents can query locally:
 
 ```bash
-neo-archive graph summary --json
-neo-archive graph events --since 2026-05-01 --json
-neo-archive graph top-followers --limit 20 --json
-neo-archive graph non-mutual-following --sort followers --limit 100 --json
-neo-archive graph mutuals --json
-neo-archive graph unfollowed --date 2026-05-01 --json
+neoarchive graph summary --json
+neoarchive graph events --since 2026-05-01 --json
+neoarchive graph top-followers --limit 20 --json
+neoarchive graph non-mutual-following --sort followers --limit 100 --json
+neoarchive graph mutuals --json
+neoarchive graph unfollowed --date 2026-05-01 --json
 ```
 
 Recommended agent order:
 
-1. Run `neo-archive graph summary --json`.
+1. Run `neoarchive graph summary --json`.
 2. If counts are zero or snapshots are stale, ask for a human-approved `sync followers --yes` and `sync following --yes`.
 3. Run only `graph` commands for analysis.
 4. Do not pass `--refresh` unless the user explicitly asks to spend live reads.

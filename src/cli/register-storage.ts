@@ -85,7 +85,7 @@ export function registerStorageCommands({
 		.option(
 			"--message <message>",
 			"Git commit message",
-			"archive: sync neo-archive backup",
+			"archive: sync neoarchive backup",
 		)
 		.action(async (options) => {
 			const result = await syncBackup({

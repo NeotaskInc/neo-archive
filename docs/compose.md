@@ -8,9 +8,9 @@ description: "Post tweets, reply to tweets, and reply to DMs from the CLI or web
 Three verbs cover everything you can publish: `post`, `reply`, and `dm`.
 
 ```bash
-neo-archive compose post "Ship local software."
-neo-archive compose reply tweet_004 "On it."
-neo-archive compose dm dm_003 "Send it over."
+neoarchive compose post "Ship local software."
+neoarchive compose reply tweet_004 "On it."
+neoarchive compose dm dm_003 "Send it over."
 ```
 
 All three use the active live transport (`auto` by default — `xurl` first, `bird` second). They never touch SQLite when the live call fails, so a failed publish does not leave a half-state row behind.
@@ -20,8 +20,8 @@ All three use the active live transport (`auto` by default — `xurl` first, `bi
 Post a new tweet on the active account.
 
 ```bash
-neo-archive compose post "Ship local software."
-neo-archive compose post --account acct_primary "Multi-account post."
+neoarchive compose post "Ship local software."
+neoarchive compose post --account acct_primary "Multi-account post."
 ```
 
 Flags:
@@ -37,8 +37,8 @@ Flags:
 Reply to an existing tweet by ID.
 
 ```bash
-neo-archive compose reply 1891234567890 "On it."
-neo-archive compose reply tweet_004 "Already shipped."
+neoarchive compose reply 1891234567890 "On it."
+neoarchive compose reply tweet_004 "Already shipped."
 ```
 
 The `<tweet-id>` argument accepts:
@@ -52,8 +52,8 @@ The `<tweet-id>` argument accepts:
 Reply within an existing DM conversation by conversation ID.
 
 ```bash
-neo-archive compose dm dm_003 "Send it over."
-neo-archive compose dm dm_004 --account acct_primary "Sounds good."
+neoarchive compose dm dm_003 "Send it over."
+neoarchive compose dm dm_004 --account acct_primary "Sounds good."
 ```
 
 `compose dm` resolves the conversation, picks the right transport (`bird` is preferred for DM writes because OAuth2 DM scopes are flaky), and merges the sent message back into the local DM tables.
@@ -66,7 +66,7 @@ Set `NEO_ARCHIVE_DISABLE_LIVE_WRITES=1` to make every compose verb a dry-run reg
 
 ```bash
 export NEO_ARCHIVE_DISABLE_LIVE_WRITES=1
-neo-archive compose post "this will not actually post"
+neoarchive compose post "this will not actually post"
 ```
 
 The command still validates the payload and prints what *would* have been sent.

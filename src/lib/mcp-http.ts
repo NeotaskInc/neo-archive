@@ -108,7 +108,7 @@ function resolveMcpAccount(
 		throw new Error(
 			selector
 				? "NEO_ARCHIVE_MCP_ACCOUNT does not match a local Neo Archive account"
-				: "Neo Archive MCP requires an initialized database with a local account; run neo-archive init/import first",
+				: "Neo Archive MCP requires an initialized database with a local account; run neoarchive init/import first",
 		);
 	}
 	assertValidMcpAccountScope(row);

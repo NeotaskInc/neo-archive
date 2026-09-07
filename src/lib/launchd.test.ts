@@ -69,7 +69,7 @@ describe("launchd runtime", () => {
 		expect(() =>
 			buildLaunchProgramArguments({
 				runtime: "/tmp/bun",
-				program: "neo-archive",
+				program: "neoarchive",
 				args: [],
 			}),
 		).toThrow("program must be an absolute path");
@@ -97,7 +97,7 @@ describe("launchd runtime", () => {
 			logPath: "~/neo-archive/audit.jsonl",
 			stdoutPath: "~/neo-archive/out.log",
 			stderrPath: "~/neo-archive/err.log",
-			programArguments: ["/usr/bin/env", "neo-archive", "<sync>"],
+			programArguments: ["/usr/bin/env", "neoarchive", "<sync>"],
 		});
 
 		expect(agent.plist).toContain("com.example.sync&amp;test");
@@ -119,7 +119,7 @@ describe("launchd runtime", () => {
 			logPath: path.join(launchAgentsDir, "logs", "audit.jsonl"),
 			stdoutPath: path.join(launchAgentsDir, "logs", "out.log"),
 			stderrPath: path.join(launchAgentsDir, "logs", "err.log"),
-			programArguments: ["/usr/bin/env", "neo-archive"],
+			programArguments: ["/usr/bin/env", "neoarchive"],
 		});
 		execFileMock.mockImplementation((...args: unknown[]) => {
 			const commandArgs = args[1] as string[];

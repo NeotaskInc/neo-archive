@@ -128,7 +128,7 @@ describe("account sync job", () => {
 
 		expect(agent.programArguments.slice(0, 2)).toEqual([
 			"/usr/bin/env",
-			"neo-archive",
+			"neoarchive",
 		]);
 		expect(agent.programArguments).not.toContain("--refresh");
 		expect(agent.programArguments).toContain("--cache-ttl");

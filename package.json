@@ -10,7 +10,8 @@
 		"url": "git+https://github.com/NeotaskInc/neo-archive.git"
 	},
 	"bin": {
-		"neo-archive": "bin/neo-archive.mjs"
+		"neo-archive": "bin/neo-archive.mjs",
+		"neoarchive": "bin/neo-archive.mjs"
 	},
 	"files": [
 		"bin/",

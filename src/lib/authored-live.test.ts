@@ -828,7 +828,7 @@ describe("live authored tweet sync", () => {
 				| undefined;
 			expect(requestOptions?.sinceId).toBeUndefined();
 			expect(stderr).toHaveBeenCalledWith(
-				"neo-archive sync authored: no archive baseline found; starting a full backwards scan",
+				"neoarchive sync authored: no archive baseline found; starting a full backwards scan",
 			);
 		} finally {
 			stderr.mockRestore();
@@ -920,7 +920,7 @@ describe("live authored tweet sync", () => {
 				| undefined;
 			expect(requestOptions?.sinceId).toBeUndefined();
 			expect(stderr).toHaveBeenCalledWith(
-				"neo-archive sync authored: no archive baseline found; starting a full backwards scan",
+				"neoarchive sync authored: no archive baseline found; starting a full backwards scan",
 			);
 		} finally {
 			stderr.mockRestore();

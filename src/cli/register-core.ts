@@ -197,11 +197,11 @@ export function registerCoreCommands({
 					mediaThumbsDir: paths.mediaThumbsDir,
 					nextSteps: options.demo
 						? [
-								"neo-archive search tweets --limit 5",
-								"neo-archive dms list --limit 5",
-								"neo-archive serve",
+								"neoarchive search tweets --limit 5",
+								"neoarchive dms list --limit 5",
+								"neoarchive serve",
 							]
-						: ["neo-archive import archive <path>", "neo-archive init --demo"],
+						: ["neoarchive import archive <path>", "neoarchive init --demo"],
 				},
 				asJson(),
 			);

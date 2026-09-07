@@ -8,11 +8,11 @@ description: "Explicitly import public tweets, threads, conversations, profiles,
 Neo Archive can import selected public X data through FxTwitter without X credentials. This transport is off by default and runs only when `--fxtwitter` is present on that invocation:
 
 ```bash
-neo-archive import tweet 20 2030857479001960633 --fxtwitter --json
-neo-archive import thread 2030857479001960633 --fxtwitter --json
-neo-archive import conversation 2030857479001960633 --fxtwitter --limit 200 --json
-neo-archive import profile @jack --fxtwitter --json
-neo-archive search tweets "local-first software" --fxtwitter --limit 50 --max-pages 3 --json
+neoarchive import tweet 20 2030857479001960633 --fxtwitter --json
+neoarchive import thread 2030857479001960633 --fxtwitter --json
+neoarchive import conversation 2030857479001960633 --fxtwitter --limit 200 --json
+neoarchive import profile @jack --fxtwitter --json
+neoarchive search tweets "local-first software" --fxtwitter --limit 50 --max-pages 3 --json
 ```
 
 Tweet inputs must be numeric IDs or canonical HTTPS `x.com/<handle>/status/<id>` or `twitter.com/<handle>/status/<id>` URLs. Profile lookup accepts a public handle. Search accepts a non-empty query and the `latest`, `top`, or `media` feed.

@@ -14,7 +14,7 @@ Neo Archive is a local-first Twitter memory and operator console. The durable lo
 - Local reads never trigger surprise network traffic by default.
 - Manual sync remains available everywhere a live collection is shown.
 - Periodic web sync may be opt-in when it has a five-minute minimum, visible state, overlap protection, failure backoff, and no work from hidden pages.
-- Browser scheduling is convenience while a page is mounted. Durable unattended refresh belongs to `neo-archive jobs`, with locks and audit logs.
+- Browser scheduling is convenience while a page is mounted. Durable unattended refresh belongs to `neoarchive jobs`, with locks and audit logs.
 - Live writes stay explicit, account-scoped, and transport-aware.
 
 The spec's automatic `serve` sync direction therefore means user-enabled, bounded refresh rather than an unobservable polling loop.

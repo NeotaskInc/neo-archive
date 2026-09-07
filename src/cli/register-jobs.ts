@@ -66,8 +66,8 @@ export function registerJobCommands({
 		.option("--interval-seconds <seconds>", "Launch interval", "1800")
 		.option(
 			"--program <path>",
-			"neo-archive executable or source entry",
-			"neo-archive",
+			"neoarchive executable or source entry",
+			"neoarchive",
 		)
 		.option("--runtime <absolute-path>", "Runtime executable for --program")
 		.option(
@@ -161,8 +161,8 @@ export function registerJobCommands({
 		.option("--interval-seconds <seconds>", "Launch interval", "10800")
 		.option(
 			"--program <path>",
-			"neo-archive executable or source entry",
-			"neo-archive",
+			"neoarchive executable or source entry",
+			"neoarchive",
 		)
 		.option("--runtime <absolute-path>", "Runtime executable for --program")
 		.option(

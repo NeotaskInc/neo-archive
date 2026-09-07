@@ -2,7 +2,7 @@
 
 Neo Archive keeps X archives, bookmarks, likes, posts, and imported messages in a local searchable SQLite database. It is Neotask's fork of [Peter Steinberger's Birdclaw](https://github.com/steipete/birdclaw), adapted for multiaccount research and the developer Flywheel.
 
-The command is `neo-archive`. Local data lives in `~/.neo-archive`, and the agent skill is named `neo-archive`. This repository contains source code; account archives and credentials stay outside it.
+The command is `neoarchive`; `neo-archive` remains a compatibility alias. Local data lives in `~/.neo-archive`, and the agent skill is named `neo-archive`. This repository contains source code; account archives and credentials stay outside it.
 
 ## Local setup
 
@@ -12,7 +12,7 @@ Clone `NeotaskInc/neo-archive`, then run:
 ./scripts/bun-canary.sh install --frozen-lockfile
 ./scripts/bun-canary.sh run --bun build
 python3 scripts/install-local.py
-neo-archive --json init
+neoarchive --json init
 ```
 
 The checked-in installer verifies and uses a project-local Bun runtime. It does not change the system Node or Bun default. Node users can use the version range in `package.json` and the `*:node` scripts. Neo Archive installs from source (`private: true` in package metadata); no npm release is configured.
@@ -24,19 +24,19 @@ The local installer exposes the CLI in `~/.local/bin` and the rewritten develope
 Import each account's downloaded X archive to establish its local identity:
 
 ```sh
-neo-archive import archive /path/to/first-account-archive.zip --account FIRST_HANDLE
-neo-archive import archive /path/to/second-account-archive.zip --account SECOND_HANDLE
-neo-archive --json db stats
+neoarchive import archive /path/to/first-account-archive.zip --account FIRST_HANDLE
+neoarchive import archive /path/to/second-account-archive.zip --account SECOND_HANDLE
+neoarchive --json db stats
 ```
 
 Use the [authentication guide](docs/auth.md) to register your X developer app with `xurl` and authorize each account. Confirm each selected identity before its first live sync. Archive import and live authentication are separate steps.
 
 ```sh
-neo-archive sync bookmarks --account HANDLE --mode xurl --all
-neo-archive sync likes --account HANDLE --mode xurl --all
-neo-archive --json search tweets "agent tools" --bookmarked --all-accounts
-neo-archive --json search tweets "agent tools" --liked --all-accounts
-neo-archive --json search dms "agent tools"
+neoarchive sync bookmarks --account HANDLE --mode xurl --all
+neoarchive sync likes --account HANDLE --mode xurl --all
+neoarchive --json search tweets "agent tools" --bookmarked --all-accounts
+neoarchive --json search tweets "agent tools" --liked --all-accounts
+neoarchive --json search dms "agent tools"
 ```
 
 `--all-accounts` overrides a configured default account for tweet search. Use `--account HANDLE` to narrow it. Search bookmarks and likes separately to match either collection; combining the flags requires both. All-account results deduplicate posts and show a representative matching account. Repeat a search for each account when you need every saving account's provenance.
@@ -59,5 +59,7 @@ Use the workspace Flywheel guidance and [Neo Archive skill](.agents/skills/neo-a
 ./scripts/bun-canary.sh run --bun check
 ./scripts/bun-canary.sh run --bun test --maxWorkers=4
 ```
+
+The [XF comparison](docs/benchmarks/2026-09-07-xf.md) records the Rust/TypeScript search benchmark and its limits.
 
 Inherited documentation under `docs/` describes the existing command capabilities. Historical release notes and the MIT license retain upstream attribution. The inherited Pages and Homebrew publication jobs are restricted to the upstream repository; configure Neotask publication separately if needed.

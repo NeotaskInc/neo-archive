@@ -6,7 +6,7 @@ description: "Expose cached tweets to agents through a secured, read-only MCP en
 # MCP server
 
 Neo Archive can serve its web app and an adapter-owned Streamable HTTP MCP endpoint
-from the same `neo-archive serve` process. The endpoint is exactly `/mcp`; it stays
+from the same `neoarchive serve` process. The endpoint is exactly `/mcp`; it stays
 disabled until both MCP security settings are present. The production adapter
 requires a loopback TCP peer, so a same-host private proxy can reach MCP but a
 direct LAN or internet connection to the origin cannot.
@@ -33,11 +33,11 @@ take actions or follow links.
 
 Initialize or import Neo Archive before enabling MCP. MCP startup opens an existing
 initialized database and requires the current schema; it never creates, seeds,
-or migrates the database. Run a trusted CLI command such as `neo-archive init` or
+or migrates the database. Run a trusted CLI command such as `neoarchive init` or
 an archive/backup import first, then confirm it succeeds:
 
 ```bash
-neo-archive --json db stats
+neoarchive --json db stats
 ```
 
 Upgrade the database with the normal trusted CLI before restarting a newer MCP
@@ -56,7 +56,7 @@ Set the secret and exact public MCP URL in the server environment:
 ```bash
 export NEO_ARCHIVE_MCP_TOKEN=$(openssl rand -base64 32)
 export NEO_ARCHIVE_MCP_PUBLIC_URL='http://127.0.0.1:3000/mcp'
-neo-archive serve
+neoarchive serve
 ```
 
 `NEO_ARCHIVE_MCP_TOKEN` must be at least 32 bytes, use RFC 6750 bearer-token
@@ -98,7 +98,7 @@ the proxy must enforce the same deny-by-default rule. Do not serve the web UI or
 or public interface.
 
 When neither MCP setting is present, MCP is disabled. If MCP is configured but
-its token, URL, account, or database fails validation, `neo-archive serve` refuses
+its token, URL, account, or database fails validation, `neoarchive serve` refuses
 to start and reports the invalid setting.
 
 ## Connect a client
@@ -110,7 +110,7 @@ Codex, either add the local endpoint from the CLI:
 codex mcp add neo-archive \
   --url http://127.0.0.1:3000/mcp \
   --bearer-token-env-var NEO_ARCHIVE_MCP_TOKEN
-codex mcp get neo-archive --json
+codex mcp get neoarchive --json
 ```
 
 Or add the server to `~/.codex/config.toml`:

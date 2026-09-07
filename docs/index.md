@@ -6,33 +6,33 @@ description: "neo-archive is a local-first Twitter workspace: archive import, ca
 
 ## Try it
 
-After [installing](install.md) and running [`neo-archive init`](quickstart.md), every workflow is a one-liner.
+After [installing](install.md) and running [`neoarchive init`](quickstart.md), every workflow is a one-liner.
 
 ```bash
 # Find and import your Twitter archive (auto-discovered on macOS).
-neo-archive archive find --json
-neo-archive import archive --json
-neo-archive import archive ~/Downloads/twitter-archive.zip --select likes,bookmarks --json
+neoarchive archive find --json
+neoarchive import archive --json
+neoarchive import archive ~/Downloads/twitter-archive.zip --select likes,bookmarks --json
 
 # Explicitly import named public tweets through the third-party FxTwitter service.
-neo-archive import tweet 20 --fxtwitter --json
+neoarchive import tweet 20 --fxtwitter --json
 
 # Pull in mentions, likes, bookmarks, and the home timeline.
-neo-archive sync timeline --limit 100 --refresh --json
-neo-archive sync bookmarks --mode auto --all --json
+neoarchive sync timeline --limit 100 --refresh --json
+neoarchive sync bookmarks --mode auto --all --json
 
 # Search every tweet you've ever liked, locally, with FTS5.
-neo-archive search tweets "local-first" --json
-neo-archive search tweets --bookmarked --hide-low-quality --limit 100 --json
+neoarchive search tweets "local-first" --json
+neoarchive search tweets --bookmarked --hide-low-quality --limit 100 --json
 
 # Triage with AI ranking and reply from the CLI.
-neo-archive inbox --score --hide-low-signal --limit 8 --json
-neo-archive compose reply 1891234567890 "On it."
+neoarchive inbox --score --hide-low-signal --limit 8 --json
+neoarchive compose reply 1891234567890 "On it."
 
 # Stream a local "what happened" digest.
-neo-archive today
-neo-archive today --language zh-CN
-neo-archive digest week --json
+neoarchive today
+neoarchive today --language zh-CN
+neoarchive digest week --json
 ```
 
 Stable `--json` envelopes go to stdout, progress and warnings to stderr — pipes stay parseable.

@@ -52,7 +52,7 @@ export function shellQuote(value: string) {
 }
 
 export function buildLaunchProgramArguments({
-	program = "neo-archive",
+	program = "neoarchive",
 	args,
 	envFile,
 	runtime,

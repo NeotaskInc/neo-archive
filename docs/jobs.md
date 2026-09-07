@@ -5,14 +5,14 @@ description: "Scheduler-friendly bookmark sync with launchd integration, audit l
 
 # Jobs
 
-`neo-archive jobs` is the scheduler-friendly subset of sync: short defaults, JSONL audit logs, lock files to prevent overlap, and launchd installers for macOS.
+`neoarchive jobs` is the scheduler-friendly subset of sync: short defaults, JSONL audit logs, lock files to prevent overlap, and launchd installers for macOS.
 
 Both LaunchAgent installers accept `--interval-seconds <seconds>` as a positive safe integer. Zero, negative, fractional, non-numeric, and unsafe values exit nonzero before writing a plist. Existing numeric spellings such as `1e3` (1,000 seconds) and `0x10` (16 seconds) remain accepted.
 
 ## `jobs sync-account`
 
 ```bash
-neo-archive --json jobs sync-account --account acct_openclaw --limit 100 --max-pages 3 --refresh --allow-bird-account
+neoarchive --json jobs sync-account --account acct_openclaw --limit 100 --max-pages 3 --refresh --allow-bird-account
 ```
 
 What it does:
@@ -26,7 +26,7 @@ What it does:
 Install the LaunchAgent:
 
 ```bash
-neo-archive --json jobs install-account-launchd --account acct_openclaw --program /opt/homebrew/bin/neo-archive --env-path ~/.config/bird/openclaw.env --allow-bird-account
+neoarchive --json jobs install-account-launchd --account acct_openclaw --program /opt/homebrew/bin/neoarchive --env-path ~/.config/bird/openclaw.env --allow-bird-account
 ```
 
 The default interval is 1,800 seconds (30 minutes). Use `--steps timeline,mentions,dms` for a narrower job, or `--env-path ~/.config/bird/openclaw.env` when launchd needs account cookies. Pass `--allow-bird-account` only when the sourced cookies match `--account`; without it, Bird-backed timeline, mentions, and `--mode bird` DM steps refuse non-default account writes.
@@ -34,7 +34,7 @@ The default interval is 1,800 seconds (30 minutes). Use `--steps timeline,mentio
 ## `jobs sync-bookmarks`
 
 ```bash
-neo-archive --json jobs sync-bookmarks --mode auto --limit 100 --max-pages 5 --refresh
+neoarchive --json jobs sync-bookmarks --mode auto --limit 100 --max-pages 5 --refresh
 ```
 
 What it does:
@@ -73,7 +73,7 @@ After a successful refresh, the job runs the normal backup auto-sync path. If `~
 macOS only. Writes a LaunchAgent plist that runs `jobs sync-bookmarks` every 3 hours.
 
 ```bash
-neo-archive --json jobs install-bookmarks-launchd --program /opt/homebrew/bin/neo-archive
+neoarchive --json jobs install-bookmarks-launchd --program /opt/homebrew/bin/neoarchive
 ```
 
 A source checkout can pin both the runtime and program in the plist instead of relying on launchd's limited `PATH`:
@@ -96,7 +96,7 @@ What it writes:
 
 Flags:
 
-- `--program <path>` — `neo-archive` executable, or an absolute source launcher when `--runtime` is set
+- `--program <path>` — `neoarchive` executable, or an absolute source launcher when `--runtime` is set
 - `--runtime <absolute-path>` — invoke `--program` through this exact runtime rather than its shebang
 - `--runtime-arg <value>` — repeatable runtime argument; Bun source jobs should pass `--runtime-arg=--no-env-file`
 - `--env-path <path>` — source an export-only shell env file inside the scheduled process
@@ -118,8 +118,8 @@ export CT0="..."
 SH
 chmod 600 ~/.config/bird/env.sh
 
-neo-archive --json jobs install-bookmarks-launchd \
-  --program /opt/homebrew/bin/neo-archive \
+neoarchive --json jobs install-bookmarks-launchd \
+  --program /opt/homebrew/bin/neoarchive \
   --env-path ~/.config/bird/env.sh
 ```
 
@@ -153,7 +153,7 @@ Linux is not yet a first-class target for `jobs install-*`. For now, run `jobs s
 Example crontab:
 
 ```text
-0 */3 * * * /usr/local/bin/neo-archive --json jobs sync-bookmarks --mode auto --max-pages 5 --refresh >> ~/.neo-archive/logs/cron.log 2>&1
+0 */3 * * * /usr/local/bin/neoarchive --json jobs sync-bookmarks --mode auto --max-pages 5 --refresh >> ~/.neo-archive/logs/cron.log 2>&1
 ```
 
 ## See also

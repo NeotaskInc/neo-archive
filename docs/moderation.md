@@ -12,12 +12,12 @@ All commands accept `--account <id>` to pick an account when more than one is co
 ## Blocks
 
 ```bash
-neo-archive blocks list --account acct_primary --json
-neo-archive blocks add @amelia --account acct_primary --json
-neo-archive blocks remove @amelia --account acct_primary --json
-neo-archive blocks record @amelia --account acct_primary --json
-neo-archive blocks sync --account acct_primary --json
-neo-archive blocks import ~/triage/blocklist.txt --account acct_primary --json
+neoarchive blocks list --account acct_primary --json
+neoarchive blocks add @amelia --account acct_primary --json
+neoarchive blocks remove @amelia --account acct_primary --json
+neoarchive blocks record @amelia --account acct_primary --json
+neoarchive blocks sync --account acct_primary --json
+neoarchive blocks import ~/triage/blocklist.txt --account acct_primary --json
 ```
 
 ### `blocks add`
@@ -40,7 +40,7 @@ Mirror of `blocks add`. Removes the local block and attempts a live unblock thro
 ### `blocks record`
 
 ```bash
-neo-archive blocks record @amelia --account acct_primary --json
+neoarchive blocks record @amelia --account acct_primary --json
 ```
 
 Records a known-good remote block locally **without** issuing another live write. Useful when:
@@ -57,7 +57,7 @@ Slow / manual remote reconciliation. Walks the live block list (when transport a
 Bulk import a blocklist file. Reads newline-delimited handles, IDs, or Twitter URLs.
 
 ```bash
-neo-archive blocks import ~/triage/blocklist.txt --account acct_primary --json
+neoarchive blocks import ~/triage/blocklist.txt --account acct_primary --json
 ```
 
 Tolerates:
@@ -82,8 +82,8 @@ Per-entry success/failure shows up in the `--json` output so you can grep failur
 ## ban / unban (shorthand)
 
 ```bash
-neo-archive ban @amelia --account acct_primary --transport auto --json
-neo-archive unban @amelia --account acct_primary --transport bird --json
+neoarchive ban @amelia --account acct_primary --transport auto --json
+neoarchive unban @amelia --account acct_primary --transport bird --json
 ```
 
 `ban` / `unban` are aliases for `blocks add` / `blocks remove` with one extra knob: `--transport`.
@@ -95,10 +95,10 @@ neo-archive unban @amelia --account acct_primary --transport bird --json
 ## Mutes
 
 ```bash
-neo-archive mutes list --account acct_primary --json
-neo-archive mute @amelia --account acct_primary --transport xurl --json
-neo-archive unmute @amelia --account acct_primary --transport auto --json
-neo-archive mutes record @amelia --account acct_primary --json
+neoarchive mutes list --account acct_primary --json
+neoarchive mute @amelia --account acct_primary --transport xurl --json
+neoarchive unmute @amelia --account acct_primary --transport auto --json
+neoarchive mutes record @amelia --account acct_primary --json
 ```
 
 Same model as blocks, with one resolution detail: `mute` and `unmute` prefer `bird user --json` for target resolution before falling back to `xurl /2/users`. This is faster and avoids burning an `xurl` user lookup for accounts you can already see in `bird`.

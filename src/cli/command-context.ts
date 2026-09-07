@@ -1,4 +1,6 @@
 import type { Command } from "commander";
+import { print } from "./output";
+export { print } from "./output";
 import {
 	resolveOperationAccount,
 	type OperationAccount,
@@ -98,14 +100,6 @@ export function configureOperationAccountSelection(program: Command) {
 	program.hook("postAction", resetOperationAccountSelection);
 }
 
-export function print(data: unknown, asJson: boolean) {
-	if (asJson) {
-		console.log(JSON.stringify(data, null, 2));
-		return;
-	}
-	console.log(data);
-}
-
 export function printError(error: string) {
 	console.error(JSON.stringify({ error }));
 }
@@ -197,12 +191,10 @@ async function autoUpdateBeforeRead() {
 	try {
 		const result = await maybeAutoUpdateBackup();
 		if (!result.ok) {
-			console.error(`neo-archive backup auto-sync failed: ${result.error}`);
+			console.error(`neoarchive backup auto-sync failed: ${result.error}`);
 		}
 	} catch (error) {
-		console.error(
-			`neo-archive backup auto-sync failed: ${errorMessage(error)}`,
-		);
+		console.error(`neoarchive backup auto-sync failed: ${errorMessage(error)}`);
 	}
 }
 
@@ -210,10 +202,10 @@ async function autoSyncAfterWrite() {
 	try {
 		const result = await maybeAutoSyncBackup();
 		if (!result.ok) {
-			console.error(`neo-archive backup sync failed: ${result.error}`);
+			console.error(`neoarchive backup sync failed: ${result.error}`);
 		}
 	} catch (error) {
-		console.error(`neo-archive backup sync failed: ${errorMessage(error)}`);
+		console.error(`neoarchive backup sync failed: ${errorMessage(error)}`);
 	}
 }
 

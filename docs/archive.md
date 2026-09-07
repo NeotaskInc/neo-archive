@@ -5,7 +5,7 @@ description: "Import a Twitter/X archive into local SQLite — autodiscovery, se
 
 # Archive import
 
-`neo-archive import archive` parses a Twitter/X archive ZIP and writes everything into the canonical SQLite tables: tweets, likes, bookmarks, profiles, followers/following edges, DMs, bundled media files, and (when present) blocklists.
+`neoarchive import archive` parses a Twitter/X archive ZIP and writes everything into the canonical SQLite tables: tweets, likes, bookmarks, profiles, followers/following edges, DMs, bundled media files, and (when present) blocklists.
 
 It is **idempotent and merge-safe**. Re-running on the same archive does not produce duplicates, and importing a newer or incomplete archive preserves destination-only rows by default.
 
@@ -30,7 +30,7 @@ The archive is a point-in-time snapshot. You can request a fresh one later and u
 On macOS, archives are autodiscovered via Spotlight (`mdfind`) plus name heuristics borrowed from Sweetistics:
 
 ```bash
-neo-archive archive find --json
+neoarchive archive find --json
 ```
 
 This searches `~/Downloads` first, then runs an `mdfind` pass under `$HOME` for files matching `twitter-*.zip`, `x-*.zip`, and `*archive*.zip`.
@@ -40,8 +40,8 @@ The result lists every plausible candidate so you can confirm before importing.
 ## Import
 
 ```bash
-neo-archive import archive --json
-neo-archive import archive ~/Downloads/twitter-archive-2025.zip --json
+neoarchive import archive --json
+neoarchive import archive ~/Downloads/twitter-archive-2025.zip --json
 ```
 
 Flags:
@@ -61,10 +61,10 @@ Accepted DM aliases:
 Examples:
 
 ```bash
-neo-archive import archive ~/Downloads/twitter-archive.zip --select tweets,directMessages
-neo-archive import archive ~/Downloads/twitter-archive.zip --select likes,bookmarks --json
-neo-archive import archive ~/Downloads/twitter-archive.zip --select dms --json
-neo-archive import archive ~/Downloads/twitter-archive.zip --restore --json
+neoarchive import archive ~/Downloads/twitter-archive.zip --select tweets,directMessages
+neoarchive import archive ~/Downloads/twitter-archive.zip --select likes,bookmarks --json
+neoarchive import archive ~/Downloads/twitter-archive.zip --select dms --json
+neoarchive import archive ~/Downloads/twitter-archive.zip --restore --json
 ```
 
 Use `--select profiles` when you want archive profile metadata refreshed. When selecting only tweets, likes, bookmarks, DMs, followers, or following, neo-archive preserves compatible existing profile rows and only inserts missing stubs needed for references.
@@ -95,19 +95,19 @@ Typical targeted re-imports:
 
 ```bash
 # New archive has fresher original tweets, but keep live likes/bookmarks.
-neo-archive import archive ~/Downloads/twitter-archive.zip --select tweets --json
+neoarchive import archive ~/Downloads/twitter-archive.zip --select tweets --json
 
 # Refresh saved-post collections without touching DMs or follow graph.
-neo-archive import archive ~/Downloads/twitter-archive.zip --select likes,bookmarks --json
+neoarchive import archive ~/Downloads/twitter-archive.zip --select likes,bookmarks --json
 
 # Rebuild DM search after downloading a newer archive.
-neo-archive import archive ~/Downloads/twitter-archive.zip --select directMessages --json
+neoarchive import archive ~/Downloads/twitter-archive.zip --select directMessages --json
 
 # Refresh archive follow graph only.
-neo-archive import archive ~/Downloads/twitter-archive.zip --select followers,following --json
+neoarchive import archive ~/Downloads/twitter-archive.zip --select followers,following --json
 
 # Deliberately replace only the archive-owned tweet slice.
-neo-archive import archive ~/Downloads/twitter-archive.zip --select tweets --restore --json
+neoarchive import archive ~/Downloads/twitter-archive.zip --select tweets --restore --json
 ```
 
 ## Deletions and edit history
@@ -142,7 +142,7 @@ Archive ZIPs ship the actual image and video files for every media kind X export
 
 Archive tweet rows ship `extended_entities.media[].video_info.variants[]` for every video and animated GIF. `import archive` lifts that array onto each media row's `media_json` payload so:
 
-- `neo-archive search tweets` and the local web UI can render archive video without a live call
+- `neoarchive search tweets` and the local web UI can render archive video without a live call
 - downstream live media fetchers can pick the highest-bitrate mp4 from `variants[]` rather than re-deriving the URL
 
 Bitrate, content type, and URL fields stay verbatim from the archive, so a fresh archive download replaces stale variants on re-import.
@@ -155,14 +155,14 @@ When the archive ships with `data/follower.js` and `data/following.js`, `import 
 - counts land in the archive-import result envelope under `counts.followers` and `counts.following`
 - re-importing the same archive is a no-op; switching to a fresher archive tops up new edges without treating missing relationships as ended unless `--restore` is used
 
-A fresh install with just an archive and no live transport still gets a usable [follow graph](follow-graph.md). `neo-archive graph summary`, `graph mutuals`, and `graph top-followers` all work against archive-imported edges. Live `sync followers --yes` can layer churn on top later.
+A fresh install with just an archive and no live transport still gets a usable [follow graph](follow-graph.md). `neoarchive graph summary`, `graph mutuals`, and `graph top-followers` all work against archive-imported edges. Live `sync followers --yes` can layer churn on top later.
 
 ## Hydrate profiles
 
 The archive ships with stale profile metadata (bios, follower counts, avatars from years ago). Hydrate from live Twitter when you can:
 
 ```bash
-neo-archive import hydrate-profiles --account steipete --json
+neoarchive import hydrate-profiles --account steipete --json
 ```
 
 With xurl available, this walks the imported profiles table and refreshes each entry. On large archives, that can mean hundreds or thousands of live X profile reads and may spend API credits. `--account` accepts a username or stored account ID and routes the operation through that account. In Bird-only mode, the command verifies `bird whoami`; without an explicit selection it retains the legacy seeded-account correction, while explicit selection never relabels another stored identity. Without a live transport, hydration is a no-op and the archive's snapshot stays.
@@ -173,16 +173,16 @@ Avatars are written to `~/.neo-archive/media/thumbs/avatars/` so the web UI does
 
 After import, archive data and live data live in the same canonical tables. There is no `archive_*` shadow universe.
 
-- **Tweets** → `tweets` table, indexed by FTS5 — searchable via `neo-archive search tweets`
+- **Tweets** → `tweets` table, indexed by FTS5 — searchable via `neoarchive search tweets`
 - **Explicit deletions** → retained tweet metadata plus `tweet_subordinate_tombstones`; excluded from active timelines, search, links, and media fetches
 - **Edit history** → ordered `tweet_revisions` rows, with raw payloads only for observed revision bodies and superseded canonical rows retained outside active views
 - **Likes** → `tweets` table + a `likes` collection edge — searchable via `--liked`
 - **Bookmarks** → `tweets` table + a `bookmarks` collection edge — searchable via `--bookmarked`
-- **DMs** → `dm_conversations` and `dm_events` tables, indexed by FTS5 — searchable via `neo-archive search dms`
+- **DMs** → `dm_conversations` and `dm_events` tables, indexed by FTS5 — searchable via `neoarchive search dms`
 - **Profiles** → `profiles` table — drives @mention resolution, profile evidence, and DM influence scoring
 - **Bundled media** → files on disk under `~/.neo-archive/media/originals/archive/<kind>/<id>/<filename>` for the seven archive media kinds
 - **Video variants** → `tweets.media_json[].video_info.variants[]` carries the mp4 URL list for every archive video and animated GIF
-- **Followers/Following** → `profiles` stub rows plus current `follow_edges` rows; surfaced via `neo-archive graph *`
+- **Followers/Following** → `profiles` stub rows plus current `follow_edges` rows; surfaced via `neoarchive graph *`
 - **Affiliations** → `profile_affiliations` table when live profile hydration exposes X badge/highlighted-label organization metadata
 - **Profile history** → `profile_snapshots` table after live hydration observes profile/bio/affiliation changes
 - **Bio entities** → `profile_bio_entities` table for extracted `@handle`, domain, and company-phrase identity hints
@@ -193,9 +193,9 @@ Tweets whose archive timestamps are missing or impossible (`1970-01-01` rows) ge
 ## After import
 
 ```bash
-neo-archive db stats --json
-neo-archive search tweets "ship local software" --limit 5 --json
-neo-archive search tweets --liked --limit 20 --json
+neoarchive db stats --json
+neoarchive search tweets "ship local software" --limit 5 --json
+neoarchive search tweets --liked --limit 20 --json
 ```
 
 `db stats` prints row counts per table and the schema version so you can confirm the import landed.

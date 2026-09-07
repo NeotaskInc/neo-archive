@@ -513,7 +513,7 @@ export function syncAuthoredTweetsEffect({
 			: null;
 		if (shouldSeedFromArchive && !archiveSinceSeed) {
 			console.error(
-				"neo-archive sync authored: no archive baseline found; starting a full backwards scan",
+				"neoarchive sync authored: no archive baseline found; starting a full backwards scan",
 			);
 		}
 		const persistedUntilSinceId: string | null = usePersistedUntil

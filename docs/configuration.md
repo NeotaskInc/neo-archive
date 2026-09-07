@@ -81,8 +81,8 @@ See [Backup](backup.md). When `autoSync` is enabled, read commands pull + merge 
 | `NEO_ARCHIVE_ACTIONS_TRANSPORT`   | Override moderation action transport with `auto`, `xurl`, or `bird` for one process                                                                  |
 | `NEO_ARCHIVE_BIRD_COMMAND`        | Override the `bird` executable used by live Bird transports                                                                                          |
 | `NEO_ARCHIVE_BASH_COMMAND`        | Override the Git Bash executable used for Bird subprocess redirection on Windows                                                                     |
-| `NEO_ARCHIVE_HOST`                | Host interface for the production `neo-archive serve` listener; defaults to `127.0.0.1`                                                                 |
-| `NEO_ARCHIVE_PORT`                | Port for the production `neo-archive serve` listener; defaults to `3000`                                                                                |
+| `NEO_ARCHIVE_HOST`                | Host interface for the production `neoarchive serve` listener; defaults to `127.0.0.1`                                                                 |
+| `NEO_ARCHIVE_PORT`                | Port for the production `neoarchive serve` listener; defaults to `3000`                                                                                |
 | `NEO_ARCHIVE_ALLOWED_HOSTS`       | Comma-separated extra hostnames accepted by the source `./scripts/bun-canary.sh run --bun dev` server                                                                             |
 | `NEO_ARCHIVE_LOCAL_WEB`           | Internal local-server mode; production derives local access from the peer socket, while forwarded/proxied requests still require remote-token config |
 | `NEO_ARCHIVE_WEB_TOKEN`           | Optional app-level token for remote web API access; send as `x-neo-archive-token` or `neo_archive_token`                                                   |
@@ -104,9 +104,9 @@ See [Backup](backup.md). When `autoSync` is enabled, read commands pull + merge 
 neo-archive was built around multiple accounts in a single shared database from day one. Pass `--account <username>` (or a stored account ID) on commands that support account selection, including moderation, profile hydration, profile reply inspection, mentions, DMs, live sync, and scheduled jobs.
 
 ```bash
-neo-archive sync timeline --account HANDLE --mode xurl
-neo-archive import hydrate-profiles --account HANDLE
-neo-archive compose post --account acct_primary "Ship it."
+neoarchive sync timeline --account HANDLE --mode xurl
+neoarchive import hydrate-profiles --account HANDLE
+neoarchive compose post --account acct_primary "Ship it."
 ```
 
 For a recurring choice, set `accounts.default` in `config.json`. Explicit flags remain reversible one-command overrides. xurl can select a named OAuth2 account; Bird has one active cookie identity, so Bird-backed operations verify that identity matches the selected Neo Archive account before reading or writing.
@@ -122,7 +122,7 @@ There is no single global transport order:
 - Mentions export resolves its data source separately.
 - Moderation writes use command `--transport`, then `NEO_ARCHIVE_ACTIONS_TRANSPORT`, then `actions.transport`, then `auto`.
 
-For moderation, `auto` tries bird first and falls back to xurl. Persist that choice with `neo-archive auth use <auto|bird|xurl>`.
+For moderation, `auto` tries bird first and falls back to xurl. Persist that choice with `neoarchive auth use <auto|bird|xurl>`.
 
 ## Disabling live writes
 
@@ -130,8 +130,8 @@ For dry runs, demos, or development against a fresh archive:
 
 ```bash
 export NEO_ARCHIVE_DISABLE_LIVE_WRITES=1
-neo-archive compose post "this will not actually post"
-neo-archive blocks add @someone --account acct_primary
+neoarchive compose post "this will not actually post"
+neoarchive blocks add @someone --account acct_primary
 ```
 
 Both commands record the intent locally where applicable but skip every transport call. Tests and CI rely on this exact mechanism.

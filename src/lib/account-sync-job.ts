@@ -416,7 +416,7 @@ export async function runAccountSyncJob({
 }
 
 function buildProgramArguments({
-	program = "neo-archive",
+	program = "neoarchive",
 	runtime,
 	runtimeArgs,
 	account,

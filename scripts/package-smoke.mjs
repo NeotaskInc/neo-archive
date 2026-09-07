@@ -166,7 +166,7 @@ async function smokeRuntime({
 	if (
 		init.demo?.seeded !== true ||
 		init.demo?.counts?.accounts !== 2 ||
-		!init.nextSteps?.includes("neo-archive serve")
+		!init.nextSteps?.includes("neoarchive serve")
 	) {
 		throw new Error(
 			`${runtime.name}: installed CLI demo init failed: ${initOutput}`,
@@ -410,7 +410,7 @@ try {
 		throw new Error("Installed runtime dependencies include tsx or vite");
 	}
 	const launcher = path.join(installedRoot, "bin", "neo-archive.mjs");
-	const bin = path.join(installDir, "node_modules", ".bin", "neo-archive");
+	const bin = path.join(installDir, "node_modules", ".bin", "neoarchive");
 	const normalBinEnv = {
 		...nodeToolEnv,
 		NEO_ARCHIVE_HOME: path.join(tempRoot, "home-bin"),

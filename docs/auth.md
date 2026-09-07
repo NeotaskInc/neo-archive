@@ -44,7 +44,7 @@ Existing bird configurations continue to provide cookie-backed fallback for supp
 ## Verify xurl in neo-archive
 
 ```text
-neo-archive auth status --json
+neoarchive auth status --json
 ```
 
 `auth status` runs a coarse xurl status probe. It does not probe bird, prove that a specific X API request will succeed, or choose a transport for every command.
@@ -61,9 +61,9 @@ Use `xurl whoami` as the end-to-end authentication check. Run `xurl auth status`
 Persist the preferred transport for block, unblock, mute, and unmute:
 
 ```text
-neo-archive auth use auto
-neo-archive auth use bird
-neo-archive auth use xurl
+neoarchive auth use auto
+neoarchive auth use bird
+neoarchive auth use xurl
 ```
 
 `auto` tries bird first for moderation writes, then xurl. A command-level `--transport` flag overrides the saved value. `NEO_ARCHIVE_ACTIONS_TRANSPORT` overrides the config for one process.
@@ -71,22 +71,22 @@ neo-archive auth use xurl
 Sync commands do not use this saved moderation setting. Select their source with the command's `--mode` flag:
 
 ```text
-neo-archive sync timeline --mode auto
-neo-archive sync mentions --mode bird
-neo-archive sync likes --mode xurl
+neoarchive sync timeline --mode auto
+neoarchive sync mentions --mode bird
+neoarchive sync likes --mode xurl
 ```
 
 Select an existing Neo Archive account per operation with its username or stored ID:
 
 ```text
-neo-archive sync timeline --account steipete --mode xurl
-neo-archive import hydrate-profiles --account @steipete
-neo-archive profiles replies @someone --account steipete
+neoarchive sync timeline --account steipete --mode xurl
+neoarchive import hydrate-profiles --account @steipete
+neoarchive profiles replies @someone --account steipete
 ```
 
 With xurl, Neo Archive routes that invocation to the matching named OAuth2 account. With Bird, Neo Archive cannot switch cookie jars itself and instead refuses the operation when `bird whoami` does not match. Put `{"accounts":{"default":"steipete"}}` in `config.json` to omit the repeated flag. This selects an existing row only; it does not change the database default or persist credential identity.
 
-Supported modes differ by command; use `neo-archive sync <command> --help`.
+Supported modes differ by command; use `neoarchive sync <command> --help`.
 
 ## Security
 

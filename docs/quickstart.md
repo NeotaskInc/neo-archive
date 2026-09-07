@@ -11,7 +11,7 @@ Set up a local SQLite workspace for your tweets, DMs, likes, and bookmarks, then
 
 ```bash
 brew install steipete/tap/neo-archive
-neo-archive --version
+neoarchive --version
 ```
 
 Other install options (npm, source) are on [Install](install.md).
@@ -19,16 +19,16 @@ Other install options (npm, source) are on [Install](install.md).
 ## 2. Initialize local state
 
 ```bash
-neo-archive init
-neo-archive auth status --json
-neo-archive db stats --json
+neoarchive init
+neoarchive auth status --json
+neoarchive db stats --json
 ```
 
 `init` creates `~/.neo-archive/`, opens an empty SQLite database, and writes a default config when none exists. To explore immediately with no archive, credentials, or network access, use the self-contained demo instead:
 
 ```bash
-neo-archive init --demo
-neo-archive serve
+neoarchive init --demo
+neoarchive serve
 ```
 
 The demo includes sample tweets, DMs, profiles, and links. Its output also suggests useful read-only commands to try next.
@@ -40,23 +40,23 @@ The demo includes sample tweets, DMs, profiles, and links. Its output also sugge
 If you downloaded your Twitter/X archive from <https://x.com/settings/download_your_data>, point neo-archive at it. On macOS, autodiscovery looks in `~/Downloads` and Spotlight first.
 
 ```bash
-neo-archive archive find --json
-neo-archive import archive --json
+neoarchive archive find --json
+neoarchive import archive --json
 # or with an explicit path:
-neo-archive import archive ~/Downloads/twitter-archive-2025.zip --json
+neoarchive import archive ~/Downloads/twitter-archive-2025.zip --json
 ```
 
 Optional profile hydration through xurl fills bios, follower counts, and avatars from live Twitter metadata. It can perform hundreds or thousands of live profile reads on large archives, so run it only when you are ready to spend those X API reads. With an existing private bird installation, the command can instead correct the seeded local account identity from `bird whoami` without bulk-hydrating imported profiles:
 
 ```bash
-neo-archive import hydrate-profiles --json
+neoarchive import hydrate-profiles --json
 ```
 
 Later, when you download a newer archive, you can refresh only one stale slice without wiping live-synced or local data:
 
 ```bash
-neo-archive import archive ~/Downloads/twitter-archive-2026.zip --select likes,bookmarks --json
-neo-archive import archive ~/Downloads/twitter-archive-2026.zip --select directMessages --json
+neoarchive import archive ~/Downloads/twitter-archive-2026.zip --select likes,bookmarks --json
+neoarchive import archive ~/Downloads/twitter-archive-2026.zip --select directMessages --json
 ```
 
 Valid slices: `tweets`, `likes`, `bookmarks`, `profiles`, `directMessages`, `followers`, `following`. Use `dms` as a short alias for `directMessages`.
@@ -70,10 +70,10 @@ Run this step only after archive import has established your account.
 `auto` tries `xurl` first, then falls back to `bird`. Use `bird` directly for surfaces where the API path is rate-limited.
 
 ```bash
-neo-archive sync likes --mode auto --limit 100 --refresh --json
-neo-archive sync bookmarks --mode auto --limit 100 --refresh --json
-neo-archive sync timeline --limit 100 --refresh --json
-neo-archive sync mention-threads --limit 30 --delay-ms 1500 --json
+neoarchive sync likes --mode auto --limit 100 --refresh --json
+neoarchive sync bookmarks --mode auto --limit 100 --refresh --json
+neoarchive sync timeline --limit 100 --refresh --json
+neoarchive sync mention-threads --limit 30 --delay-ms 1500 --json
 ```
 
 Without `xurl` or `bird`, use the imported archive and local search/read workflows.
@@ -81,7 +81,7 @@ Without `xurl` or `bird`, use the imported archive and local search/read workflo
 ## 5. Start the web app
 
 ```bash
-neo-archive serve
+neoarchive serve
 ```
 
 Open <http://localhost:3000>. The default lanes:
@@ -93,37 +93,37 @@ Open <http://localhost:3000>. The default lanes:
 - **Inbox** — let heuristics or OpenAI float likely-important items
 - **Blocks** — maintain a local-first account-scoped blocklist
 
-Use the Sync button in Home, Mentions, Likes, Bookmarks, or DMs when you want fresh live data. Browser reloads only reread local SQLite; explicit sync avoids surprise live reads and rate-limit spend. Home and Mentions can optionally auto-sync per account at 5m, 10m, 15m, 30m, or 1h intervals. The setting stays in this browser, skips hidden-page runs, prevents overlap, and backs off after failures. Use [`neo-archive jobs`](jobs.md) instead when refresh must continue after the page closes.
+Use the Sync button in Home, Mentions, Likes, Bookmarks, or DMs when you want fresh live data. Browser reloads only reread local SQLite; explicit sync avoids surprise live reads and rate-limit spend. Home and Mentions can optionally auto-sync per account at 5m, 10m, 15m, 30m, or 1h intervals. The setting stays in this browser, skips hidden-page runs, prevents overlap, and backs off after failures. Use [`neoarchive jobs`](jobs.md) instead when refresh must continue after the page closes.
 
 ## 6. Run real CLI workflows
 
 Search every tweet you ever liked or bookmarked:
 
 ```bash
-neo-archive search tweets "local-first" --json
-neo-archive search tweets --liked --hide-low-quality --limit 20 --json
-neo-archive search tweets --since 2020-01-01 --until 2021-01-01 --originals-only --limit 500 --json
+neoarchive search tweets "local-first" --json
+neoarchive search tweets --liked --hide-low-quality --limit 20 --json
+neoarchive search tweets --since 2020-01-01 --until 2021-01-01 --originals-only --limit 500 --json
 ```
 
 Triage mentions for an agent:
 
 ```bash
-neo-archive mentions export "agent" --unreplied --limit 10
-neo-archive inbox --score --hide-low-signal --limit 8 --json
+neoarchive mentions export "agent" --unreplied --limit 10
+neoarchive inbox --score --hide-low-signal --limit 8 --json
 ```
 
 Bulk-block a list of obvious AI/spam accounts:
 
 ```bash
-neo-archive blocks import ~/triage/blocklist.txt --account acct_primary --json
+neoarchive blocks import ~/triage/blocklist.txt --account acct_primary --json
 ```
 
 Reply from the CLI:
 
 ```bash
-neo-archive compose post "Ship local software."
-neo-archive compose reply 1891234567890 "On it."
-neo-archive compose dm dm_003 "Send it over."
+neoarchive compose post "Ship local software."
+neoarchive compose reply 1891234567890 "On it."
+neoarchive compose dm dm_003 "Send it over."
 ```
 
 ## 7. Back up locally
@@ -131,7 +131,7 @@ neo-archive compose dm dm_003 "Send it over."
 `backup export` writes deterministic JSONL shards that round-trip back into SQLite. Push them to a private Git repo:
 
 ```bash
-neo-archive backup sync \
+neoarchive backup sync \
   --repo ~/Projects/backup-neo-archive \
   --remote https://github.com/steipete/backup-neo-archive.git \
   --json

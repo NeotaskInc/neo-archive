@@ -5,13 +5,13 @@ description: "Turn bookmarked tweets into a markdown brief with thread expansion
 
 # Research
 
-`neo-archive research` is a bookmark-driven thinking tool. Point it at a query (or just an account) and it walks the bookmarked tweets that match, expands their threads, and produces a markdown brief with grouped quotes, extracted links, and handles you might want to follow up with.
+`neoarchive research` is a bookmark-driven thinking tool. Point it at a query (or just an account) and it walks the bookmarked tweets that match, expands their threads, and produces a markdown brief with grouped quotes, extracted links, and handles you might want to follow up with.
 
 ## Basic use
 
 ```bash
-neo-archive research "codex" --limit 20 --thread-depth 10 --json
-neo-archive research --account acct_primary --out ~/research/codex.md
+neoarchive research "codex" --limit 20 --thread-depth 10 --json
+neoarchive research --account acct_primary --out ~/research/codex.md
 ```
 
 What it does:
@@ -36,7 +36,7 @@ The output is meant to be read in Obsidian, a chat draft, or piped into another 
 
 When a thread ancestor is not in the local store, `research` makes a single `bird thread` call per missing chain. This is gentle on the live API by design — rate-limit-aware with `--delay-ms` semantics inherited from [`sync mention-threads`](sync.md#sync-mention-threads).
 
-If you do this kind of expansion regularly, run `neo-archive sync mention-threads` and `neo-archive sync bookmarks --all` first. That populates the local store with everything `research` needs and removes the live calls from the hot path.
+If you do this kind of expansion regularly, run `neoarchive sync mention-threads` and `neoarchive sync bookmarks --all` first. That populates the local store with everything `research` needs and removes the live calls from the hot path.
 
 ## Example output
 

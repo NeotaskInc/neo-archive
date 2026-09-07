@@ -13,7 +13,7 @@ cd neo-archive
 ./scripts/bun-canary.sh install --frozen-lockfile
 ./scripts/bun-canary.sh run --bun build
 python3 scripts/install-local.py
-neo-archive --version
+neoarchive --version
 ```
 
 The installer exposes the command in `~/.local/bin` and links the developer skill into Codex, Claude, and shared agent discovery. It refuses to overwrite another installation. Keep the source checkout at its installed path.
@@ -25,14 +25,14 @@ Node users can use the version range in `package.json` and the `build:node`, `te
 ## Local data and authentication
 
 ```sh
-neo-archive --json init
-neo-archive --json db stats
+neoarchive --json init
+neoarchive --json db stats
 ```
 
 Data lives in `~/.neo-archive` unless `NEO_ARCHIVE_HOME` is set. Import each supplied archive with an explicit owner:
 
 ```sh
-neo-archive import archive /path/to/account-archive.zip --account HANDLE
+neoarchive import archive /path/to/account-archive.zip --account HANDLE
 ```
 
 Then follow [Sign in](auth.md) to configure `xurl` and authorize each X account. Local archive search works before live authentication. The CLI's transport status is a coarse probe; verify the selected X identity and an actual bookmark sync before installing recurring jobs.
