@@ -1,3 +1,4 @@
+import archiveSql from "./archive/sql.json";
 import type { Database } from "./sqlite";
 
 export const ARCHIVE_DELETION_SOURCE = "twitter_archive";
@@ -65,31 +66,7 @@ export function recordTweetRevision(
 		),
 	);
 	const rootTweetId = ids[0] ?? tweetId;
-	const insert = db.prepare(`
-		insert into tweet_revisions (
-			root_tweet_id, revision_id, revision_index, payload_json, source, observed_at
-		) values (?, ?, ?, ?, ?, ?)
-		on conflict(revision_id) do update set
-			root_tweet_id = case
-				when tweet_revisions.root_tweet_id = tweet_revisions.revision_id
-					and excluded.root_tweet_id <> excluded.revision_id
-					then excluded.root_tweet_id
-				else tweet_revisions.root_tweet_id
-			end,
-			revision_index = case
-				when tweet_revisions.root_tweet_id = tweet_revisions.revision_id
-					and excluded.root_tweet_id <> excluded.revision_id
-					then excluded.revision_index
-				else tweet_revisions.revision_index
-			end,
-			payload_json = coalesce(tweet_revisions.payload_json, excluded.payload_json),
-			source = case
-				when tweet_revisions.payload_json is null and excluded.payload_json is not null
-					then excluded.source
-				else tweet_revisions.source
-			end,
-			observed_at = max(tweet_revisions.observed_at, excluded.observed_at)
-	`);
+	const insert = db.prepare(archiveSql.revisionInsert);
 	ids.forEach((revisionId, revisionIndex) => {
 		insert.run(
 			rootTweetId,
@@ -100,41 +77,13 @@ export function recordTweetRevision(
 			observedAt,
 		);
 	});
-	const insertEdge = db.prepare(`
-		insert into tweet_revision_edges (
-			older_revision_id, newer_revision_id, source, observed_at
-		) values (?, ?, ?, ?)
-		on conflict(older_revision_id, newer_revision_id) do update set
-			source = case
-				when excluded.observed_at > tweet_revision_edges.observed_at
-					then excluded.source
-				when excluded.observed_at = tweet_revision_edges.observed_at then case
-					when tweet_revision_edges.source in ('backup_migration', 'migration')
-						and excluded.source not in ('backup_migration', 'migration')
-						then excluded.source
-					when excluded.source in ('backup_migration', 'migration')
-						and tweet_revision_edges.source not in ('backup_migration', 'migration')
-						then tweet_revision_edges.source
-					else min(tweet_revision_edges.source, excluded.source)
-				end
-				else tweet_revision_edges.source
-			end,
-			observed_at = max(tweet_revision_edges.observed_at, excluded.observed_at)
-	`);
+	const insertEdge = db.prepare(archiveSql.revisionEdge);
 	for (let index = 1; index < ids.length; index += 1) {
 		insertEdge.run(ids[index - 1], ids[index], source, observedAt);
 	}
 	mergeTweetRevisionChain(db, ids);
 	const terminalRevisionId = ids.at(-1) ?? tweetId;
-	const markSuperseded = db.prepare(`
-		update tweets
-		set superseded_at = case
-				when superseded_at is null or superseded_at > ? then ?
-				else superseded_at
-			end,
-			superseded_by_id = ?
-		where id = ?
-	`);
+	const markSuperseded = db.prepare(archiveSql.markSuperseded);
 	for (const revisionId of ids.slice(0, -1)) {
 		markSuperseded.run(observedAt, observedAt, terminalRevisionId, revisionId);
 	}
@@ -236,38 +185,10 @@ export function mergeTweetRevisionChain(
 	);
 	if (observedIds.length === 0) return [];
 	const seedJson = JSON.stringify(observedIds);
+	// Keep the reached component outside the indexed revision lookup. Reversing
+	// these loops scans the entire revision table for every imported tweet.
 	const rows = db
-		.prepare(
-			`with recursive component(revision_id) as (
-				select value from json_each(?)
-				union
-				select sibling.revision_id
-				from component
-				join tweet_revisions current
-					on current.revision_id = component.revision_id
-				join tweet_revisions sibling
-					on sibling.root_tweet_id = current.root_tweet_id
-				union
-				select edges.newer_revision_id
-				from component
-				join tweet_revision_edges edges
-					on edges.older_revision_id = component.revision_id
-				join tweet_revisions newer
-					on newer.revision_id = edges.newer_revision_id
-				union
-				select edges.older_revision_id
-				from component
-				join tweet_revision_edges edges
-					on edges.newer_revision_id = component.revision_id
-				join tweet_revisions older
-					on older.revision_id = edges.older_revision_id
-			)
-			select distinct revisions.root_tweet_id, revisions.revision_id
-			from component
-			join tweet_revisions revisions
-				on revisions.revision_id = component.revision_id
-			order by revisions.revision_id`,
-		)
+		.prepare(archiveSql.topology)
 		.all(seedJson) as TweetRevisionTopologyRow[];
 	const nodes = rows.map((row) => row.revision_id);
 	if (nodes.length === 0) return [];
@@ -275,12 +196,7 @@ export function mergeTweetRevisionChain(
 	const edges = new Map<string, Set<string>>();
 	const nodeIndegree = new Map(nodes.map((revisionId) => [revisionId, 0]));
 	const storedEdges = db
-		.prepare(
-			`select older_revision_id, newer_revision_id
-			 from tweet_revision_edges
-			 where older_revision_id in (select value from json_each(?))
-			   and newer_revision_id in (select value from json_each(?))`,
-		)
+		.prepare(archiveSql.storedEdges)
 		.all(nodeJson, nodeJson) as Array<{
 		older_revision_id: string;
 		newer_revision_id: string;
@@ -374,11 +290,7 @@ export function mergeTweetRevisionChain(
 			compareRevisionIds(left, right),
 	)[0];
 	if (!rootTweetId) return [];
-	const update = db.prepare(`
-		update tweet_revisions
-		set root_tweet_id = ?, revision_index = ?
-		where revision_id = ?
-	`);
+	const update = db.prepare(archiveSql.updateRevision);
 	for (const revisionId of nodes) {
 		update.run(rootTweetId, ranks.get(revisionId) ?? 0, revisionId);
 	}
@@ -434,27 +346,7 @@ export function tombstoneTweetSubordinates(
 			? [{ kind: "quote", subordinateId: tweet.quoted_tweet_id }]
 			: []),
 	];
-	const insert = db.prepare(`
-		insert into tweet_subordinate_tombstones (
-			tweet_id, kind, subordinate_id, deleted_at, deletion_source, deletion_reason
-		) values (?, ?, ?, ?, ?, ?)
-		on conflict(tweet_id, kind, subordinate_id) do update set
-			deleted_at = min(tweet_subordinate_tombstones.deleted_at, excluded.deleted_at),
-			deletion_source = case
-				when excluded.deleted_at < tweet_subordinate_tombstones.deleted_at
-					then excluded.deletion_source
-				when excluded.deleted_at = tweet_subordinate_tombstones.deleted_at
-					then coalesce(tweet_subordinate_tombstones.deletion_source, excluded.deletion_source)
-				else tweet_subordinate_tombstones.deletion_source
-			end,
-			deletion_reason = case
-				when excluded.deleted_at < tweet_subordinate_tombstones.deleted_at
-					then excluded.deletion_reason
-				when excluded.deleted_at = tweet_subordinate_tombstones.deleted_at
-					then coalesce(tweet_subordinate_tombstones.deletion_reason, excluded.deletion_reason)
-				else tweet_subordinate_tombstones.deletion_reason
-			end
-	`);
+	const insert = db.prepare(archiveSql.subordinateInsert);
 	for (const row of rows) {
 		insert.run(
 			tweetId,
@@ -525,36 +417,7 @@ export function reconcileTweetTombstones(
 				]),
 			)
 		: undefined;
-	const supersessionSql = `
-		update tweets
-		set superseded_at = coalesce(
-				superseded_at,
-				(
-					select min(newer.observed_at)
-					from tweet_revisions current_revision
-					join tweet_revisions newer
-						on newer.root_tweet_id = current_revision.root_tweet_id
-						and newer.revision_index > current_revision.revision_index
-					where current_revision.revision_id = tweets.id
-				)
-			),
-			superseded_by_id = (
-					select latest.revision_id
-					from tweet_revisions current_revision
-					join tweet_revisions latest
-						on latest.root_tweet_id = current_revision.root_tweet_id
-					where current_revision.revision_id = tweets.id
-					order by latest.revision_index desc, latest.revision_id asc
-					limit 1
-			)
-		where exists (
-			select 1
-			from tweet_revisions current_revision
-			join tweet_revisions newer
-				on newer.root_tweet_id = current_revision.root_tweet_id
-				and newer.revision_index > current_revision.revision_index
-			where current_revision.revision_id = tweets.id
-		)
+	const supersessionSql = `${archiveSql.supersession}
 		${scopedIds ? `and tweets.id in (${placeholders(scopedIds)})` : ""}
 	`;
 	if (scopedIds) {

@@ -138,6 +138,10 @@ async function smokeRuntime({
 	};
 	delete env.NEO_ARCHIVE_MCP_ACCOUNT;
 	delete env.NEO_ARCHIVE_WEB_TOKEN;
+	delete env.NEO_ARCHIVE_CORE_BINARY;
+	env.NEO_ARCHIVE_SEARCH_BACKEND = "rust";
+	env.NEO_ARCHIVE_IMPORT_BACKEND = "rust";
+	env.NEO_ARCHIVE_AUTH_BACKEND = "rust";
 
 	const versionStarted = performance.now();
 	const { stdout: versionOutput } = await runRuntime(runtime, ["--version"], {
@@ -178,6 +182,66 @@ async function smokeRuntime({
 		{ cwd: installDir, env },
 	);
 	JSON.parse(statsOutput);
+	const nativeCore = path.join(
+		installedRoot,
+		"dist",
+		"native",
+		"neoarchive-core",
+	);
+	await run(nativeCore, ["--version"]);
+	const fixtureRoot = path.join(tempRoot, `archive-${runtime.name}`);
+	const fixtureData = path.join(fixtureRoot, "data");
+	await mkdir(fixtureData, { recursive: true });
+	await writeFile(
+		path.join(fixtureData, "account.js"),
+		`window.YTD.account.part0 = ${JSON.stringify([{ account: { accountId: "987654", username: "native_smoke", accountDisplayName: "Native smoke", createdAt: "2020-01-01T00:00:00.000Z" } }])}`,
+	);
+	await writeFile(
+		path.join(fixtureData, "tweets.js"),
+		`window.YTD.tweets.part0 = ${JSON.stringify([{ tweet: { id_str: "987654321", created_at: "Tue Jun 03 19:32:20 +0000 2025", full_text: "nativepackagemarker café 東京" } }])}`,
+	);
+	const archive = path.join(tempRoot, `${runtime.name}-native.zip`);
+	await run("zip", ["-qr", archive, "data"], { cwd: fixtureRoot });
+	const imported = JSON.parse(
+		(
+			await runRuntime(
+				runtime,
+				["--json", "import", "archive", archive, "--account", "native_smoke"],
+				{ cwd: installDir, env },
+			)
+		).stdout,
+	);
+	if (imported.counts?.tweets !== 1)
+		throw new Error(`${runtime.name}: packaged native import failed`);
+	const searchArgs = [
+		"--json",
+		"search",
+		"tweets",
+		"nativepackagemarker",
+		"--resource",
+		"authored",
+		"--account",
+		"native_smoke",
+	];
+	const nativeSearch = JSON.parse(
+		(await runRuntime(runtime, searchArgs, { cwd: installDir, env })).stdout,
+	);
+	const sqliteSearch = JSON.parse(
+		(
+			await runRuntime(runtime, searchArgs, {
+				cwd: installDir,
+				env: { ...env, NEO_ARCHIVE_SEARCH_BACKEND: "sqlite" },
+			})
+		).stdout,
+	);
+	if (
+		nativeSearch.length !== 1 ||
+		nativeSearch[0].id !== "987654321" ||
+		JSON.stringify(nativeSearch) !== JSON.stringify(sqliteSearch)
+	)
+		throw new Error(
+			`${runtime.name}: packaged native search differs from SQLite`,
+		);
 
 	const port = await reserveLoopbackPort();
 	const expectedBaseUrl = `http://127.0.0.1:${String(port)}`;
@@ -375,6 +439,7 @@ try {
 	for (const required of [
 		"package/bin/neo-archive.mjs",
 		"package/dist/cli/neo-archive.js",
+		"package/dist/native/neoarchive-core",
 		"package/dist/server/server.js",
 	]) {
 		if (!npmFiles.includes(required))

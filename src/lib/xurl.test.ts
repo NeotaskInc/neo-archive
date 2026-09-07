@@ -8,7 +8,8 @@ Object.defineProperty(execFile, Symbol.for("nodejs.util.promisify.custom"), {
 	value: execFileAsyncMock,
 });
 
-vi.mock("node:child_process", () => ({
+vi.mock("node:child_process", async (importOriginal) => ({
+	...(await importOriginal<typeof import("node:child_process")>()),
 	execFile,
 }));
 

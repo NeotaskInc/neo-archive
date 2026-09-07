@@ -724,6 +724,63 @@ function makeMediaVariantsArchive() {
 }
 
 describe("archive import", () => {
+	it("replaces duplicate stale search rows while preserving unrelated search entries", async () => {
+		const archive = makeArchive();
+		await importArchive(archive);
+		const db = getNativeDb({ seedDemoData: false });
+		const expectedTweets = db
+			.prepare("select tweet_id, text from tweets_fts order by tweet_id")
+			.all();
+		const expectedMessages = db
+			.prepare("select message_id, text from dm_fts order by message_id")
+			.all();
+		db.exec(`
+			insert into tweets_fts (tweet_id, text) select tweet_id, 'obsoletequartz' from tweets_fts;
+			insert into dm_fts (message_id, text) select message_id, 'obsoletequartz' from dm_fts;
+			insert into tweets_fts (tweet_id, text) values ('unrelated', 'keep this index entry');
+			insert into dm_fts (message_id, text) values ('unrelated', 'keep this message entry');
+		`);
+		await importArchive(archive);
+		expect(
+			db
+				.prepare(
+					"select tweet_id, text from tweets_fts where tweet_id <> 'unrelated' order by tweet_id",
+				)
+				.all(),
+		).toEqual(expectedTweets);
+		expect(
+			db
+				.prepare(
+					"select message_id, text from dm_fts where message_id <> 'unrelated' order by message_id",
+				)
+				.all(),
+		).toEqual(expectedMessages);
+		expect(
+			db
+				.prepare("select text from tweets_fts where tweet_id = 'unrelated'")
+				.get(),
+		).toEqual({ text: "keep this index entry" });
+		expect(
+			db
+				.prepare("select text from dm_fts where message_id = 'unrelated'")
+				.get(),
+		).toEqual({ text: "keep this message entry" });
+		expect(
+			db
+				.prepare(
+					"select tweet_id from tweets_fts where tweets_fts match 'obsoletequartz'",
+				)
+				.all(),
+		).toEqual([]);
+		expect(
+			db
+				.prepare(
+					"select message_id from dm_fts where dm_fts match 'obsoletequartz'",
+				)
+				.all(),
+		).toEqual([]);
+	});
+
 	it("retains explicit tweet tombstones without inferring deletion from absence", async () => {
 		const initialArchive = makeTweetRetentionArchive();
 		await importArchive(initialArchive, { restore: true });

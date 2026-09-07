@@ -1,4 +1,6 @@
-import { Data, Duration, Effect, Schedule } from "effect";
+import { canUseNativeAuth, routeNativeAuth } from "./native-auth";
+import { effectExitError } from "./effect-runtime";
+import { Data, Duration, Effect, Exit, Schedule } from "effect";
 import { runSubprocessEffect, SubprocessError } from "./subprocess";
 import type {
 	FollowDirection,
@@ -553,6 +555,63 @@ const runOAuth2JsonCommandEffect = Effect.fn("xurl.runOAuth2JsonCommand")(
 				? Date.now() + options.timeoutMs
 				: undefined);
 		const scopedOptions = { ...options, deadlineMs };
+		if (canUseNativeAuth()) {
+			const cached = primaryUsername
+				? oauth2CandidateCache.get(primaryUsername.toLowerCase())
+				: undefined;
+			return yield* Effect.tryPromise({
+				try: (signal) =>
+					routeNativeAuth(
+						{
+							args,
+							username: primaryUsername,
+							configured: useConfiguredCandidate
+								? configuredOAuth2Candidate(primaryUsername)
+								: undefined,
+							cached:
+								cached && cached.expiresAt > Date.now()
+									? cached.value
+									: undefined,
+						},
+						async (command) => {
+							if (
+								!command.probe &&
+								deadlineMs !== undefined &&
+								Date.now() >= deadlineMs
+							)
+								throw new XurlCommandError({
+									message: "xurl OAuth2 fallback timed out",
+									commandArgs: args,
+									rateLimited: false,
+									cause: undefined,
+								});
+							const effect: Effect.Effect<unknown, Error> =
+								command.kind === "text"
+									? execXurlTextEffect(command.args, deadlineMs)
+									: runJsonCommandEffect(
+											command.args,
+											command.probe ? { deadlineMs } : scopedOptions,
+										);
+							const result = await Effect.runPromiseExit(effect, { signal });
+							if (Exit.isSuccess(result)) return result.value;
+							throw effectExitError(result);
+						},
+						(candidate, clear) => {
+							if (!primaryUsername) return;
+							const key = primaryUsername.toLowerCase();
+							if (clear) oauth2CandidateCache.delete(key);
+							if (candidate)
+								oauth2CandidateCache.set(key, {
+									expiresAt: Date.now() + AUTHENTICATED_USER_TTL_MS,
+									value: candidate,
+								});
+						},
+						signal,
+					),
+				catch: (error) => toXurlCommandError(error, args),
+			});
+		}
+
 		let authCandidate: OAuth2UsernameCandidate | undefined = primaryUsername
 			? { username: primaryUsername }
 			: undefined;

@@ -1,4 +1,9 @@
 import { getReadDb } from "./db";
+import {
+	canSearchNativeArchive,
+	nativeSearchMatchesSnapshot,
+	searchNativeArchive,
+} from "./native-archive";
 import { profileFromDbRow, profileHandleKey } from "./profile-row";
 import { parseJsonField, toFtsSearchQuery } from "./query-read-model-shared";
 import type { Database } from "./sqlite";
@@ -544,6 +549,7 @@ export function buildTimelineItemsQuery(
 	}: TimelineQuery,
 	ftsMatchCountHint = 0,
 	literalAccountId?: string,
+	nativeMatches?: readonly string[],
 ): TimelineItemsQueryPlan {
 	const kind = resource === "mentions" ? "mention" : resource;
 	const cteParams: Array<string | number> = [];
@@ -751,13 +757,11 @@ export function buildTimelineItemsQuery(
 	// are computed in a separate pass for only the returned rows.
 	const ftsMatchesCte = ftsSearch
 		? `, fts_matches as materialized (
-		select distinct tweet_id
-		from tweets_fts
-		where tweets_fts.text match ?
+		${nativeMatches ? "select value as tweet_id from json_each(?)" : "select distinct tweet_id from tweets_fts where tweets_fts.text match ?"}
       )`
 		: "";
 	if (ftsSearch) {
-		cteParams.push(ftsSearch);
+		cteParams.push(nativeMatches ? JSON.stringify(nativeMatches) : ftsSearch);
 	}
 	const searchDrivenFrom =
 		ftsMatchCountHint > FTS_DRIVE_FROM_MATCHES_MAX
@@ -973,6 +977,54 @@ export function listTimelineItems(
 	db: Database = getReadDb(),
 	options: TimelineReadExecutionOptions = {},
 ): TimelineItem[] {
+	if (canSearchNativeArchive(query, db)) {
+		const limit = query.limit ?? 18;
+		let ids: string[] = [];
+		let generation: number | undefined;
+		let instanceId: string | undefined;
+		let changes = 0;
+		while (changes < 3) {
+			const page = searchNativeArchive(query, db, {
+				literalAccountId: options.literalAccountId,
+				offset: ids.length,
+				limit: Math.max(limit, 64),
+			});
+			if (
+				generation !== undefined &&
+				(page.generation !== generation || page.instanceId !== instanceId)
+			) {
+				ids = [];
+				generation = undefined;
+				changes += 1;
+				continue;
+			}
+			generation = page.generation;
+			instanceId = page.instanceId;
+			ids.push(...page.ids);
+			const items = db.readTransaction(() => {
+				if (!nativeSearchMatchesSnapshot(db, page)) return undefined;
+				return listTimelineItemsInternal(query, db, options, ids);
+			})();
+			if (items === undefined) {
+				ids = [];
+				generation = undefined;
+				changes += 1;
+				continue;
+			}
+			if (items.length >= limit || page.exhausted) return items;
+		}
+		// A continuously changing archive is read directly from SQLite after
+		// bounded retries. Never accept IDs from a different database snapshot.
+	}
+	return listTimelineItemsInternal(query, db, options);
+}
+
+function listTimelineItemsInternal(
+	query: TimelineQuery,
+	db: Database,
+	options: TimelineReadExecutionOptions,
+	nativeMatches?: readonly string[],
+): TimelineItem[] {
 	const {
 		includeQualityReason = false,
 		lowQualityThreshold,
@@ -981,28 +1033,31 @@ export function listTimelineItems(
 	const normalizedLowQualityThreshold =
 		normalizeLowQualityThreshold(lowQualityThreshold);
 	const ftsSearch = query.search?.trim() ? toFtsSearchQuery(query.search) : "";
-	const ftsMatchCount = ftsSearch
-		? (options.ftsMatchCountHint ??
-			Number(
-				(
-					db
-						.prepare(
-							`select count(*) as match_count
+	const ftsMatchCount = nativeMatches
+		? nativeMatches.length
+		: ftsSearch
+			? (options.ftsMatchCountHint ??
+				Number(
+					(
+						db
+							.prepare(
+								`select count(*) as match_count
 							 from (
 							   select distinct tweet_id
 							   from tweets_fts
 							   where tweets_fts.text match ?
 							   limit ?
 							 )`,
-						)
-						.get(ftsSearch, FTS_MATCH_COUNT_LIMIT) as { match_count: number }
-				).match_count,
-			))
-		: 0;
+							)
+							.get(ftsSearch, FTS_MATCH_COUNT_LIMIT) as { match_count: number }
+					).match_count,
+				))
+			: 0;
 	const plan = buildTimelineItemsQuery(
 		query,
 		ftsMatchCount,
 		options.literalAccountId,
+		nativeMatches,
 	);
 	assertBoundedLiteralAccountQuery(db, query, options);
 

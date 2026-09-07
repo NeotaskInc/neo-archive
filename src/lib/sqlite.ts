@@ -133,6 +133,10 @@ export class NativeSqliteDatabase {
 		this.db.close();
 	}
 
+	get inTransaction(): boolean {
+		return this.db.isTransaction;
+	}
+
 	exec(sql: string): void {
 		this.db.exec(sql);
 	}

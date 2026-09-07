@@ -18,14 +18,25 @@ export function enqueueDatabaseWrite<T>(
 	runtime: ServerRuntimeServices = defaultServerRuntimeServices,
 ): Promise<T> {
 	const db = providedDb ?? runtime.getDatabase({ seedDemoData: false });
+	return enqueueExternalDatabaseWrite(
+		() => db.transaction(() => write(db))(),
+		db,
+	);
+}
+
+/** Serialize a writer that owns its own transaction, including a native subprocess. */
+export function enqueueExternalDatabaseWrite<T>(
+	write: () => Promise<T> | T,
+	db: Database,
+): Promise<T> {
 	const writeIdentity = db.writeIdentity;
 	const queuedAt = performance.now();
 	recordDatabaseWriteQueued();
 	const writeTail = writeTails.get(writeIdentity) ?? Promise.resolve();
-	const pending = writeTail.then(() => {
+	const pending = writeTail.then(async () => {
 		recordDatabaseWriteStarted(performance.now() - queuedAt);
 		try {
-			const result = db.transaction(() => write(db))();
+			const result = await write();
 			recordDatabaseWriteCompleted(false);
 			return result;
 		} catch (error) {

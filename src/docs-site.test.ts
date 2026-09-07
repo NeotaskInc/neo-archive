@@ -53,7 +53,7 @@ describe("docs site", () => {
 			"Do not run live sync against an empty or demo database",
 		);
 		expect(quickstart).toContain(
-			'neo-archive</span> init <span class="hl-f">--demo',
+			'neoarchive</span> init <span class="hl-f">--demo',
 		);
 		expect(quickstart).toContain("no archive, credentials, or network access");
 	});

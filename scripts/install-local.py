@@ -11,6 +11,10 @@ def main():
     entry = root / 'bin' / 'neo-archive.mjs'
     if not (root / 'dist' / 'cli' / 'neo-archive.js').is_file():
         raise SystemExit('Build Neo Archive before installing: ./scripts/bun-canary.sh run --bun build')
+    core = root / 'dist' / 'native' / 'neoarchive-core'
+    if not core.is_file() or not os.access(core, os.X_OK):
+        raise SystemExit('Build the native core before installing: node scripts/build-native.mjs')
+    subprocess.run([str(core), '--version'], check=True, capture_output=True, text=True)
     runtime = subprocess.check_output([str(root / 'scripts' / 'install-bun-canary.sh')], text=True, timeout=300).strip()
     home = Path.home()
     commands = [home / '.local' / 'bin' / name for name in ('neoarchive', 'neo-archive')]

@@ -38,6 +38,14 @@ jobs:
       - name: Install exact Bun canary
         run: ./scripts/install-bun-canary.sh
 
+      - name: Build and test native core
+        run: |
+          rustup toolchain install 1.98.0 --profile minimal --component rustfmt --component clippy
+          cargo +1.98.0 fmt --manifest-path rust/Cargo.toml --check
+          cargo +1.98.0 clippy --locked --manifest-path rust/Cargo.toml --all-targets --jobs 4 -- -D warnings
+          cargo +1.98.0 test --locked --manifest-path rust/Cargo.toml --jobs 4
+          node scripts/build-native.mjs
+
       - name: Install dependencies
         run: ./scripts/bun-canary.sh install --frozen-lockfile
 
@@ -102,6 +110,14 @@ jobs:
         with:
           node-version-file: .node-version
 
+      - name: Build and test native core
+        run: |
+          rustup toolchain install 1.98.0 --profile minimal --component rustfmt --component clippy
+          cargo +1.98.0 fmt --manifest-path rust/Cargo.toml --check
+          cargo +1.98.0 clippy --locked --manifest-path rust/Cargo.toml --all-targets --jobs 4 -- -D warnings
+          cargo +1.98.0 test --locked --manifest-path rust/Cargo.toml --jobs 4
+          node scripts/build-native.mjs
+
       - name: Install dependencies from Bun lockfile
         run: ./scripts/bun-canary.sh install --frozen-lockfile
 
@@ -132,6 +148,14 @@ jobs:
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version-file: .node-version
+
+      - name: Build and test native core
+        run: |
+          rustup toolchain install 1.98.0 --profile minimal --component rustfmt --component clippy
+          cargo +1.98.0 fmt --manifest-path rust/Cargo.toml --check
+          cargo +1.98.0 clippy --locked --manifest-path rust/Cargo.toml --all-targets --jobs 4 -- -D warnings
+          cargo +1.98.0 test --locked --manifest-path rust/Cargo.toml --jobs 4
+          node scripts/build-native.mjs
 
       - name: Install dependencies from Bun lockfile
         run: ./scripts/bun-canary.sh install --frozen-lockfile
@@ -168,6 +192,14 @@ jobs:
 
       - name: Install exact Bun canary
         run: ./scripts/install-bun-canary.sh
+
+      - name: Build and test native core
+        run: |
+          rustup toolchain install 1.98.0 --profile minimal --component rustfmt --component clippy
+          cargo +1.98.0 fmt --manifest-path rust/Cargo.toml --check
+          cargo +1.98.0 clippy --locked --manifest-path rust/Cargo.toml --all-targets --jobs 4 -- -D warnings
+          cargo +1.98.0 test --locked --manifest-path rust/Cargo.toml --jobs 4
+          node scripts/build-native.mjs
 
       - name: Install dependencies
         run: ./scripts/bun-canary.sh install --frozen-lockfile

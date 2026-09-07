@@ -692,7 +692,7 @@ function layout({ page, html, toc, prev, next, sectionName }) {
 }
 
 function pageCanonicalUrl(page) {
-	if (!siteBase) return page.outRel;
+	if (!siteBase) return hrefToOutRel(page.outRel, page.outRel);
 	if (page.outRel === "index.html") return `${siteBase}/`;
 	const rel = page.outRel.endsWith("/index.html")
 		? page.outRel.slice(0, -"index.html".length)
@@ -731,7 +731,7 @@ function navHtml(currentPage) {
 
 function navTitle(page) {
 	if (page.rel === "index.md") return "Overview";
-	return page.title.replace(/^`neo-archive\s*/, "").replace(/`$/, "");
+	return page.title.replace(/^`neo-?archive\s*/, "").replace(/`$/, "");
 }
 
 function hrefToOutRel(targetOutRel, currentOutRel) {
@@ -845,7 +845,7 @@ function highlightShellLine(line) {
 		(_, lead, flag) => `${escapeHtml(lead)}${stashAdd(flag, "hl-f")}`,
 	);
 	working = working.replace(
-		/\b(neo-archive|bun|npm|brew|bird|xurl|git|node|sudo|launchctl|tail|jq|cd|export|cat|curl|cargo|ls|mv|cp|rm|mkdir|cron)\b/g,
+		/\b(neoarchive|neo-archive|bun|npm|brew|bird|xurl|git|node|sudo|launchctl|tail|jq|cd|export|cat|curl|cargo|ls|mv|cp|rm|mkdir|cron)\b/g,
 		(m) => stashAdd(m, "hl-cmd"),
 	);
 	working = working.replace(/\b(\d+(?:\.\d+)?)\b/g, (m) => stashAdd(m, "hl-n"));
