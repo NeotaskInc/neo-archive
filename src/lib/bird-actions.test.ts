@@ -25,14 +25,14 @@ describe("bird action transport wrapper", () => {
 		vi.resetModules();
 		execFileAsyncMock.mockReset();
 		accessMock.mockReset();
-		delete process.env.BIRDCLAW_BIRD_COMMAND;
-		delete process.env.BIRDCLAW_CONFIG;
-		delete process.env.BIRDCLAW_DISABLE_LIVE_WRITES;
+		delete process.env.NEO_ARCHIVE_BIRD_COMMAND;
+		delete process.env.NEO_ARCHIVE_CONFIG;
+		delete process.env.NEO_ARCHIVE_DISABLE_LIVE_WRITES;
 	});
 
 	it("blocks via bird and verifies with status", async () => {
-		process.env.BIRDCLAW_BIRD_COMMAND = "/tmp/bird";
-		delete process.env.BIRDCLAW_DISABLE_LIVE_WRITES;
+		process.env.NEO_ARCHIVE_BIRD_COMMAND = "/tmp/bird";
+		delete process.env.NEO_ARCHIVE_DISABLE_LIVE_WRITES;
 		execFileAsyncMock
 			.mockResolvedValueOnce({ stdout: "✅ Blocked @sam\n" })
 			.mockResolvedValueOnce({
@@ -58,8 +58,8 @@ describe("bird action transport wrapper", () => {
 	});
 
 	it("exposes bird action helpers as Effect programs", async () => {
-		process.env.BIRDCLAW_BIRD_COMMAND = "/tmp/bird";
-		delete process.env.BIRDCLAW_DISABLE_LIVE_WRITES;
+		process.env.NEO_ARCHIVE_BIRD_COMMAND = "/tmp/bird";
+		delete process.env.NEO_ARCHIVE_DISABLE_LIVE_WRITES;
 		execFileAsyncMock
 			.mockResolvedValueOnce({ stdout: "Blocked\n" })
 			.mockResolvedValueOnce({
@@ -77,7 +77,7 @@ describe("bird action transport wrapper", () => {
 	});
 
 	it("exposes bird profile lookup as an Effect program", async () => {
-		process.env.BIRDCLAW_BIRD_COMMAND = "/tmp/bird";
+		process.env.NEO_ARCHIVE_BIRD_COMMAND = "/tmp/bird";
 		execFileAsyncMock.mockResolvedValueOnce({
 			stdout: JSON.stringify({
 				user: { id: "42", username: "sam", followersCount: 1 },
@@ -96,8 +96,8 @@ describe("bird action transport wrapper", () => {
 	});
 
 	it("fails when verify state mismatches", async () => {
-		process.env.BIRDCLAW_BIRD_COMMAND = "/tmp/bird";
-		delete process.env.BIRDCLAW_DISABLE_LIVE_WRITES;
+		process.env.NEO_ARCHIVE_BIRD_COMMAND = "/tmp/bird";
+		delete process.env.NEO_ARCHIVE_DISABLE_LIVE_WRITES;
 		execFileAsyncMock
 			.mockResolvedValueOnce({ stdout: "✅ Unblocked @sam\n" })
 			.mockResolvedValueOnce({
@@ -114,8 +114,8 @@ describe("bird action transport wrapper", () => {
 	});
 
 	it("returns command failures", async () => {
-		process.env.BIRDCLAW_BIRD_COMMAND = "/tmp/bird";
-		delete process.env.BIRDCLAW_DISABLE_LIVE_WRITES;
+		process.env.NEO_ARCHIVE_BIRD_COMMAND = "/tmp/bird";
+		delete process.env.NEO_ARCHIVE_DISABLE_LIVE_WRITES;
 		execFileAsyncMock.mockRejectedValue(new Error("bird down"));
 
 		const { muteUserViaBird } = await import("./bird-actions");
@@ -128,11 +128,11 @@ describe("bird action transport wrapper", () => {
 	});
 
 	it("returns bird command config failures through the Effect error channel", async () => {
-		const tempDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-actions-"));
+		const tempDir = mkdtempSync(path.join(os.tmpdir(), "neo-archive-actions-"));
 		const configPath = path.join(tempDir, "config.json");
 		writeFileSync(configPath, "{bad json", "utf8");
-		process.env.BIRDCLAW_CONFIG = configPath;
-		delete process.env.BIRDCLAW_BIRD_COMMAND;
+		process.env.NEO_ARCHIVE_CONFIG = configPath;
+		delete process.env.NEO_ARCHIVE_BIRD_COMMAND;
 
 		try {
 			const { muteUserViaBird, lookupProfileViaBird } =
@@ -149,8 +149,8 @@ describe("bird action transport wrapper", () => {
 	});
 
 	it("skips live mutations when writes are disabled", async () => {
-		process.env.BIRDCLAW_BIRD_COMMAND = "/tmp/bird";
-		process.env.BIRDCLAW_DISABLE_LIVE_WRITES = "1";
+		process.env.NEO_ARCHIVE_BIRD_COMMAND = "/tmp/bird";
+		process.env.NEO_ARCHIVE_DISABLE_LIVE_WRITES = "1";
 
 		const { muteUserViaBird } = await import("./bird-actions");
 		const result = await muteUserViaBird("42");
@@ -163,13 +163,13 @@ describe("bird action transport wrapper", () => {
 	});
 
 	it("checks disabled live writes when deferred bird action effects run", async () => {
-		process.env.BIRDCLAW_BIRD_COMMAND = "/tmp/bird";
-		delete process.env.BIRDCLAW_DISABLE_LIVE_WRITES;
+		process.env.NEO_ARCHIVE_BIRD_COMMAND = "/tmp/bird";
+		delete process.env.NEO_ARCHIVE_DISABLE_LIVE_WRITES;
 
 		const { muteUserViaBirdEffect } = await import("./bird-actions");
 		const effect = muteUserViaBirdEffect("42");
 
-		process.env.BIRDCLAW_DISABLE_LIVE_WRITES = "1";
+		process.env.NEO_ARCHIVE_DISABLE_LIVE_WRITES = "1";
 
 		await expect(Effect.runPromise(effect)).resolves.toEqual({
 			ok: false,
@@ -179,7 +179,7 @@ describe("bird action transport wrapper", () => {
 	});
 
 	it("includes stripped stdout and stderr when command failures expose them", async () => {
-		process.env.BIRDCLAW_BIRD_COMMAND = "/tmp/bird";
+		process.env.NEO_ARCHIVE_BIRD_COMMAND = "/tmp/bird";
 		const error = Object.assign(new Error("bird failed"), {
 			stdout: "\u001b[31mstdout detail\u001b[0m\n",
 			stderr: "\u001b[33mstderr detail\u001b[0m\n",
@@ -196,7 +196,7 @@ describe("bird action transport wrapper", () => {
 	});
 
 	it("uses fallback failure text for non-error command failures", async () => {
-		process.env.BIRDCLAW_BIRD_COMMAND = "/tmp/bird";
+		process.env.NEO_ARCHIVE_BIRD_COMMAND = "/tmp/bird";
 		execFileAsyncMock.mockRejectedValue("boom");
 
 		const { unmuteUserViaBird } = await import("./bird-actions");
@@ -209,7 +209,7 @@ describe("bird action transport wrapper", () => {
 	});
 
 	it("reports unavailable verification when status is missing or malformed", async () => {
-		process.env.BIRDCLAW_BIRD_COMMAND = "/tmp/bird";
+		process.env.NEO_ARCHIVE_BIRD_COMMAND = "/tmp/bird";
 		execFileAsyncMock
 			.mockResolvedValueOnce({ stderr: "\u001b[32mok via stderr\u001b[0m\n" })
 			.mockResolvedValueOnce({ stdout: JSON.stringify({ blocking: "yes" }) });
@@ -224,7 +224,7 @@ describe("bird action transport wrapper", () => {
 	});
 
 	it("verifies mute and unmute mutations", async () => {
-		process.env.BIRDCLAW_BIRD_COMMAND = "/tmp/bird";
+		process.env.NEO_ARCHIVE_BIRD_COMMAND = "/tmp/bird";
 		execFileAsyncMock
 			.mockResolvedValueOnce({ stdout: "Muted\n" })
 			.mockResolvedValueOnce({
@@ -249,7 +249,7 @@ describe("bird action transport wrapper", () => {
 	});
 
 	it("reads status json and returns null when bird cannot provide it", async () => {
-		process.env.BIRDCLAW_BIRD_COMMAND = "/tmp/bird";
+		process.env.NEO_ARCHIVE_BIRD_COMMAND = "/tmp/bird";
 		execFileAsyncMock
 			.mockResolvedValueOnce({
 				stdout: "\u001b[32m" + JSON.stringify({ blocking: true }) + "\u001b[0m",
@@ -265,7 +265,7 @@ describe("bird action transport wrapper", () => {
 	});
 
 	it("looks up profiles and normalizes bird user payloads", async () => {
-		process.env.BIRDCLAW_BIRD_COMMAND = "/tmp/bird";
+		process.env.NEO_ARCHIVE_BIRD_COMMAND = "/tmp/bird";
 		execFileAsyncMock.mockResolvedValueOnce({
 			stdout: JSON.stringify({
 				user: {
@@ -306,7 +306,7 @@ describe("bird action transport wrapper", () => {
 	});
 
 	it("returns null for malformed profile payloads", async () => {
-		process.env.BIRDCLAW_BIRD_COMMAND = "/tmp/bird";
+		process.env.NEO_ARCHIVE_BIRD_COMMAND = "/tmp/bird";
 		execFileAsyncMock
 			.mockResolvedValueOnce({ stdout: JSON.stringify({}) })
 			.mockResolvedValueOnce({
@@ -320,7 +320,7 @@ describe("bird action transport wrapper", () => {
 	});
 
 	it("normalizes optional profile fields from bird user payloads", async () => {
-		process.env.BIRDCLAW_BIRD_COMMAND = "/tmp/bird";
+		process.env.NEO_ARCHIVE_BIRD_COMMAND = "/tmp/bird";
 		execFileAsyncMock.mockResolvedValueOnce({
 			stdout: JSON.stringify({
 				user: {

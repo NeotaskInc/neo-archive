@@ -1,11 +1,11 @@
 # Follow Graph
 
-Birdclaw keeps followers/following in local SQLite and makes graph queries cache-only by default. Agents should use the `graph` commands for analysis and the `sync followers` / `sync following` commands only when a human intentionally refreshes data.
+Neo Archive keeps followers/following in local SQLite and makes graph queries cache-only by default. Agents should use the `graph` commands for analysis and the `sync followers` / `sync following` commands only when a human intentionally refreshes data.
 
 ## Safety Contract
 
-- `birdclaw graph *` commands never call X.
-- `birdclaw sync followers` and `birdclaw sync following` default to dry-run.
+- `neo-archive graph *` commands never call X.
+- `neo-archive sync followers` and `neo-archive sync following` default to dry-run.
 - Live sync requires `--yes`.
 - `--mode auto` prefers `bird` and falls back to `xurl`; use `--mode xurl` only when the OAuth2 follow endpoints work for the account.
 - Fresh sync cache is reused unless `--refresh` is passed.
@@ -16,19 +16,19 @@ Birdclaw keeps followers/following in local SQLite and makes graph queries cache
 ## Setup
 
 ```bash
-birdclaw init
-birdclaw auth status --json
+neo-archive init
+neo-archive auth status --json
 ```
 
-The default account comes from the local Birdclaw account table. Pass `--account <accountId>` when working with a non-default account.
+The default account comes from the local Neo Archive account table. Pass `--account <accountId>` when working with a non-default account.
 
 ## Preflight Before Spending X Reads
 
 Always run dry-run first:
 
 ```bash
-birdclaw sync followers --json
-birdclaw sync following --json
+neo-archive sync followers --json
+neo-archive sync following --json
 ```
 
 Dry-run output reports the cache key, whether a fresh cache exists, the page size, caps, and whether a live request would be needed.
@@ -38,22 +38,22 @@ Dry-run output reports the cache key, whether a fresh cache exists, the page siz
 Full refresh:
 
 ```bash
-birdclaw sync followers --yes --json
-birdclaw sync following --yes --json
+neo-archive sync followers --yes --json
+neo-archive sync following --yes --json
 ```
 
 Force a transport only when debugging:
 
 ```bash
-birdclaw sync followers --mode bird --yes --json
-birdclaw sync followers --mode xurl --yes --json
+neo-archive sync followers --mode bird --yes --json
+neo-archive sync followers --mode xurl --yes --json
 ```
 
 Capped refresh for cheaper inspection:
 
 ```bash
-birdclaw sync followers --yes --max-pages 1 --allow-partial --json
-birdclaw sync following --yes --max-pages 1 --allow-partial --json
+neo-archive sync followers --yes --max-pages 1 --allow-partial --json
+neo-archive sync following --yes --max-pages 1 --allow-partial --json
 ```
 
 Capped syncs are recorded as incomplete snapshots for audit, but they are not used to create churn events or update current edges. `--allow-partial` acknowledges that expected warning; it is not a persistence gate.
@@ -61,13 +61,13 @@ Capped syncs are recorded as incomplete snapshots for audit, but they are not us
 Repeat runs with the same account, page size, and caps reuse fresh cache:
 
 ```bash
-birdclaw sync followers --yes --json
+neo-archive sync followers --yes --json
 ```
 
 Force a new live fetch only when needed:
 
 ```bash
-birdclaw sync followers --yes --refresh --json
+neo-archive sync followers --yes --refresh --json
 ```
 
 ## Agent Query Commands
@@ -75,17 +75,17 @@ birdclaw sync followers --yes --refresh --json
 After at least one complete follower and following snapshot, agents can query locally:
 
 ```bash
-birdclaw graph summary --json
-birdclaw graph events --since 2026-05-01 --json
-birdclaw graph top-followers --limit 20 --json
-birdclaw graph non-mutual-following --sort followers --limit 100 --json
-birdclaw graph mutuals --json
-birdclaw graph unfollowed --date 2026-05-01 --json
+neo-archive graph summary --json
+neo-archive graph events --since 2026-05-01 --json
+neo-archive graph top-followers --limit 20 --json
+neo-archive graph non-mutual-following --sort followers --limit 100 --json
+neo-archive graph mutuals --json
+neo-archive graph unfollowed --date 2026-05-01 --json
 ```
 
 Recommended agent order:
 
-1. Run `birdclaw graph summary --json`.
+1. Run `neo-archive graph summary --json`.
 2. If counts are zero or snapshots are stale, ask for a human-approved `sync followers --yes` and `sync following --yes`.
 3. Run only `graph` commands for analysis.
 4. Do not pass `--refresh` unless the user explicitly asks to spend live reads.

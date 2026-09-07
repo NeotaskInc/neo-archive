@@ -29,6 +29,8 @@ env:
 
 jobs:
   deploy:
+    # Upstream publication infrastructure is not configured for Neo Archive.
+    if: github.repository == 'steipete/birdclaw'
     name: Deploy docs
     runs-on: ubuntu-latest
     timeout-minutes: 15

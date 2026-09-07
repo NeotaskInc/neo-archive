@@ -52,7 +52,7 @@ export function shellQuote(value: string) {
 }
 
 export function buildLaunchProgramArguments({
-	program = "birdclaw",
+	program = "neo-archive",
 	args,
 	envFile,
 	runtime,

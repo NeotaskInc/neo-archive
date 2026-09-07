@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { Effect } from "effect";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { resetBirdclawPathsForTests } from "./config";
+import { resetNeoArchivePathsForTests } from "./config";
 import { getConversationThread, listDmConversations } from "./dm-read-model";
 import { getNativeDb, resetDatabaseForTests } from "./db";
 
@@ -40,9 +40,9 @@ vi.mock("./xurl", async () => {
 const tempDirs: string[] = [];
 
 function makeTempHome() {
-	const tempDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-dms-live-"));
+	const tempDir = mkdtempSync(path.join(os.tmpdir(), "neo-archive-dms-live-"));
 	tempDirs.push(tempDir);
-	process.env.BIRDCLAW_HOME = tempDir;
+	process.env.NEO_ARCHIVE_HOME = tempDir;
 	return tempDir;
 }
 
@@ -76,8 +76,8 @@ describe("cached live DMs", () => {
 
 	afterEach(() => {
 		resetDatabaseForTests();
-		resetBirdclawPathsForTests();
-		delete process.env.BIRDCLAW_HOME;
+		resetNeoArchivePathsForTests();
+		delete process.env.NEO_ARCHIVE_HOME;
 
 		for (const dir of tempDirs.splice(0)) {
 			rmSync(dir, { recursive: true, force: true });
@@ -807,7 +807,7 @@ describe("cached live DMs", () => {
 			display_name: "Name Only",
 			avatar_url: "https://pbs.twimg.com/profile_images/4343/name.jpg",
 		});
-		expect(String(profile.handle)).toMatch(/^birdclaw_stub_/);
+		expect(String(profile.handle)).toMatch(/^neo_archive_stub_/);
 		expect(JSON.parse(String(profile.raw_json))).toEqual({ id: "4343" });
 		expect(
 			db
@@ -835,7 +835,7 @@ describe("cached live DMs", () => {
 			 public_metrics_json, avatar_hue, avatar_url, entities_json, raw_json,
 			 created_at
 			) values (
-			 'profile_user_4444', 'birdclaw_stub_existing4444', 'Rich Person',
+			 'profile_user_4444', 'neo_archive_stub_existing4444', 'Rich Person',
 			 'rich handle-less bio', 444, 44,
 			 '{"followers_count":444,"following_count":44}', 44,
 			 'https://img.example/original4444.jpg', '{"description":{"urls":[]}}',
@@ -888,7 +888,7 @@ describe("cached live DMs", () => {
 			)
 			.get() as Record<string, unknown>;
 		expect(first).toMatchObject({
-			handle: "birdclaw_stub_existing4444",
+			handle: "neo_archive_stub_existing4444",
 			display_name: "Rich Person",
 			bio: "rich handle-less bio",
 			followers_count: 444,
@@ -911,7 +911,7 @@ describe("cached live DMs", () => {
 			)
 			.get() as Record<string, unknown>;
 		expect(updated).toMatchObject({
-			handle: "birdclaw_stub_existing4444",
+			handle: "neo_archive_stub_existing4444",
 			display_name: "Rich Person",
 			bio: "rich handle-less bio",
 			followers_count: 444,
@@ -1287,7 +1287,7 @@ describe("cached live DMs", () => {
 				id: "25401953-99",
 				needsReply: false,
 				participant: expect.objectContaining({
-					handle: expect.stringMatching(/^birdclaw_stub_/),
+					handle: expect.stringMatching(/^neo_archive_stub_/),
 					displayName: "No Handle",
 				}),
 			}),

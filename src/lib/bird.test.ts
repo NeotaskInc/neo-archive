@@ -57,15 +57,15 @@ describe("bird transport", () => {
 	afterEach(() => {
 		vi.resetModules();
 		execFileAsyncMock.mockReset();
-		delete process.env.BIRDCLAW_BIRD_COMMAND;
-		delete process.env.BIRDCLAW_CONFIG;
+		delete process.env.NEO_ARCHIVE_BIRD_COMMAND;
+		delete process.env.NEO_ARCHIVE_CONFIG;
 	});
 
 	it("keeps config parse failures behind the Effect promise boundary", async () => {
-		const tempDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-bird-"));
+		const tempDir = mkdtempSync(path.join(os.tmpdir(), "neo-archive-bird-"));
 		const configPath = path.join(tempDir, "config.json");
 		writeFileSync(configPath, "{bad json", "utf8");
-		process.env.BIRDCLAW_CONFIG = configPath;
+		process.env.NEO_ARCHIVE_CONFIG = configPath;
 
 		const { runBirdJsonCommandEffect } = await import("./bird");
 		const { runEffectPromise } = await import("./effect-runtime");
@@ -105,7 +105,7 @@ describe("bird transport", () => {
 		expect(
 			__test__.getBirdStdoutShellCommand(
 				"win32",
-				{ BIRDCLAW_BASH_COMMAND: "D:\\Git\\bin\\bash.exe" },
+				{ NEO_ARCHIVE_BASH_COMMAND: "D:\\Git\\bin\\bash.exe" },
 				() => false,
 			),
 		).toBe("D:\\Git\\bin\\bash.exe");
@@ -166,7 +166,7 @@ describe("bird transport", () => {
 	});
 
 	it("maps bird mentions json into xurl-compatible payloads", async () => {
-		process.env.BIRDCLAW_BIRD_COMMAND = "/tmp/bird";
+		process.env.NEO_ARCHIVE_BIRD_COMMAND = "/tmp/bird";
 		mockBirdStdoutOnce(
 			JSON.stringify([
 				{
@@ -253,7 +253,7 @@ describe("bird transport", () => {
 	});
 
 	it("keeps bird collection adapters lazy as Effect programs", async () => {
-		process.env.BIRDCLAW_BIRD_COMMAND = "/tmp/bird";
+		process.env.NEO_ARCHIVE_BIRD_COMMAND = "/tmp/bird";
 		mockBirdStdoutOnce(
 			JSON.stringify([
 				{
@@ -279,7 +279,7 @@ describe("bird transport", () => {
 	});
 
 	it("falls back to standard JSON when bird lacks --json-full", async () => {
-		process.env.BIRDCLAW_BIRD_COMMAND = "/tmp/bird";
+		process.env.NEO_ARCHIVE_BIRD_COMMAND = "/tmp/bird";
 		mockBirdRejectOnce(
 			Object.assign(new Error("Command failed"), {
 				stderr: "error: unknown option '--json-full'",
@@ -339,7 +339,7 @@ describe("bird transport", () => {
 	});
 
 	it("omits max-pages for single-page bird search", async () => {
-		process.env.BIRDCLAW_BIRD_COMMAND = "/tmp/bird";
+		process.env.NEO_ARCHIVE_BIRD_COMMAND = "/tmp/bird";
 		mockBirdStdoutOnce("[]");
 		mockBirdStdoutOnce("[]");
 		await expect(
@@ -382,7 +382,7 @@ describe("bird transport", () => {
 	});
 
 	it("maps mention fallbacks and empty mention payloads", async () => {
-		process.env.BIRDCLAW_BIRD_COMMAND = "/tmp/bird";
+		process.env.NEO_ARCHIVE_BIRD_COMMAND = "/tmp/bird";
 		mockBirdStdoutOnce(
 			JSON.stringify([
 				{
@@ -480,7 +480,7 @@ describe("bird transport", () => {
 	});
 
 	it("rejects unexpected mention json", async () => {
-		process.env.BIRDCLAW_BIRD_COMMAND = "/tmp/bird";
+		process.env.NEO_ARCHIVE_BIRD_COMMAND = "/tmp/bird";
 		mockBirdStdoutOnce("{}");
 
 		await expect(
@@ -491,11 +491,11 @@ describe("bird transport", () => {
 	});
 
 	it("explains how to configure bird when the binary is missing", async () => {
-		process.env.BIRDCLAW_BIRD_COMMAND = "/missing/bird";
+		process.env.NEO_ARCHIVE_BIRD_COMMAND = "/missing/bird";
 		mockBirdRejectOnce(
 			Object.assign(new Error("command failed"), {
 				stderr:
-					"birdclaw-bird: /missing/bird: No such file or directory\nbirdclaw-bird: line 0: exec: /missing/bird: cannot execute: No such file or directory",
+					"neo-archive-bird: /missing/bird: No such file or directory\nneoArchive-bird: line 0: exec: /missing/bird: cannot execute: No such file or directory",
 			}),
 		);
 
@@ -507,7 +507,7 @@ describe("bird transport", () => {
 	});
 
 	it("explains how to configure Bash when the wrapper shell is missing", async () => {
-		process.env.BIRDCLAW_BIRD_COMMAND = "/tmp/bird";
+		process.env.NEO_ARCHIVE_BIRD_COMMAND = "/tmp/bird";
 		mockBirdRejectOnce(
 			Object.assign(new Error("spawn bash.exe ENOENT"), { code: "ENOENT" }),
 		);
@@ -520,7 +520,7 @@ describe("bird transport", () => {
 	});
 
 	it("tolerates bird json with raw newlines inside tweet text", async () => {
-		process.env.BIRDCLAW_BIRD_COMMAND = "/tmp/bird";
+		process.env.NEO_ARCHIVE_BIRD_COMMAND = "/tmp/bird";
 		mockBirdStdoutOnce(
 			'[{ "id": "tweet_1", "text": "first line\nsecond line", "createdAt": "2026-04-26T13:43:34.000Z", "authorId": "42", "author": { "username": "sam", "name": "Sam" } }]',
 		);
@@ -541,7 +541,7 @@ describe("bird transport", () => {
 	});
 
 	it("returns bird direct messages payloads", async () => {
-		process.env.BIRDCLAW_BIRD_COMMAND = "/tmp/bird";
+		process.env.NEO_ARCHIVE_BIRD_COMMAND = "/tmp/bird";
 		const payload = {
 			success: true,
 			conversations: [
@@ -564,7 +564,7 @@ describe("bird transport", () => {
 	});
 
 	it("parses the authenticated bird account from whoami output", async () => {
-		process.env.BIRDCLAW_BIRD_COMMAND = "/tmp/bird";
+		process.env.NEO_ARCHIVE_BIRD_COMMAND = "/tmp/bird";
 		mockBirdStdoutOnce(
 			[
 				"📍 Chrome default profile",
@@ -585,7 +585,7 @@ describe("bird transport", () => {
 	});
 
 	it("passes message-request DM paging options to bird", async () => {
-		process.env.BIRDCLAW_BIRD_COMMAND = "/tmp/bird";
+		process.env.NEO_ARCHIVE_BIRD_COMMAND = "/tmp/bird";
 		const payload = { success: true, conversations: [], events: [] };
 		mockBirdStdoutOnce(JSON.stringify(payload));
 
@@ -614,7 +614,7 @@ describe("bird transport", () => {
 	});
 
 	it("preserves structured JSON from failed bird DM mutations", async () => {
-		process.env.BIRDCLAW_BIRD_COMMAND = "/tmp/bird";
+		process.env.NEO_ARCHIVE_BIRD_COMMAND = "/tmp/bird";
 		const payload = { success: false, error: "not found" };
 		mockBirdRejectWithStdoutOnce(JSON.stringify(payload), new Error("exit 1"));
 
@@ -630,7 +630,7 @@ describe("bird transport", () => {
 	});
 
 	it("preserves missing-shell errors from failed bird DM mutations", async () => {
-		process.env.BIRDCLAW_BIRD_COMMAND = "/tmp/bird";
+		process.env.NEO_ARCHIVE_BIRD_COMMAND = "/tmp/bird";
 		mockBirdRejectOnce(
 			Object.assign(new Error("spawn bash ENOENT"), { code: "ENOENT" }),
 		);
@@ -646,7 +646,7 @@ describe("bird transport", () => {
 	});
 
 	it("passes pagination options to bird DM block mutations", async () => {
-		process.env.BIRDCLAW_BIRD_COMMAND = "/tmp/bird";
+		process.env.NEO_ARCHIVE_BIRD_COMMAND = "/tmp/bird";
 		const payload = {
 			success: true,
 			conversationId: "111-333",
@@ -673,7 +673,7 @@ describe("bird transport", () => {
 	});
 
 	it("maps bird likes and bookmarks json into xurl-compatible payloads", async () => {
-		process.env.BIRDCLAW_BIRD_COMMAND = "/tmp/bird";
+		process.env.NEO_ARCHIVE_BIRD_COMMAND = "/tmp/bird";
 		mockBirdStdoutOnce(
 			JSON.stringify([
 				{
@@ -731,7 +731,7 @@ describe("bird transport", () => {
 	});
 
 	it("omits max-pages for single-page bird saved collections", async () => {
-		process.env.BIRDCLAW_BIRD_COMMAND = "/tmp/bird";
+		process.env.NEO_ARCHIVE_BIRD_COMMAND = "/tmp/bird";
 		mockBirdStdoutOnce("[]");
 		mockBirdStdoutOnce("[]");
 		await runBirdEffect((bird) =>
@@ -747,7 +747,7 @@ describe("bird transport", () => {
 	});
 
 	it("normalizes owned Lists and paged List membership", async () => {
-		process.env.BIRDCLAW_BIRD_COMMAND = "/tmp/bird";
+		process.env.NEO_ARCHIVE_BIRD_COMMAND = "/tmp/bird";
 		mockBirdStdoutOnce(
 			JSON.stringify([
 				{
@@ -816,7 +816,7 @@ describe("bird transport", () => {
 	});
 
 	it("maps bird home timeline json into xurl-compatible payloads", async () => {
-		process.env.BIRDCLAW_BIRD_COMMAND = "/tmp/bird";
+		process.env.NEO_ARCHIVE_BIRD_COMMAND = "/tmp/bird";
 		mockBirdStdoutOnce(
 			JSON.stringify([
 				{
@@ -844,7 +844,7 @@ describe("bird transport", () => {
 	});
 
 	it("maps bird follower lists into xurl-compatible users", async () => {
-		process.env.BIRDCLAW_BIRD_COMMAND = "/tmp/bird";
+		process.env.NEO_ARCHIVE_BIRD_COMMAND = "/tmp/bird";
 		mockBirdStdoutOnce(
 			JSON.stringify({
 				users: [
@@ -941,7 +941,7 @@ describe("bird transport", () => {
 	});
 
 	it("maps bird thread json with reply references", async () => {
-		process.env.BIRDCLAW_BIRD_COMMAND = "/tmp/bird";
+		process.env.NEO_ARCHIVE_BIRD_COMMAND = "/tmp/bird";
 		mockBirdStdoutOnce(
 			JSON.stringify([
 				{
@@ -988,7 +988,7 @@ describe("bird transport", () => {
 	});
 
 	it("accepts current bird collection objects", async () => {
-		process.env.BIRDCLAW_BIRD_COMMAND = "/tmp/bird";
+		process.env.NEO_ARCHIVE_BIRD_COMMAND = "/tmp/bird";
 		mockBirdStdoutOnce(
 			JSON.stringify({
 				tweets: [
@@ -1015,7 +1015,7 @@ describe("bird transport", () => {
 	});
 
 	it("looks up tweets by id through bird read", async () => {
-		process.env.BIRDCLAW_BIRD_COMMAND = "/tmp/bird";
+		process.env.NEO_ARCHIVE_BIRD_COMMAND = "/tmp/bird";
 		mockBirdStdoutOnce(
 			JSON.stringify({
 				id: "tweet_1",
@@ -1051,7 +1051,7 @@ describe("bird transport", () => {
 	});
 
 	it("looks up profiles through bird user json", async () => {
-		process.env.BIRDCLAW_BIRD_COMMAND = "/tmp/bird";
+		process.env.NEO_ARCHIVE_BIRD_COMMAND = "/tmp/bird";
 		mockBirdStdoutOnce(
 			JSON.stringify({
 				user: {
@@ -1086,7 +1086,7 @@ describe("bird transport", () => {
 	});
 
 	it("falls back to count one for older bird profile lookups", async () => {
-		process.env.BIRDCLAW_BIRD_COMMAND = "/tmp/bird";
+		process.env.NEO_ARCHIVE_BIRD_COMMAND = "/tmp/bird";
 		mockBirdRejectOnce(
 			Object.assign(new Error("Command failed"), {
 				stderr: "error: unknown option '--profile-only'",
@@ -1116,7 +1116,7 @@ describe("bird transport", () => {
 	});
 
 	it("rejects unexpected direct messages json", async () => {
-		process.env.BIRDCLAW_BIRD_COMMAND = "/tmp/bird";
+		process.env.NEO_ARCHIVE_BIRD_COMMAND = "/tmp/bird";
 		mockBirdStdoutOnce(
 			JSON.stringify({
 				success: false,
@@ -1142,7 +1142,7 @@ describe("bird transport", () => {
 	});
 
 	it("uses bird profiles for batch profile hydration", async () => {
-		process.env.BIRDCLAW_BIRD_COMMAND = "/tmp/bird";
+		process.env.NEO_ARCHIVE_BIRD_COMMAND = "/tmp/bird";
 		mockBirdStdoutOnce(
 			JSON.stringify({
 				users: [
@@ -1180,7 +1180,7 @@ describe("bird transport", () => {
 	});
 
 	it("falls back to individual bird user lookups when profiles is unavailable", async () => {
-		process.env.BIRDCLAW_BIRD_COMMAND = "/tmp/bird";
+		process.env.NEO_ARCHIVE_BIRD_COMMAND = "/tmp/bird";
 		mockBirdRejectOnce(
 			Object.assign(new Error("unknown command profiles"), {
 				stderr: "error: unknown command profiles",

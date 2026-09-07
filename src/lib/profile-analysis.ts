@@ -223,7 +223,9 @@ function envNonNegativeInteger(name: string) {
 function conversationDelayMsFromOptions(options: ProfileAnalysisOptions) {
 	return normalizeNonNegativeInteger(
 		options.conversationDelayMs ??
-			envNonNegativeInteger("BIRDCLAW_PROFILE_ANALYSIS_CONVERSATION_DELAY_MS"),
+			envNonNegativeInteger(
+				"NEO_ARCHIVE_PROFILE_ANALYSIS_CONVERSATION_DELAY_MS",
+			),
 		DEFAULT_CONVERSATION_DELAY_MS,
 	);
 }
@@ -231,7 +233,7 @@ function conversationDelayMsFromOptions(options: ProfileAnalysisOptions) {
 function rateLimitRetryMsFromOptions(options: ProfileAnalysisOptions) {
 	return normalizeNonNegativeInteger(
 		options.rateLimitRetryMs ??
-			envNonNegativeInteger("BIRDCLAW_PROFILE_ANALYSIS_RATE_LIMIT_RETRY_MS"),
+			envNonNegativeInteger("NEO_ARCHIVE_PROFILE_ANALYSIS_RATE_LIMIT_RETRY_MS"),
 		DEFAULT_RATE_LIMIT_RETRY_MS,
 	);
 }
@@ -239,7 +241,9 @@ function rateLimitRetryMsFromOptions(options: ProfileAnalysisOptions) {
 function rateLimitMaxRetriesFromOptions(options: ProfileAnalysisOptions) {
 	return normalizeNonNegativeInteger(
 		options.rateLimitMaxRetries ??
-			envNonNegativeInteger("BIRDCLAW_PROFILE_ANALYSIS_RATE_LIMIT_MAX_RETRIES"),
+			envNonNegativeInteger(
+				"NEO_ARCHIVE_PROFILE_ANALYSIS_RATE_LIMIT_MAX_RETRIES",
+			),
 		DEFAULT_RATE_LIMIT_MAX_RETRIES,
 	);
 }
@@ -252,7 +256,7 @@ function normalizeAccountSelector(value: string | undefined) {
 
 function resolveAccount(db: Database, accountId?: string) {
 	const selector = normalizeAccountSelector(
-		accountId ?? process.env.BIRDCLAW_PROFILE_ANALYSIS_ACCOUNT,
+		accountId ?? process.env.NEO_ARCHIVE_PROFILE_ANALYSIS_ACCOUNT,
 	);
 	const row = selector
 		? (db

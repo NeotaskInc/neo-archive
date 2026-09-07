@@ -389,7 +389,7 @@ export const safePreviewFetchEffect = Effect.fn("linkPreview.safePreviewFetch")(
 		const remainingTimeoutMs = () => Math.max(1, deadline - Date.now());
 		const headers: Record<string, string> = {
 			"user-agent":
-				"Mozilla/5.0 (Macintosh; Intel Mac OS X 15_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36 birdclaw/0.4",
+				"Mozilla/5.0 (Macintosh; Intel Mac OS X 15_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36 neo-archive/0.4",
 			accept:
 				"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
 			"accept-language": "en-US,en;q=0.9",

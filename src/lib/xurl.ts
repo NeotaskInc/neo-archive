@@ -70,18 +70,18 @@ const oauth2CandidateCache = new Map<
 >();
 
 function liveWritesDisabled() {
-	return process.env.BIRDCLAW_DISABLE_LIVE_WRITES === "1";
+	return process.env.NEO_ARCHIVE_DISABLE_LIVE_WRITES === "1";
 }
 
 function e2eFakeLiveWritesEnabled() {
 	return (
-		process.env.BIRDCLAW_E2E === "1" &&
-		process.env.BIRDCLAW_E2E_FAKE_LIVE_WRITES === "1"
+		process.env.NEO_ARCHIVE_E2E === "1" &&
+		process.env.NEO_ARCHIVE_E2E_FAKE_LIVE_WRITES === "1"
 	);
 }
 
 function getJsonRetryBaseDelayMs() {
-	const value = Number(process.env.BIRDCLAW_XURL_RETRY_BASE_MS ?? "2000");
+	const value = Number(process.env.NEO_ARCHIVE_XURL_RETRY_BASE_MS ?? "2000");
 	return Number.isFinite(value) && value >= 0 ? value : 2000;
 }
 
@@ -511,9 +511,9 @@ function oauth2ArgsForCandidate(
 }
 
 function configuredOAuth2Candidate(primaryUsername: string | undefined) {
-	const app = cleanXurlAppLabel(process.env.BIRDCLAW_XURL_OAUTH2_APP);
+	const app = cleanXurlAppLabel(process.env.NEO_ARCHIVE_XURL_OAUTH2_APP);
 	const username = cleanXurlUsernameLabel(
-		process.env.BIRDCLAW_XURL_OAUTH2_USERNAME,
+		process.env.NEO_ARCHIVE_XURL_OAUTH2_USERNAME,
 	);
 	if (!app && !username) return undefined;
 	const effectiveUsername = username ?? primaryUsername;
@@ -868,7 +868,7 @@ export const lookupAuthenticatedUserFreshEffect = Effect.fn(
 	"xurl.lookupAuthenticatedUserFresh",
 )(() => {
 	const username = cleanXurlUsernameLabel(
-		process.env.BIRDCLAW_XURL_OAUTH2_USERNAME,
+		process.env.NEO_ARCHIVE_XURL_OAUTH2_USERNAME,
 	);
 	if (!username) return lookupAuthenticatedUserUnscopedFreshEffect();
 	return runOAuth2JsonCommandEffect({ args: ["whoami"], username }).pipe(
@@ -894,7 +894,7 @@ export function lookupAuthenticatedUserUnscopedEffect() {
 
 export function lookupAuthenticatedUserEffect() {
 	const username = cleanXurlUsernameLabel(
-		process.env.BIRDCLAW_XURL_OAUTH2_USERNAME,
+		process.env.NEO_ARCHIVE_XURL_OAUTH2_USERNAME,
 	);
 	if (username) return lookupAuthenticatedOAuth2UserEffect(username);
 	return lookupAuthenticatedUserUnscopedEffect();

@@ -270,10 +270,10 @@ function formatBirdCommandError(
 	) {
 		return platform === "win32"
 			? new Error(
-					`Git Bash unavailable: ${shellCommand}\nInstall Git for Windows, add bash.exe to PATH, or set BIRDCLAW_BASH_COMMAND to its full path.`,
+					`Git Bash unavailable: ${shellCommand}\nInstall Git for Windows, add bash.exe to PATH, or set NEO_ARCHIVE_BASH_COMMAND to its full path.`,
 				)
 			: new Error(
-					`Bash unavailable: ${shellCommand}\nInstall Bash or set BIRDCLAW_BASH_COMMAND to its full path.`,
+					`Bash unavailable: ${shellCommand}\nInstall Bash or set NEO_ARCHIVE_BASH_COMMAND to its full path.`,
 				);
 	}
 	if (
@@ -281,7 +281,7 @@ function formatBirdCommandError(
 		text.includes(birdCommand)
 	) {
 		return new Error(
-			`bird command unavailable: ${birdCommand}\nInstall bird on PATH, set BIRDCLAW_BIRD_COMMAND, or update ~/.birdclaw/config.json mentions.birdCommand.`,
+			`bird command unavailable: ${birdCommand}\nInstall bird on PATH, set NEO_ARCHIVE_BIRD_COMMAND, or update ~/.neo-archive/config.json mentions.birdCommand.`,
 		);
 	}
 
@@ -303,7 +303,7 @@ function isUnsupportedBirdOptionError(error: unknown, option: string) {
 function makeBirdStdoutTempEffect() {
 	return Effect.acquireRelease(
 		Effect.sync(() => {
-			const tempDir = mkdtempSync(join(tmpdir(), "birdclaw-bird-"));
+			const tempDir = mkdtempSync(join(tmpdir(), "neo-archive-bird-"));
 			return { tempDir, stdoutPath: join(tempDir, "stdout.json") };
 		}),
 		({ tempDir }) =>
@@ -316,9 +316,9 @@ function getBirdStdoutShellCommand(
 	env: NodeJS.ProcessEnv = process.env,
 	pathExists: (path: string) => boolean = existsSync,
 ) {
-	if (env.BIRDCLAW_BASH_COMMAND) {
+	if (env.NEO_ARCHIVE_BASH_COMMAND) {
 		// Trust the explicit override for portable or non-standard Git installs.
-		return env.BIRDCLAW_BASH_COMMAND;
+		return env.NEO_ARCHIVE_BASH_COMMAND;
 	}
 	if (platform !== "win32") {
 		return "/bin/bash";
@@ -347,7 +347,7 @@ function getBirdStdoutShellCommand(
 		}
 	}
 	throw new Error(
-		"Git Bash unavailable: no trusted bash.exe found\nInstall Git for Windows, add its absolute bin directory to PATH, or set BIRDCLAW_BASH_COMMAND to its full path.",
+		"Git Bash unavailable: no trusted bash.exe found\nInstall Git for Windows, add its absolute bin directory to PATH, or set NEO_ARCHIVE_BASH_COMMAND to its full path.",
 	);
 }
 
@@ -381,7 +381,7 @@ export const runBirdJsonCommandEffect = Effect.fn("bird.runJsonCommand")(
 							[
 								"-c",
 								BIRD_STDOUT_REDIRECT_SCRIPT,
-								"birdclaw-bird",
+								"neo-archive-bird",
 								stdoutPath,
 								birdCommand,
 								...args,
@@ -426,7 +426,7 @@ const runBirdJsonCommandAllowFailureEffect = Effect.fn(
 						[
 							"-c",
 							BIRD_STDOUT_REDIRECT_SCRIPT,
-							"birdclaw-bird",
+							"neo-archive-bird",
 							stdoutPath,
 							birdCommand,
 							...args,

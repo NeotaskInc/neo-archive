@@ -42,7 +42,7 @@ export function scoreInboxItemWithOpenAIEffect(
 			return yield* Effect.fail(new Error("OPENAI_API_KEY is not set"));
 		}
 
-		const model = process.env.BIRDCLAW_OPENAI_MODEL || "gpt-5.2";
+		const model = process.env.NEO_ARCHIVE_OPENAI_MODEL || "gpt-5.2";
 		const baseUrl = resolveOpenAIBaseUrl(getEnv);
 		const url = `${baseUrl}/chat/completions`;
 		debugLog(getEnv, `POST ${url} (model=${model})`);

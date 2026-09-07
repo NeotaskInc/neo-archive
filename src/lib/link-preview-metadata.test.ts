@@ -5,7 +5,7 @@ import path from "node:path";
 import { brotliCompressSync, deflateSync, gzipSync } from "node:zlib";
 import { Effect } from "effect";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { resetBirdclawPathsForTests } from "./config";
+import { resetNeoArchivePathsForTests } from "./config";
 import { getNativeDb, resetDatabaseForTests } from "./db";
 import {
 	__test__,
@@ -20,8 +20,8 @@ const tempDirs: string[] = [];
 
 afterEach(() => {
 	resetDatabaseForTests();
-	resetBirdclawPathsForTests();
-	delete process.env.BIRDCLAW_HOME;
+	resetNeoArchivePathsForTests();
+	delete process.env.NEO_ARCHIVE_HOME;
 	for (const dir of tempDirs.splice(0)) {
 		rmSync(dir, { recursive: true, force: true });
 	}
@@ -518,10 +518,10 @@ describe("link preview metadata", () => {
 	});
 
 	it("persists fetched previews on url expansions", async () => {
-		const tempDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-preview-"));
+		const tempDir = mkdtempSync(path.join(os.tmpdir(), "neo-archive-preview-"));
 		tempDirs.push(tempDir);
-		process.env.BIRDCLAW_HOME = tempDir;
-		resetBirdclawPathsForTests();
+		process.env.NEO_ARCHIVE_HOME = tempDir;
+		resetNeoArchivePathsForTests();
 		resetDatabaseForTests();
 
 		const fetchImpl = vi.fn().mockResolvedValue({
@@ -558,10 +558,10 @@ describe("link preview metadata", () => {
 	});
 
 	it("returns safe cached previews without refetching", async () => {
-		const tempDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-preview-"));
+		const tempDir = mkdtempSync(path.join(os.tmpdir(), "neo-archive-preview-"));
 		tempDirs.push(tempDir);
-		process.env.BIRDCLAW_HOME = tempDir;
-		resetBirdclawPathsForTests();
+		process.env.NEO_ARCHIVE_HOME = tempDir;
+		resetNeoArchivePathsForTests();
 		resetDatabaseForTests();
 		getNativeDb({ seedDemoData: false })
 			.prepare(
@@ -600,10 +600,10 @@ describe("link preview metadata", () => {
 	});
 
 	it("refetches unsafe or non-hit cached previews", async () => {
-		const tempDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-preview-"));
+		const tempDir = mkdtempSync(path.join(os.tmpdir(), "neo-archive-preview-"));
 		tempDirs.push(tempDir);
-		process.env.BIRDCLAW_HOME = tempDir;
-		resetBirdclawPathsForTests();
+		process.env.NEO_ARCHIVE_HOME = tempDir;
+		resetNeoArchivePathsForTests();
 		resetDatabaseForTests();
 		getNativeDb({ seedDemoData: false }).exec(`
 			insert into url_expansions (
@@ -643,10 +643,10 @@ describe("link preview metadata", () => {
 	});
 
 	it("keeps cached-preview effects lazy until run", async () => {
-		const tempDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-preview-"));
+		const tempDir = mkdtempSync(path.join(os.tmpdir(), "neo-archive-preview-"));
 		tempDirs.push(tempDir);
-		process.env.BIRDCLAW_HOME = tempDir;
-		resetBirdclawPathsForTests();
+		process.env.NEO_ARCHIVE_HOME = tempDir;
+		resetNeoArchivePathsForTests();
 		resetDatabaseForTests();
 
 		const fetchImpl = vi.fn().mockResolvedValue({

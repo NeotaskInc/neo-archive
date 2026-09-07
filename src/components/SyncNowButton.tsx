@@ -45,7 +45,7 @@ interface AutoSyncSettings extends StoredAutoSyncSettings {
 }
 
 function autoSyncStorageKey(kind: WebSyncKind, accountId: string | undefined) {
-	return `birdclaw:auto-sync:${kind}:${accountId ?? "default"}`;
+	return `neo-archive:auto-sync:${kind}:${accountId ?? "default"}`;
 }
 
 function validAutoSyncInterval(value: unknown): value is number {

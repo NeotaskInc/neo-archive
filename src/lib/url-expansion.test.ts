@@ -4,23 +4,23 @@ import os from "node:os";
 import path from "node:path";
 import { Effect } from "effect";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { resetBirdclawPathsForTests } from "./config";
+import { resetNeoArchivePathsForTests } from "./config";
 import { resetDatabaseForTests } from "./db";
 
 let homeDir = "";
 
 describe("URL expansion cache", () => {
 	beforeEach(() => {
-		homeDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-url-expansion-"));
-		process.env.BIRDCLAW_HOME = homeDir;
-		resetBirdclawPathsForTests();
+		homeDir = mkdtempSync(path.join(os.tmpdir(), "neo-archive-url-expansion-"));
+		process.env.NEO_ARCHIVE_HOME = homeDir;
+		resetNeoArchivePathsForTests();
 		resetDatabaseForTests();
 	});
 
 	afterEach(() => {
 		resetDatabaseForTests();
-		resetBirdclawPathsForTests();
-		delete process.env.BIRDCLAW_HOME;
+		resetNeoArchivePathsForTests();
+		delete process.env.NEO_ARCHIVE_HOME;
 		rmSync(homeDir, { recursive: true, force: true });
 	});
 

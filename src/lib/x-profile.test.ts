@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { resetBirdclawPathsForTests } from "./config";
+import { resetNeoArchivePathsForTests } from "./config";
 import { getNativeDb, resetDatabaseForTests } from "./db";
 import {
 	__test__ as profileIdentityTest,
@@ -28,8 +28,8 @@ const tempDirs: string[] = [];
 afterEach(() => {
 	profileIdentityTest.setCandidateCountObserver(undefined);
 	resetDatabaseForTests();
-	resetBirdclawPathsForTests();
-	delete process.env.BIRDCLAW_HOME;
+	resetNeoArchivePathsForTests();
+	delete process.env.NEO_ARCHIVE_HOME;
 
 	for (const dir of tempDirs.splice(0)) {
 		rmSync(dir, { recursive: true, force: true });
@@ -37,9 +37,9 @@ afterEach(() => {
 });
 
 function makeTempHome() {
-	const tempDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-x-profile-"));
+	const tempDir = mkdtempSync(path.join(os.tmpdir(), "neo-archive-x-profile-"));
 	tempDirs.push(tempDir);
-	process.env.BIRDCLAW_HOME = tempDir;
+	process.env.NEO_ARCHIVE_HOME = tempDir;
 	return getNativeDb();
 }
 
@@ -76,7 +76,7 @@ describe("x profile sync helpers", () => {
 			repairCanonicalProfileRawIdentity(db, "profile_missing", "99", "missing"),
 		).toBe(false);
 		db.prepare("update profiles set raw_json = ? where id = ?").run(
-			'{"birdclaw_identity_conflicts":["bad",7,"100"]}',
+			'{"neo_archive_identity_conflicts":["bad",7,"100"]}',
 			"profile_me",
 		);
 		expect(markProfileIdentityConflict(db, "profile_me", "42")).toBe(true);
@@ -84,7 +84,7 @@ describe("x profile sync helpers", () => {
 		const row = db
 			.prepare("select raw_json from profiles where id = ?")
 			.get("profile_me") as { raw_json: string };
-		expect(JSON.parse(row.raw_json).birdclaw_identity_conflicts).toEqual([
+		expect(JSON.parse(row.raw_json).neo_archive_identity_conflicts).toEqual([
 			"100",
 			"42",
 		]);
@@ -104,7 +104,7 @@ describe("x profile sync helpers", () => {
 			.prepare("select raw_json from profiles where id = ?")
 			.get("profile_me") as { raw_json: string };
 		expect(JSON.parse(row.raw_json)).toEqual({
-			birdclaw_identity_conflicts: ["77"],
+			neo_archive_identity_conflicts: ["77"],
 		});
 
 		db.prepare("update profiles set raw_json = ? where id = ?").run(
@@ -468,7 +468,7 @@ describe("x profile sync helpers", () => {
 		expect(first.profile).toEqual(
 			expect.objectContaining({
 				id: "profile_user_999",
-				handle: expect.stringMatching(/^birdclaw_stub_/),
+				handle: expect.stringMatching(/^neo_archive_stub_/),
 			}),
 		);
 		expect(second.profile.id).toBe("profile_user_999");
@@ -491,7 +491,7 @@ describe("x profile sync helpers", () => {
 
 		const stub = ensureStubProfileForXUser(db, "999");
 
-		expect(stub.profile.handle).toMatch(/^birdclaw_stub_/);
+		expect(stub.profile.handle).toMatch(/^neo_archive_stub_/);
 		expect(
 			db
 				.prepare("select handle from profiles where id = 'profile_user_500'")
@@ -750,7 +750,7 @@ describe("x profile sync helpers", () => {
 				"https://pbs.twimg.com/profile_images/778/avatar_normal.jpg",
 		});
 
-		expect(resolved.profile.handle).toMatch(/^birdclaw_stub_/);
+		expect(resolved.profile.handle).toMatch(/^neo_archive_stub_/);
 		expect(resolved.profile).toMatchObject({
 			displayName: "Handle-less Person",
 			avatarUrl: "https://pbs.twimg.com/profile_images/778/avatar.jpg",
@@ -760,7 +760,7 @@ describe("x profile sync helpers", () => {
 				"select handle, display_name, avatar_url, raw_json from profiles where id = 'profile_user_778'",
 			)
 			.get() as Record<string, unknown>;
-		expect(String(row.handle)).toMatch(/^birdclaw_stub_/);
+		expect(String(row.handle)).toMatch(/^neo_archive_stub_/);
 		expect(JSON.parse(String(row.raw_json))).toEqual({ id: "778" });
 		expect(
 			db
@@ -1397,7 +1397,7 @@ describe("x profile sync helpers", () => {
 		};
 		db.prepare(
 			"update profiles set handle = ?, raw_json = ? where id = 'profile_me'",
-		).run("selectedproof", '{"birdclaw_identity_conflicts":["8801"]}');
+		).run("selectedproof", '{"neo_archive_identity_conflicts":["8801"]}');
 		expect(
 			getProvenSelectedAccountLegacyProfileIds(db, account, "8801").size,
 		).toBe(0);
@@ -1563,7 +1563,7 @@ describe("x profile sync helpers", () => {
 					"select handle from profiles where id = 'profile_legacy_handoff'",
 				)
 				.get(),
-		).toEqual({ handle: expect.stringMatching(/^birdclaw_stale_/) });
+		).toEqual({ handle: expect.stringMatching(/^neo_archive_stale_/) });
 		expect(
 			db
 				.prepare(

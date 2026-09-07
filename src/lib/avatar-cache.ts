@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { Effect } from "effect";
-import { getBirdclawPaths } from "./config";
+import { getNeoArchivePaths } from "./config";
 import { getNativeDb } from "./db";
 import { runEffectPromise, tryPromise, trySync } from "./effect-runtime";
 import { assertSafePreviewUrl } from "./url-safety";
@@ -26,7 +26,7 @@ function sanitizeFileToken(value: string) {
 }
 
 function getAvatarCacheDir() {
-	const { mediaThumbsDir } = getBirdclawPaths();
+	const { mediaThumbsDir } = getNeoArchivePaths();
 	const dir = path.join(mediaThumbsDir, "avatars");
 	mkdirSync(dir, { recursive: true });
 	return dir;
@@ -202,7 +202,7 @@ function fetchRemoteAvatarEffect(avatarUrl: string) {
 		const response = yield* tryPromise(() =>
 			fetch(safeUrl, {
 				headers: {
-					"user-agent": "birdclaw/avatar-cache",
+					"user-agent": "neo-archive/avatar-cache",
 				},
 				redirect: "error",
 				signal: AbortSignal.timeout(REMOTE_AVATAR_TIMEOUT_MS),

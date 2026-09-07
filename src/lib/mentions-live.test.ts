@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { Effect } from "effect";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { resetBirdclawPathsForTests } from "./config";
+import { resetNeoArchivePathsForTests } from "./config";
 import { getNativeDb, resetDatabaseForTests } from "./db";
 import { listTimelineItems } from "./timeline-read-model";
 
@@ -35,10 +35,10 @@ const tempDirs: string[] = [];
 
 function makeTempHome() {
 	const tempDir = mkdtempSync(
-		path.join(os.tmpdir(), "birdclaw-mentions-live-"),
+		path.join(os.tmpdir(), "neo-archive-mentions-live-"),
 	);
 	tempDirs.push(tempDir);
-	process.env.BIRDCLAW_HOME = tempDir;
+	process.env.NEO_ARCHIVE_HOME = tempDir;
 	return tempDir;
 }
 
@@ -107,8 +107,8 @@ describe("cached live mentions", () => {
 
 	afterEach(() => {
 		resetDatabaseForTests();
-		resetBirdclawPathsForTests();
-		delete process.env.BIRDCLAW_HOME;
+		resetNeoArchivePathsForTests();
+		delete process.env.NEO_ARCHIVE_HOME;
 
 		for (const dir of tempDirs.splice(0)) {
 			rmSync(dir, { recursive: true, force: true });
@@ -286,7 +286,7 @@ describe("cached live mentions", () => {
 				refresh: true,
 			}),
 		).rejects.toThrow(
-			"bird is authenticated as @steipete; refusing to sync into acct_studio (@birdclaw_lab)",
+			"bird is authenticated as @steipete; refusing to sync into acct_studio (@neo_archive_lab)",
 		);
 		expect(listMentionsViaBirdMock).not.toHaveBeenCalled();
 	});
@@ -1404,7 +1404,7 @@ describe("cached live mentions", () => {
 		expect(firstRunRows.map((row) => row.id)).toEqual(["100", "200", "250"]);
 		expect(JSON.parse(cacheRow?.value_json ?? "{}")).toMatchObject({
 			meta: { next_token: "page-2" },
-			birdclaw: {
+			neoArchive: {
 				boundary: { kind: "since", sinceId: "100" },
 				pendingNewestId: "250",
 			},
@@ -1543,7 +1543,7 @@ describe("cached live mentions", () => {
 				mediaCount: 1,
 				author: expect.objectContaining({
 					id: "profile_user_999",
-					handle: expect.stringMatching(/^birdclaw_stub_/),
+					handle: expect.stringMatching(/^neo_archive_stub_/),
 				}),
 			}),
 		]);

@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { Effect } from "effect";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { resetBirdclawPathsForTests } from "./config";
+import { resetNeoArchivePathsForTests } from "./config";
 import { getNativeDb, resetDatabaseForTests } from "./db";
 import type { XurlMentionUser } from "./types";
 
@@ -30,10 +30,10 @@ vi.mock("./xurl", async () => {
 const tempRoots: string[] = [];
 
 function setupTempHome() {
-	const tempRoot = mkdtempSync(path.join(os.tmpdir(), "birdclaw-graph-"));
+	const tempRoot = mkdtempSync(path.join(os.tmpdir(), "neo-archive-graph-"));
 	tempRoots.push(tempRoot);
-	process.env.BIRDCLAW_HOME = tempRoot;
-	resetBirdclawPathsForTests();
+	process.env.NEO_ARCHIVE_HOME = tempRoot;
+	resetNeoArchivePathsForTests();
 	resetDatabaseForTests();
 	mocks.listFollowUsersViaBird.mockRejectedValue(new Error("bird unavailable"));
 }
@@ -59,8 +59,8 @@ function user(
 
 afterEach(() => {
 	resetDatabaseForTests();
-	resetBirdclawPathsForTests();
-	delete process.env.BIRDCLAW_HOME;
+	resetNeoArchivePathsForTests();
+	delete process.env.NEO_ARCHIVE_HOME;
 	mocks.listFollowUsersViaBird.mockReset();
 	mocks.listFollowUsersViaXurl.mockReset();
 	for (const tempRoot of tempRoots.splice(0)) {

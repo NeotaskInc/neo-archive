@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import type { AccountRecord } from "#/lib/types";
 
-const STORAGE_KEY = "birdclaw:selected-account-id";
-const CHANGE_EVENT = "birdclaw-account-change";
+const STORAGE_KEY = "neo-archive:selected-account-id";
+const CHANGE_EVENT = "neo-archive-account-change";
 
 export function defaultAccountId(accounts: AccountRecord[] | undefined) {
 	if (!accounts?.length) return undefined;

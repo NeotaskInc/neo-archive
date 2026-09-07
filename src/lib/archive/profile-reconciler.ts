@@ -113,6 +113,7 @@ function existingProfileToProfileRow(
 }
 
 export function createArchiveProfileReconciler({
+	accountId = "acct_primary",
 	repository,
 	selection,
 	preserveExisting = true,
@@ -120,6 +121,7 @@ export function createArchiveProfileReconciler({
 	accountPayload,
 	profiles,
 }: {
+	accountId?: string;
 	repository: ImportRepository;
 	selection: Set<ArchiveImportSlice> | null;
 	preserveExisting?: boolean;
@@ -127,6 +129,10 @@ export function createArchiveProfileReconciler({
 	accountPayload: ArchiveAccountPayload;
 	profiles: Map<string, ArchiveProfileRow>;
 }) {
+	const localProfileId =
+		accountId === "acct_primary"
+			? "profile_me"
+			: `profile_user_${accountPayload.accountId}`;
 	const existingProfiles = new Map(
 		repository
 			.readRows<ExistingProfileRow>(`
@@ -146,10 +152,7 @@ export function createArchiveProfileReconciler({
 	const existingPrimaryAccount = repository.readRow<{
 		handle: string;
 		external_user_id: string | null;
-	}>(
-		"select handle, external_user_id from accounts where id = ?",
-		"acct_primary",
-	);
+	}>("select handle, external_user_id from accounts where id = ?", accountId);
 	const profileIdAliases = new Map<string, string>();
 
 	function merge(incoming: ArchiveProfileRow) {
@@ -245,7 +248,7 @@ export function createArchiveProfileReconciler({
 			existingExternalUserId !== accountPayload.accountId
 		) {
 			throw new Error(
-				`Existing acct_primary (${existingExternalUserId}) does not match archive account ${accountPayload.accountId}`,
+				`Existing ${accountId} (${existingExternalUserId}) does not match archive account ${accountPayload.accountId}`,
 			);
 		}
 		const existingHandle = existingPrimaryAccount.handle
@@ -256,7 +259,7 @@ export function createArchiveProfileReconciler({
 			existingHandle !== accountPayload.username.toLowerCase()
 		) {
 			throw new Error(
-				`Existing acct_primary (@${existingHandle}) does not match archive account @${accountPayload.username}`,
+				`Existing ${accountId} (@${existingHandle}) does not match archive account @${accountPayload.username}`,
 			);
 		}
 	}
@@ -264,7 +267,7 @@ export function createArchiveProfileReconciler({
 	function initializeLocalProfile(includeProfiles: boolean) {
 		const existingLocalProfile =
 			preserveExisting &&
-			(existingProfiles.get("profile_me") ??
+			(existingProfiles.get(localProfileId) ??
 				[...existingProfiles.values()].find(
 					(profile) =>
 						profile.handle.toLowerCase() ===
@@ -279,7 +282,7 @@ export function createArchiveProfileReconciler({
 					createdAt: accountPayload.createdAt,
 				}
 			: {
-					id: "profile_me",
+					id: localProfileId,
 					handle: accountPayload.username,
 					displayName: accountPayload.displayName,
 					bio: accountPayload.bio,
@@ -322,7 +325,7 @@ export function createArchiveProfileReconciler({
 				(row.source === "archive" ||
 					row.snapshot_source === "archive" ||
 					row.snapshot_id ===
-						`follow_snapshot_archive_acct_primary_${row.direction}`);
+						`follow_snapshot_archive_${accountId}_${row.direction}`);
 			if (!clearedArchiveRow)
 				addFollowProfile(row.profile_id, row.external_user_id);
 		}

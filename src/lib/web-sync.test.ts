@@ -68,7 +68,7 @@ vi.mock("./timeline-live", () => ({
 		}),
 }));
 
-import { resetBirdclawPathsForTests } from "./config";
+import { resetNeoArchivePathsForTests } from "./config";
 import { getNativeDb, resetDatabaseForTests } from "./db";
 import {
 	clearWebSyncLocksForTests,
@@ -87,14 +87,14 @@ function deferred<T>() {
 	return { promise, resolve };
 }
 
-const originalBirdclawHome = process.env.BIRDCLAW_HOME;
+const originalNeoArchiveHome = process.env.NEO_ARCHIVE_HOME;
 const tempRoots: string[] = [];
 
 function setupDefaultAccount(accountId: string) {
-	const tempRoot = mkdtempSync(path.join(os.tmpdir(), "birdclaw-web-sync-"));
+	const tempRoot = mkdtempSync(path.join(os.tmpdir(), "neo-archive-web-sync-"));
 	tempRoots.push(tempRoot);
-	process.env.BIRDCLAW_HOME = tempRoot;
-	resetBirdclawPathsForTests();
+	process.env.NEO_ARCHIVE_HOME = tempRoot;
+	resetNeoArchivePathsForTests();
 	resetDatabaseForTests();
 	getNativeDb({ seedDemoData: false })
 		.prepare(
@@ -125,11 +125,11 @@ describe("web sync dispatcher", () => {
 
 	afterEach(() => {
 		resetDatabaseForTests();
-		resetBirdclawPathsForTests();
-		if (originalBirdclawHome === undefined) {
-			delete process.env.BIRDCLAW_HOME;
+		resetNeoArchivePathsForTests();
+		if (originalNeoArchiveHome === undefined) {
+			delete process.env.NEO_ARCHIVE_HOME;
 		} else {
-			process.env.BIRDCLAW_HOME = originalBirdclawHome;
+			process.env.NEO_ARCHIVE_HOME = originalNeoArchiveHome;
 		}
 		for (const tempRoot of tempRoots.splice(0)) {
 			rmSync(tempRoot, { recursive: true, force: true });

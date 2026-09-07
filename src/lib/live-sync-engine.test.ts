@@ -16,7 +16,7 @@ import {
 } from "./live-sync-engine";
 import { writeSyncCache } from "./sync-cache";
 
-const testHome = useTestHome({ prefix: "birdclaw-sync-engine-" });
+const testHome = useTestHome({ prefix: "neo-archive-sync-engine-" });
 
 function setupDatabase() {
 	const { db } = testHome();

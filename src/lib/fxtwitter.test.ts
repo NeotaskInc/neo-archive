@@ -18,7 +18,7 @@ import {
 	parseFxTwitterTweetId,
 } from "./fxtwitter";
 
-const testHome = useTestHome({ prefix: "birdclaw-fxtwitter-" });
+const testHome = useTestHome({ prefix: "neo-archive-fxtwitter-" });
 
 function fxResponse(status: Record<string, unknown>, code = 200) {
 	return new Response(JSON.stringify({ status, code }), {
@@ -160,9 +160,7 @@ describe("FxTwitter public tweet transport", () => {
 			redirect: "manual",
 		});
 		expect((requestInit as RequestInit).headers).toMatchObject({
-			"User-Agent": expect.stringMatching(
-				/^birdclaw\/\d+[.]\d+[.]\d+ \(fxtwitter-read-only\)$/,
-			),
+			"User-Agent": `neo-archive/${JSON.parse(readFileSync(new URL("../../package.json", import.meta.url), "utf8")).version} (fxtwitter-read-only)`,
 		});
 		expect((requestInit as RequestInit).signal).toBeTruthy();
 		expect(result.payload).toMatchObject({

@@ -3,7 +3,7 @@ import NativeSqliteDatabase, {
 	type Database,
 	SQLITE_BUSY_TIMEOUT_MS,
 } from "./sqlite";
-import { ensureBirdclawDirs, getBirdclawPaths } from "./config";
+import { ensureNeoArchiveDirs, getNeoArchivePaths } from "./config";
 import {
 	getDatabaseSchemaVersion,
 	type DatabaseMigration,
@@ -1185,16 +1185,16 @@ function shouldSeedDemoData(options: InitDatabaseOptions) {
 	return (
 		options.seedDemoData === true ||
 		(options.seedDemoData === undefined &&
-			process.env.BIRDCLAW_TEST_SEED_DEMO_DATA === "1")
+			process.env.NEO_ARCHIVE_TEST_SEED_DEMO_DATA === "1")
 	);
 }
 
 function initDatabase(options: InitDatabaseOptions = {}) {
-	ensureBirdclawDirs();
+	ensureNeoArchiveDirs();
 	const seedDemo = shouldSeedDemoData(options);
 
 	if (!nativeDb) {
-		const { dbPath } = getBirdclawPaths();
+		const { dbPath } = getNeoArchivePaths();
 		nativeDb = createDatabaseConnection(dbPath, "writer");
 		nativeDb.exec(`
 		  pragma journal_mode = wal;
@@ -1271,7 +1271,7 @@ function assertCurrentDatabaseSchema(db: Database) {
 	const actualVersion = getDatabaseSchemaVersion(db);
 	if (actualVersion !== expectedVersion) {
 		throw new Error(
-			`Birdclaw database schema ${String(actualVersion)} is not ready for version ${String(expectedVersion)}`,
+			`Neo Archive database schema ${String(actualVersion)} is not ready for version ${String(expectedVersion)}`,
 		);
 	}
 }
@@ -1290,7 +1290,7 @@ export function getNativeDb(options: InitDatabaseOptions = {}) {
 export function getReadDb(options: InitDatabaseOptions = {}) {
 	initDatabase(options);
 	if (readDbs.length === 0) {
-		const { dbPath } = getBirdclawPaths();
+		const { dbPath } = getNeoArchivePaths();
 		readDbs = createReadDatabasePool(dbPath);
 	}
 	return nextReadDb();
@@ -1317,9 +1317,9 @@ export function getStrictReadDb() {
 		assertCurrentDatabaseSchema(readDbs[0] as Database);
 		return nextReadDb();
 	}
-	const { dbPath } = getBirdclawPaths();
+	const { dbPath } = getNeoArchivePaths();
 	if (!existsSync(dbPath)) {
-		throw new Error("Birdclaw database is not initialized");
+		throw new Error("Neo Archive database is not initialized");
 	}
 
 	readDbs = createReadDatabasePool(dbPath, assertCurrentDatabaseSchema);

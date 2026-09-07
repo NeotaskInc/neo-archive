@@ -11,7 +11,7 @@ describe("TweetRichText", () => {
 	it("renders mentions, urls, and hashtags with rich spans", () => {
 		render(
 			<TweetRichText
-				text="@amelia ship https://t.co/demo #birdclaw"
+				text="@amelia ship https://t.co/demo #neo-archive"
 				entities={{
 					mentions: [
 						{
@@ -41,7 +41,7 @@ describe("TweetRichText", () => {
 					],
 					hashtags: [
 						{
-							tag: "birdclaw",
+							tag: "neo-archive",
 							start: 31,
 							end: 40,
 						},
@@ -55,7 +55,7 @@ describe("TweetRichText", () => {
 		expect(
 			screen.getByRole("link", { name: "example.com/demo" }),
 		).toHaveAttribute("href", "https://example.com/demo");
-		expect(screen.getByText("#birdclaw")).toBeInTheDocument();
+		expect(screen.getByText("#neo-archive")).toBeInTheDocument();
 		fireEvent.pointerEnter(
 			mention.closest(".profile-preview-trigger")?.parentElement as Element,
 		);

@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { Effect } from "effect";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { resetBirdclawPathsForTests } from "./config";
+import { resetNeoArchivePathsForTests } from "./config";
 import { getNativeDb, resetDatabaseForTests } from "./db";
 import { listInboxItems } from "./inbox";
 import { getConversationThread, listDmConversations } from "./dm-read-model";
@@ -95,10 +95,10 @@ vi.mock("./xurl", async () => {
 const tempRoots: string[] = [];
 
 function setupTempHome() {
-	const tempRoot = mkdtempSync(path.join(os.tmpdir(), "birdclaw-test-"));
+	const tempRoot = mkdtempSync(path.join(os.tmpdir(), "neo-archive-test-"));
 	tempRoots.push(tempRoot);
-	process.env.BIRDCLAW_HOME = tempRoot;
-	resetBirdclawPathsForTests();
+	process.env.NEO_ARCHIVE_HOME = tempRoot;
+	resetNeoArchivePathsForTests();
 	resetDatabaseForTests();
 }
 
@@ -168,17 +168,17 @@ function insertTestCollection(
 
 afterEach(() => {
 	resetDatabaseForTests();
-	resetBirdclawPathsForTests();
-	delete process.env.BIRDCLAW_HOME;
+	resetNeoArchivePathsForTests();
+	delete process.env.NEO_ARCHIVE_HOME;
 	mocks.findArchives.mockReset();
 	mocks.getTransportStatus.mockReset();
 	mocks.postViaXurl.mockReset();
 	mocks.replyViaXurl.mockReset();
 	mocks.dmViaXurl.mockReset();
 	mocks.lookupAuthenticatedUser.mockReset();
-	delete process.env.BIRDCLAW_DISABLE_LIVE_WRITES;
-	delete process.env.BIRDCLAW_E2E;
-	delete process.env.BIRDCLAW_E2E_FAKE_LIVE_WRITES;
+	delete process.env.NEO_ARCHIVE_DISABLE_LIVE_WRITES;
+	delete process.env.NEO_ARCHIVE_E2E;
+	delete process.env.NEO_ARCHIVE_E2E_FAKE_LIVE_WRITES;
 
 	for (const tempRoot of tempRoots.splice(0)) {
 		rmSync(tempRoot, { recursive: true, force: true });
@@ -822,7 +822,7 @@ describe("query models", () => {
 		).toHaveLength(1);
 		expect(studioItems.find((item) => item.id === "tweet_001")).toMatchObject({
 			accountId: "acct_studio",
-			accountHandle: "@birdclaw_lab",
+			accountHandle: "@neo_archive_lab",
 			bookmarked: false,
 			liked: false,
 		});
@@ -2351,7 +2351,7 @@ describe("query models", () => {
 
 	it("does not call xurl whoami when live writes are disabled", async () => {
 		setupTempHome();
-		process.env.BIRDCLAW_DISABLE_LIVE_WRITES = "1";
+		process.env.NEO_ARCHIVE_DISABLE_LIVE_WRITES = "1";
 		mocks.postViaXurl.mockResolvedValueOnce({
 			ok: false,
 			output: "live writes disabled",

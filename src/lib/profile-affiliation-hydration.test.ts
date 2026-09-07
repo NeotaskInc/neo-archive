@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { Effect } from "effect";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { resetBirdclawPathsForTests } from "./config";
+import { resetNeoArchivePathsForTests } from "./config";
 import { getNativeDb, resetDatabaseForTests } from "./db";
 
 const mocks = vi.hoisted(() => ({
@@ -57,18 +57,18 @@ function seedSyntheticAffiliation(
 describe("profile affiliation hydration", () => {
 	beforeEach(() => {
 		homeDir = mkdtempSync(
-			path.join(os.tmpdir(), "birdclaw-affiliation-hydration-"),
+			path.join(os.tmpdir(), "neo-archive-affiliation-hydration-"),
 		);
-		process.env.BIRDCLAW_HOME = homeDir;
-		resetBirdclawPathsForTests();
+		process.env.NEO_ARCHIVE_HOME = homeDir;
+		resetNeoArchivePathsForTests();
 		resetDatabaseForTests();
 		mocks.lookupProfileViaBird.mockReset();
 	});
 
 	afterEach(() => {
 		resetDatabaseForTests();
-		resetBirdclawPathsForTests();
-		delete process.env.BIRDCLAW_HOME;
+		resetNeoArchivePathsForTests();
+		delete process.env.NEO_ARCHIVE_HOME;
 		rmSync(homeDir, { recursive: true, force: true });
 	});
 

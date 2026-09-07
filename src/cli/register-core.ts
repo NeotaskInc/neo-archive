@@ -7,7 +7,7 @@ import {
 	type ImportWritePhase,
 	importArchive,
 } from "#/lib/archive-import";
-import { ensureBirdclawDirs, setActionsTransport } from "#/lib/config";
+import { ensureNeoArchiveDirs, setActionsTransport } from "#/lib/config";
 import { getNativeDb } from "#/lib/db";
 import {
 	FxTwitterError,
@@ -178,10 +178,10 @@ export function registerCoreCommands({
 
 	program
 		.command("init")
-		.description("Create an empty local birdclaw workspace")
+		.description("Create an empty local neo-archive workspace")
 		.option("--demo", "Seed sample tweets and DMs for offline exploration")
 		.action((options: { demo?: boolean }) => {
-			const paths = ensureBirdclawDirs();
+			const paths = ensureNeoArchiveDirs();
 			const db = getNativeDb({ seedDemoData: false });
 			const demo = options.demo
 				? { requested: true, ...seedDemoData(db) }
@@ -197,11 +197,11 @@ export function registerCoreCommands({
 					mediaThumbsDir: paths.mediaThumbsDir,
 					nextSteps: options.demo
 						? [
-								"birdclaw search tweets --limit 5",
-								"birdclaw dms list --limit 5",
-								"birdclaw serve",
+								"neo-archive search tweets --limit 5",
+								"neo-archive dms list --limit 5",
+								"neo-archive serve",
 							]
-						: ["birdclaw import archive <path>", "birdclaw init --demo"],
+						: ["neo-archive import archive <path>", "neo-archive init --demo"],
 				},
 				asJson(),
 			);
@@ -240,6 +240,10 @@ export function registerCoreCommands({
 		.command("archive [archivePath]")
 		.description("Import a Twitter archive into the local SQLite store")
 		.option(
+			"--account <username>",
+			"Validate the archive owner and import into that account",
+		)
+		.option(
 			"--select <kinds>",
 			`Import only selected archive slices: ${ARCHIVE_IMPORT_SLICES.join(", ")}`,
 		)
@@ -248,7 +252,10 @@ export function registerCoreCommands({
 			"Exactly replace imported archive slices instead of safely merging",
 		)
 		.action(
-			async (archivePath, options: { select?: string; restore?: boolean }) => {
+			async (
+				archivePath,
+				options: { account?: string; select?: string; restore?: boolean },
+			) => {
 				const select = parseArchiveImportSelect(options.select);
 				if (options.select !== undefined && !select) return;
 				let resolvedArchivePath = archivePath;
@@ -263,6 +270,9 @@ export function registerCoreCommands({
 				}
 				const json = Boolean(asJson());
 				const result = await importArchive(resolvedArchivePath, {
+					...(options.account !== undefined
+						? { account: options.account }
+						: {}),
 					select,
 					...(options.restore ? { restore: true } : {}),
 					...(!json ? { onProgress: logImportProgress } : {}),

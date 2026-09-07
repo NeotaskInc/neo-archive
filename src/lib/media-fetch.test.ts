@@ -10,16 +10,16 @@ import {
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { resetBirdclawPathsForTests } from "./config";
+import { resetNeoArchivePathsForTests } from "./config";
 import { getNativeDb, resetDatabaseForTests } from "./db";
 import { fetchTweetMedia } from "./media-fetch";
 
 const tempDirs: string[] = [];
 
 function home() {
-	const dir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-media-fetch-"));
+	const dir = mkdtempSync(path.join(os.tmpdir(), "neo-archive-media-fetch-"));
 	tempDirs.push(dir);
-	process.env.BIRDCLAW_HOME = dir;
+	process.env.NEO_ARCHIVE_HOME = dir;
 	return dir;
 }
 
@@ -95,8 +95,8 @@ function failingStream(bytes: Uint8Array, error: Error) {
 
 afterEach(() => {
 	resetDatabaseForTests();
-	resetBirdclawPathsForTests();
-	delete process.env.BIRDCLAW_HOME;
+	resetNeoArchivePathsForTests();
+	delete process.env.NEO_ARCHIVE_HOME;
 	vi.unstubAllGlobals();
 	for (const dir of tempDirs.splice(0)) {
 		rmSync(dir, { recursive: true, force: true });

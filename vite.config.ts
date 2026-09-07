@@ -4,7 +4,7 @@ import viteReact from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
 const extraAllowedHosts =
-	process.env.BIRDCLAW_ALLOWED_HOSTS?.split(",")
+	process.env.NEO_ARCHIVE_ALLOWED_HOSTS?.split(",")
 		.map((host) => host.trim())
 		.filter(Boolean) ?? [];
 

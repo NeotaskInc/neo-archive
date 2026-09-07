@@ -12,10 +12,10 @@ beforeEach(() => {
 
 afterEach(() => {
 	process.env.OPENAI_API_KEY = "";
-	delete process.env.BIRDCLAW_OPENAI_MODEL;
-	delete process.env.BIRDCLAW_OPENAI_BASE_URL;
+	delete process.env.NEO_ARCHIVE_OPENAI_MODEL;
+	delete process.env.NEO_ARCHIVE_OPENAI_BASE_URL;
 	delete process.env.OPENAI_BASE_URL;
-	delete process.env.BIRDCLAW_DEBUG;
+	delete process.env.NEO_ARCHIVE_DEBUG;
 	vi.unstubAllGlobals();
 });
 
@@ -39,7 +39,7 @@ describe("openai inbox scoring", () => {
 
 	it("returns clamped structured scores", async () => {
 		process.env.OPENAI_API_KEY = "test-key";
-		process.env.BIRDCLAW_OPENAI_MODEL = "gpt-test";
+		process.env.NEO_ARCHIVE_OPENAI_MODEL = "gpt-test";
 		vi.stubGlobal(
 			"fetch",
 			vi.fn().mockResolvedValue(
@@ -84,7 +84,7 @@ describe("openai inbox scoring", () => {
 
 	it("targets the configured OpenAI-compatible base URL", async () => {
 		process.env.OPENAI_API_KEY = "test-key";
-		process.env.BIRDCLAW_OPENAI_BASE_URL = "http://localhost:11434/v1/";
+		process.env.NEO_ARCHIVE_OPENAI_BASE_URL = "http://localhost:11434/v1/";
 		const fetchMock = vi.fn().mockResolvedValue(
 			new Response(
 				JSON.stringify({

@@ -68,9 +68,9 @@ describe("AccountSwitcher", () => {
 		fireEvent.click(screen.getByRole("option", { name: /@openclaw/i }));
 
 		await waitFor(() => {
-			expect(window.localStorage.getItem("birdclaw:selected-account-id")).toBe(
-				"acct_openclaw",
-			);
+			expect(
+				window.localStorage.getItem("neo-archive:selected-account-id"),
+			).toBe("acct_openclaw");
 		});
 		expect(
 			screen.queryByRole("listbox", { name: "Active account" }),
@@ -163,7 +163,10 @@ describe("AccountSwitcher", () => {
 	});
 
 	it("falls back to account ids when optional profile fields are missing", async () => {
-		window.localStorage.setItem("birdclaw:selected-account-id", "acct_id_only");
+		window.localStorage.setItem(
+			"neo-archive:selected-account-id",
+			"acct_id_only",
+		);
 		vi.stubGlobal(
 			"fetch",
 			vi.fn(async () =>

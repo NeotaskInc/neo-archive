@@ -24,7 +24,7 @@ export function registerMentionCommands({
 			"Return mention tweets with plain-text and markdown renderings",
 		)
 		.option("--account <username>", "Account username or id")
-		.option("--mode <mode>", "birdclaw, auto, xurl, or bird")
+		.option("--mode <mode>", "neo-archive, auto, xurl, or bird")
 		.option("--replied", "Only replied items")
 		.option("--unreplied", "Only unreplied items")
 		.option("--refresh", "Refresh the live xurl cache before returning")

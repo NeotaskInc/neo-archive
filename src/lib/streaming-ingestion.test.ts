@@ -20,7 +20,7 @@ async function collect<T>(source: AsyncIterable<T>) {
 
 describe("streaming ingestion", () => {
 	it("preserves unicode separators in physical JSONL records", async () => {
-		const directory = mkdtempSync(path.join(os.tmpdir(), "birdclaw-jsonl-"));
+		const directory = mkdtempSync(path.join(os.tmpdir(), "neo-archive-jsonl-"));
 		const filePath = path.join(directory, "legacy.jsonl");
 		const first = {
 			text: `${"x".repeat(65_526)}\u2028line\u2029paragraph`,

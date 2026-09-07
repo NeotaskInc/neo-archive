@@ -36,7 +36,7 @@ describe("docs site", () => {
 		);
 		expect(auth).toContain("xurl whoami");
 		expect(auth).not.toContain("--client-secret");
-		expect(auth).not.toContain("BIRDCLAW_PROFILE");
+		expect(auth).not.toContain("NEO_ARCHIVE_PROFILE");
 		expect(auth).toContain("import your X archive before the first live sync");
 		expect(auth).toContain("npm install -g @xdevplatform/xurl");
 		expect(auth).toContain("Existing bird installations");
@@ -53,7 +53,7 @@ describe("docs site", () => {
 			"Do not run live sync against an empty or demo database",
 		);
 		expect(quickstart).toContain(
-			'birdclaw</span> init <span class="hl-f">--demo',
+			'neo-archive</span> init <span class="hl-f">--demo',
 		);
 		expect(quickstart).toContain("no archive, credentials, or network access");
 	});

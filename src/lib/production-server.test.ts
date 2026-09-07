@@ -5,12 +5,12 @@ import { connect } from "node:net";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { BirdclawMcpRuntime } from "./mcp-http";
+import type { NeoArchiveMcpRuntime } from "./mcp-http";
 import { startProductionServer } from "./production-server";
 
 const tempDirs: string[] = [];
-const originalLocalWeb = process.env.BIRDCLAW_LOCAL_WEB;
-const originalAllowRemoteWeb = process.env.BIRDCLAW_ALLOW_REMOTE_WEB;
+const originalLocalWeb = process.env.NEO_ARCHIVE_LOCAL_WEB;
+const originalAllowRemoteWeb = process.env.NEO_ARCHIVE_ALLOW_REMOTE_WEB;
 const productionMcpToken = [
 	"production-mcp",
 	"test-token",
@@ -99,11 +99,11 @@ async function closeServer(
 }
 
 afterEach(() => {
-	if (originalLocalWeb === undefined) delete process.env.BIRDCLAW_LOCAL_WEB;
-	else process.env.BIRDCLAW_LOCAL_WEB = originalLocalWeb;
+	if (originalLocalWeb === undefined) delete process.env.NEO_ARCHIVE_LOCAL_WEB;
+	else process.env.NEO_ARCHIVE_LOCAL_WEB = originalLocalWeb;
 	if (originalAllowRemoteWeb === undefined)
-		delete process.env.BIRDCLAW_ALLOW_REMOTE_WEB;
-	else process.env.BIRDCLAW_ALLOW_REMOTE_WEB = originalAllowRemoteWeb;
+		delete process.env.NEO_ARCHIVE_ALLOW_REMOTE_WEB;
+	else process.env.NEO_ARCHIVE_ALLOW_REMOTE_WEB = originalAllowRemoteWeb;
 	for (const directory of tempDirs.splice(0)) {
 		rmSync(directory, { recursive: true, force: true });
 	}
@@ -112,7 +112,7 @@ afterEach(() => {
 describe("production server", () => {
 	it("serves built assets before delegating requests to the SSR handler", async () => {
 		const packageRoot = mkdtempSync(
-			path.join(os.tmpdir(), "birdclaw-production-server-"),
+			path.join(os.tmpdir(), "neo-archive-production-server-"),
 		);
 		tempDirs.push(packageRoot);
 		const clientDir = path.join(packageRoot, "client");
@@ -121,7 +121,7 @@ describe("production server", () => {
 		const serverEntry = path.join(packageRoot, "server.mjs");
 		writeFileSync(
 			serverEntry,
-			`export default { fetch(request) { return new Response("SSR " + new URL(request.url).pathname + " " + request.headers.get("x-birdclaw-local-peer"), { headers: { "content-type": "text/plain" } }); } };`,
+			`export default { fetch(request) { return new Response("SSR " + new URL(request.url).pathname + " " + request.headers.get("x-neo-archive-local-peer"), { headers: { "content-type": "text/plain" } }); } };`,
 		);
 
 		const server = await startProductionServer({
@@ -136,7 +136,7 @@ describe("production server", () => {
 
 		await expect(
 			fetch(`${baseUrl}/route`, {
-				headers: { "x-birdclaw-local-peer": "forged" },
+				headers: { "x-neo-archive-local-peer": "forged" },
 			}).then((response) => response.text()),
 		).resolves.toBe("SSR /route 1");
 		const asset = await fetch(`${baseUrl}/assets/app.js`);
@@ -145,15 +145,15 @@ describe("production server", () => {
 			"text/javascript; charset=utf-8",
 		);
 		expect(asset.headers.get("cache-control")).toContain("immutable");
-		expect(process.env.BIRDCLAW_LOCAL_WEB).toBe("socket");
+		expect(process.env.NEO_ARCHIVE_LOCAL_WEB).toBe("socket");
 
 		await closeServer(server);
 	});
 
 	it("reserves an external MCP hostname before static files and write APIs", async () => {
-		process.env.BIRDCLAW_ALLOW_REMOTE_WEB = "1";
+		process.env.NEO_ARCHIVE_ALLOW_REMOTE_WEB = "1";
 		const packageRoot = mkdtempSync(
-			path.join(os.tmpdir(), "birdclaw-production-mcp-host-"),
+			path.join(os.tmpdir(), "neo-archive-production-mcp-host-"),
 		);
 		tempDirs.push(packageRoot);
 		const clientDir = path.join(packageRoot, "client");
@@ -164,7 +164,7 @@ describe("production server", () => {
 			serverEntry,
 			`export default { fetch(request) { return new Response("SSR " + new URL(request.url).pathname, { headers: { "content-type": "text/plain" } }); } };`,
 		);
-		const mcpRuntime: BirdclawMcpRuntime = {
+		const mcpRuntime: NeoArchiveMcpRuntime = {
 			config: {
 				token: productionMcpToken,
 				publicUrl: new URL("https://mcp.example.test/mcp"),
@@ -238,7 +238,7 @@ describe("production server", () => {
 
 	it("rejects absolute-form and mismatched-authority request targets", async () => {
 		const packageRoot = mkdtempSync(
-			path.join(os.tmpdir(), "birdclaw-production-raw-target-"),
+			path.join(os.tmpdir(), "neo-archive-production-raw-target-"),
 		);
 		tempDirs.push(packageRoot);
 		const serverEntry = path.join(packageRoot, "server.mjs");
@@ -297,7 +297,7 @@ describe("production server", () => {
 
 	it("closes unread rejected MCP bodies instead of preserving slow sockets", async () => {
 		const packageRoot = mkdtempSync(
-			path.join(os.tmpdir(), "birdclaw-production-slow-body-"),
+			path.join(os.tmpdir(), "neo-archive-production-slow-body-"),
 		);
 		tempDirs.push(packageRoot);
 		const serverEntry = path.join(packageRoot, "server.mjs");
@@ -305,7 +305,7 @@ describe("production server", () => {
 			serverEntry,
 			`export default { fetch() { return new Response("SSR"); } };`,
 		);
-		const mcpRuntime: BirdclawMcpRuntime = {
+		const mcpRuntime: NeoArchiveMcpRuntime = {
 			config: {
 				token: productionMcpToken,
 				publicUrl: new URL("https://mcp.example.test/mcp"),

@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { resetBirdclawPathsForTests } from "./config";
+import { resetNeoArchivePathsForTests } from "./config";
 import { getNativeDb, resetDatabaseForTests } from "./db";
 import {
 	getXurlRateLimitSnapshot,
@@ -14,11 +14,11 @@ const tempDirs: string[] = [];
 
 afterEach(() => {
 	resetDatabaseForTests();
-	resetBirdclawPathsForTests();
-	delete process.env.BIRDCLAW_HOME;
-	delete process.env.BIRDCLAW_PROFILE_ANALYSIS_CONVERSATION_DELAY_MS;
-	delete process.env.BIRDCLAW_PROFILE_ANALYSIS_RATE_LIMIT_RETRY_MS;
-	delete process.env.BIRDCLAW_PROFILE_ANALYSIS_RATE_LIMIT_MAX_RETRIES;
+	resetNeoArchivePathsForTests();
+	delete process.env.NEO_ARCHIVE_HOME;
+	delete process.env.NEO_ARCHIVE_PROFILE_ANALYSIS_CONVERSATION_DELAY_MS;
+	delete process.env.NEO_ARCHIVE_PROFILE_ANALYSIS_RATE_LIMIT_RETRY_MS;
+	delete process.env.NEO_ARCHIVE_PROFILE_ANALYSIS_RATE_LIMIT_MAX_RETRIES;
 
 	for (const dir of tempDirs.splice(0)) {
 		rmSync(dir, { recursive: true, force: true });
@@ -26,9 +26,11 @@ afterEach(() => {
 });
 
 function setupDb() {
-	const tempDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-rate-limits-"));
+	const tempDir = mkdtempSync(
+		path.join(os.tmpdir(), "neo-archive-rate-limits-"),
+	);
 	tempDirs.push(tempDir);
-	process.env.BIRDCLAW_HOME = tempDir;
+	process.env.NEO_ARCHIVE_HOME = tempDir;
 	return getNativeDb();
 }
 
@@ -95,9 +97,9 @@ describe("xurl rate limits", () => {
 
 	it("reports throttle env defaults and overrides", () => {
 		const db = setupDb();
-		process.env.BIRDCLAW_PROFILE_ANALYSIS_CONVERSATION_DELAY_MS = "42";
-		process.env.BIRDCLAW_PROFILE_ANALYSIS_RATE_LIMIT_RETRY_MS = "5000";
-		process.env.BIRDCLAW_PROFILE_ANALYSIS_RATE_LIMIT_MAX_RETRIES = "2";
+		process.env.NEO_ARCHIVE_PROFILE_ANALYSIS_CONVERSATION_DELAY_MS = "42";
+		process.env.NEO_ARCHIVE_PROFILE_ANALYSIS_RATE_LIMIT_RETRY_MS = "5000";
+		process.env.NEO_ARCHIVE_PROFILE_ANALYSIS_RATE_LIMIT_MAX_RETRIES = "2";
 
 		expect(getXurlRateLimitSnapshot(db).throttle).toEqual({
 			conversationDelayMs: 42,

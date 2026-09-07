@@ -10,16 +10,16 @@ Designed with `create-cli` defaults:
 
 ## Name
 
-`birdclaw`
+`neo-archive`
 
 ## One-liner
 
-`birdclaw` imports, syncs, searches, and operates on a local Twitter archive.
+`neo-archive` imports, syncs, searches, and operates on a local Twitter archive.
 
 ## Usage
 
 ```text
-birdclaw [global flags] <subcommand> [args]
+neo-archive [global flags] <subcommand> [args]
 ```
 
 ## Global flags
@@ -34,81 +34,81 @@ Command flags > environment overrides > user config
 
 User config:
 
-- `~/.birdclaw/config.json`
+- `~/.neo-archive/config.json`
 
 ## Env vars
 
-- `BIRDCLAW_HOME`
-- `BIRDCLAW_CONFIG`
-- `BIRDCLAW_ACTIONS_TRANSPORT`
-- `BIRDCLAW_BIRD_COMMAND`
-- `BIRDCLAW_BASH_COMMAND`
-- `BIRDCLAW_MCP_TOKEN`
-- `BIRDCLAW_MCP_PUBLIC_URL`
-- `BIRDCLAW_MCP_ACCOUNT`
+- `NEO_ARCHIVE_HOME`
+- `NEO_ARCHIVE_CONFIG`
+- `NEO_ARCHIVE_ACTIONS_TRANSPORT`
+- `NEO_ARCHIVE_BIRD_COMMAND`
+- `NEO_ARCHIVE_BASH_COMMAND`
+- `NEO_ARCHIVE_MCP_TOKEN`
+- `NEO_ARCHIVE_MCP_PUBLIC_URL`
+- `NEO_ARCHIVE_MCP_ACCOUNT`
 
 ## Command tree
 
 ```text
-birdclaw init [--demo]
-birdclaw auth status
-birdclaw auth use <transport>
-birdclaw import archive [path]
-birdclaw import tweet <tweet-id-or-url...> --fxtwitter
-birdclaw sync all
-birdclaw sync tweets
-birdclaw sync authored
-birdclaw sync dms
-birdclaw sync bookmarks
-birdclaw sync likes
-birdclaw sync timeline
-birdclaw sync mentions
-birdclaw sync mention-threads
-birdclaw sync followers
-birdclaw sync following
-birdclaw sync lists
-birdclaw lists list
-birdclaw lists members [name]
-birdclaw import tweet <tweet-id-or-url...> --fxtwitter
-birdclaw import thread <tweet-id-or-url> --fxtwitter
-birdclaw import conversation <tweet-id-or-url> --fxtwitter
-birdclaw import profile <handle> --fxtwitter
-birdclaw search tweets <query>
-birdclaw search dms <query>
-birdclaw discuss <query>
-birdclaw today
-birdclaw digest [today|24h|yesterday|week]
-birdclaw mentions export [query]
-birdclaw media fetch
-birdclaw dms list
-birdclaw mute <handle-or-id>
-birdclaw unmute <handle-or-id>
-birdclaw mutes list
-birdclaw blocks list
-birdclaw blocks add <handle-or-id>
-birdclaw blocks remove <handle-or-id>
-birdclaw ban <handle-or-id>
-birdclaw unban <handle-or-id>
-birdclaw show tweet <id>
-birdclaw show thread <id>
-birdclaw show dm <conversation-id>
-birdclaw inbox
-birdclaw serve
-birdclaw graph summary
-birdclaw graph events
-birdclaw graph top-followers
-birdclaw graph unfollowed
-birdclaw graph non-mutual-following
-birdclaw graph mutuals
-birdclaw compose post
-birdclaw compose reply <tweet-id>
-birdclaw db stats
-birdclaw db vacuum
-birdclaw backup export --repo <path>
-birdclaw backup sync --repo <path> --remote <url>
-birdclaw backup import <path>
-birdclaw backup validate <path>
-birdclaw debug transport
+neo-archive init [--demo]
+neo-archive auth status
+neo-archive auth use <transport>
+neo-archive import archive [path]
+neo-archive import tweet <tweet-id-or-url...> --fxtwitter
+neo-archive sync all
+neo-archive sync tweets
+neo-archive sync authored
+neo-archive sync dms
+neo-archive sync bookmarks
+neo-archive sync likes
+neo-archive sync timeline
+neo-archive sync mentions
+neo-archive sync mention-threads
+neo-archive sync followers
+neo-archive sync following
+neo-archive sync lists
+neo-archive lists list
+neo-archive lists members [name]
+neo-archive import tweet <tweet-id-or-url...> --fxtwitter
+neo-archive import thread <tweet-id-or-url> --fxtwitter
+neo-archive import conversation <tweet-id-or-url> --fxtwitter
+neo-archive import profile <handle> --fxtwitter
+neo-archive search tweets <query>
+neo-archive search dms <query>
+neo-archive discuss <query>
+neo-archive today
+neo-archive digest [today|24h|yesterday|week]
+neo-archive mentions export [query]
+neo-archive media fetch
+neo-archive dms list
+neo-archive mute <handle-or-id>
+neo-archive unmute <handle-or-id>
+neo-archive mutes list
+neo-archive blocks list
+neo-archive blocks add <handle-or-id>
+neo-archive blocks remove <handle-or-id>
+neo-archive ban <handle-or-id>
+neo-archive unban <handle-or-id>
+neo-archive show tweet <id>
+neo-archive show thread <id>
+neo-archive show dm <conversation-id>
+neo-archive inbox
+neo-archive serve
+neo-archive graph summary
+neo-archive graph events
+neo-archive graph top-followers
+neo-archive graph unfollowed
+neo-archive graph non-mutual-following
+neo-archive graph mutuals
+neo-archive compose post
+neo-archive compose reply <tweet-id>
+neo-archive db stats
+neo-archive db vacuum
+neo-archive backup export --repo <path>
+neo-archive backup sync --repo <path> --remote <url>
+neo-archive backup import <path>
+neo-archive backup validate <path>
+neo-archive debug transport
 ```
 
 ## Subcommand semantics
@@ -121,7 +121,7 @@ birdclaw debug transport
 - requires `OPENAI_API_KEY`
 - excludes DMs unless `--include-dms` is passed
 - supports `--refresh`, `--model`, `--language <locale-id>`, `--max-tweets`, and `--max-links`
-- reads the default report language from `BIRDCLAW_DIGEST_LANGUAGE`
+- reads the default report language from `NEO_ARCHIVE_DIGEST_LANGUAGE`
 
 ### `digest [period]`
 
@@ -184,7 +184,7 @@ See [Public tweet import](public-tweets.md) for the full privacy and capability 
 - `--push` implies commit and pushes the backup repo
 
 ```bash
-birdclaw backup export --repo ~/Projects/birdclaw-store --commit --push
+neo-archive backup export --repo ~/Projects/neo-archive-store --commit --push
 ```
 
 ### `backup sync`
@@ -196,7 +196,7 @@ birdclaw backup export --repo ~/Projects/birdclaw-store --commit --push
 - commits and pushes the backup repo
 
 ```bash
-birdclaw backup sync --repo ~/Projects/backup-birdclaw --remote https://github.com/steipete/backup-birdclaw.git --json
+neo-archive backup sync --repo ~/Projects/backup-neo-archive --remote https://github.com/steipete/backup-neo-archive.git --json
 ```
 
 Shard contract:
@@ -216,25 +216,25 @@ Shard contract:
 - moderation: `data/moderation/blocks.jsonl`, `data/moderation/mutes.jsonl`
 - no SQLite WAL/SHM, FTS shadow tables, or transient live cache rows
 
-Backup auto-sync config lives in `~/.birdclaw/config.json`:
+Backup auto-sync config lives in `~/.neo-archive/config.json`:
 
 ```json
 {
 	"backup": {
-		"repoPath": "/Users/steipete/Projects/backup-birdclaw",
-		"remote": "https://github.com/steipete/backup-birdclaw.git",
+		"repoPath": "/Users/steipete/Projects/backup-neo-archive",
+		"remote": "https://github.com/steipete/backup-neo-archive.git",
 		"autoSync": true,
 		"staleAfterSeconds": 900
 	}
 }
 ```
 
-Read commands pull + merge only when the last backup check is stale. Data-changing commands run a full backup sync afterward. Set `BIRDCLAW_BACKUP_AUTO_SYNC=0` to disable backup auto-sync for one process.
+Read commands pull + merge only when the last backup check is stale. Data-changing commands run a full backup sync afterward. Set `NEO_ARCHIVE_BACKUP_AUTO_SYNC=0` to disable backup auto-sync for one process.
 
 ### local `bird` command
 
 Live local likes, bookmarks, DMs, and moderation verification use `bird` on PATH
-by default. Override it with `BIRDCLAW_BIRD_COMMAND` or:
+by default. Override it with `NEO_ARCHIVE_BIRD_COMMAND` or:
 
 ```json
 {
@@ -244,8 +244,8 @@ by default. Override it with `BIRDCLAW_BIRD_COMMAND` or:
 }
 ```
 
-On Windows, Birdclaw runs the redirect wrapper through Git Bash. Common Git for
-Windows installations are detected automatically; set `BIRDCLAW_BASH_COMMAND`
+On Windows, Neo Archive runs the redirect wrapper through Git Bash. Common Git for
+Windows installations are detected automatically; set `NEO_ARCHIVE_BASH_COMMAND`
 to the full path of `bash.exe` for a portable or non-standard installation.
 
 ### `backup import`
@@ -256,7 +256,7 @@ to the full path of `bash.exe` for a portable or non-standard installation.
 - rebuilds tweet and DM FTS from the JSONL text
 
 ```bash
-birdclaw backup import ~/Projects/birdclaw-store --json
+neo-archive backup import ~/Projects/neo-archive-store --json
 ```
 
 ### `backup validate`
@@ -266,7 +266,7 @@ birdclaw backup import ~/Projects/birdclaw-store --json
 - exits non-zero on validation failure
 
 ```bash
-birdclaw backup validate ~/Projects/birdclaw-store --json
+neo-archive backup validate ~/Projects/neo-archive-store --json
 ```
 
 ### `import archive [path]`
@@ -276,7 +276,7 @@ birdclaw backup validate ~/Projects/birdclaw-store --json
 - merge selected slices without deleting destination-only rows
 - retain explicit deleted-tweet records as source-attributed tombstones; absence alone is never a deletion
 - use `--restore` for deliberate exact replacement of the imported slices
-- stream bundled media files from `data/tweets_media/`, `data/direct_messages_media/`, `data/community_tweet_media/`, `data/deleted_tweets_media/`, `data/profile_media/`, `data/moments_tweets_media/`, and `data/direct_messages_group_media/` into `~/.birdclaw/media/originals/archive/<kind>/<id>/<filename>`
+- stream bundled media files from `data/tweets_media/`, `data/direct_messages_media/`, `data/community_tweet_media/`, `data/deleted_tweets_media/`, `data/profile_media/`, `data/moments_tweets_media/`, and `data/direct_messages_group_media/` into `~/.neo-archive/media/originals/archive/<kind>/<id>/<filename>`
 - extract `extended_entities.media[].video_info.variants[]` onto each tweet media row for archive video and animated GIFs
 - parse `data/follower.js` and `data/following.js` into the local follow graph
 - idempotent
@@ -298,12 +298,12 @@ Flags:
 Examples:
 
 ```bash
-birdclaw import archive --json
-birdclaw import archive ~/Downloads/twitter-archive.zip --json
-birdclaw import archive ~/Downloads/twitter-archive.zip --select tweets --json
-birdclaw import archive ~/Downloads/twitter-archive.zip --select likes,bookmarks --json
-birdclaw import archive ~/Downloads/twitter-archive.zip --select dms --json
-birdclaw import archive ~/Downloads/twitter-archive.zip --select followers,following --json
+neo-archive import archive --json
+neo-archive import archive ~/Downloads/twitter-archive.zip --json
+neo-archive import archive ~/Downloads/twitter-archive.zip --select tweets --json
+neo-archive import archive ~/Downloads/twitter-archive.zip --select likes,bookmarks --json
+neo-archive import archive ~/Downloads/twitter-archive.zip --select dms --json
+neo-archive import archive ~/Downloads/twitter-archive.zip --select followers,following --json
 ```
 
 ### `sync *`
@@ -337,30 +337,30 @@ Common flags:
 Examples:
 
 ```bash
-birdclaw sync authored --mode xurl --limit 100 --json
-birdclaw sync likes --mode auto --limit 100 --refresh --json
-birdclaw sync likes --mode auto --limit 100 --max-pages 5 --early-stop --refresh --json
-birdclaw sync likes --mode xurl --limit 100 --max-pages 70 --pagination-token "$NEXT_TOKEN" --refresh --json
-birdclaw sync bookmarks --mode auto --limit 100 --refresh --json
-birdclaw sync bookmarks --mode auto --limit 100 --max-pages 5 --early-stop --refresh --json
-birdclaw sync bookmarks --mode bird --all --max-pages 5 --limit 100 --refresh --json
-birdclaw sync timeline --limit 100 --refresh --json
-birdclaw sync mentions --mode xurl --limit 100 --max-pages 3 --refresh --json
-birdclaw sync mention-threads --mode bird --limit 30 --delay-ms 1500 --timeout-ms 15000 --json
-birdclaw sync mention-threads --mode xurl --limit 30 --json
-birdclaw sync lists --mode auto --max-lists 20 --member-limit 20 --max-member-pages 1 --delay-ms 1000 --json
+neo-archive sync authored --mode xurl --limit 100 --json
+neo-archive sync likes --mode auto --limit 100 --refresh --json
+neo-archive sync likes --mode auto --limit 100 --max-pages 5 --early-stop --refresh --json
+neo-archive sync likes --mode xurl --limit 100 --max-pages 70 --pagination-token "$NEXT_TOKEN" --refresh --json
+neo-archive sync bookmarks --mode auto --limit 100 --refresh --json
+neo-archive sync bookmarks --mode auto --limit 100 --max-pages 5 --early-stop --refresh --json
+neo-archive sync bookmarks --mode bird --all --max-pages 5 --limit 100 --refresh --json
+neo-archive sync timeline --limit 100 --refresh --json
+neo-archive sync mentions --mode xurl --limit 100 --max-pages 3 --refresh --json
+neo-archive sync mention-threads --mode bird --limit 30 --delay-ms 1500 --timeout-ms 15000 --json
+neo-archive sync mention-threads --mode xurl --limit 30 --json
+neo-archive sync lists --mode auto --max-lists 20 --member-limit 20 --max-member-pages 1 --delay-ms 1000 --json
 ```
 
 Follow graph examples:
 
 ```bash
-birdclaw sync followers --json
-birdclaw sync following --json
-birdclaw sync followers --yes --json
-birdclaw sync following --yes --json
-birdclaw sync followers --mode bird --yes --json
-birdclaw sync followers --yes --max-pages 1 --allow-partial --json
-birdclaw sync followers --yes --refresh --json
+neo-archive sync followers --json
+neo-archive sync following --json
+neo-archive sync followers --yes --json
+neo-archive sync following --yes --json
+neo-archive sync followers --mode bird --yes --json
+neo-archive sync followers --yes --max-pages 1 --allow-partial --json
+neo-archive sync followers --yes --refresh --json
 ```
 
 Follow graph sync uses a 24-hour cache by default. Repeating the same sync command with `--yes` reuses fresh cache unless `--refresh` is passed, which prevents duplicate live reads during agent workflows.
@@ -370,22 +370,22 @@ Follow graph sync uses a 24-hour cache by default. Repeating the same sync comma
 ### `jobs sync-account`
 
 - refreshes home timeline, mentions, mention threads, likes, bookmarks, and DMs for one account
-- appends one JSONL audit entry per run to `~/.birdclaw/audit/account-sync.jsonl`
+- appends one JSONL audit entry per run to `~/.neo-archive/audit/account-sync.jsonl`
 - records each step independently with count, source, and error
-- uses `~/.birdclaw/locks/account-sync.lock` to skip overlapping runs
+- uses `~/.neo-archive/locks/account-sync.lock` to skip overlapping runs
 - requires `--allow-bird-account` before Bird-backed steps write to a non-default `--account`
 - exits non-zero when any step failed
 
 Examples:
 
 ```bash
-birdclaw --json jobs sync-account --account acct_openclaw --limit 100 --max-pages 3 --refresh --allow-bird-account
-tail -n 20 ~/.birdclaw/audit/account-sync.jsonl | jq .
+neo-archive --json jobs sync-account --account acct_openclaw --limit 100 --max-pages 3 --refresh --allow-bird-account
+tail -n 20 ~/.neo-archive/audit/account-sync.jsonl | jq .
 ```
 
 ### `jobs install-account-launchd`
 
-- writes `~/Library/LaunchAgents/com.steipete.birdclaw.account-sync.plist`
+- writes `~/Library/LaunchAgents/com.neotask.neo-archive.account-sync.plist`
 - runs `jobs sync-account` every 30 minutes by default
 - `--interval-seconds <seconds>` requires a positive safe integer; invalid values exit nonzero before writing a plist
 - uses `launchctl load -w` unless `--no-load` is passed
@@ -395,7 +395,7 @@ tail -n 20 ~/.birdclaw/audit/account-sync.jsonl | jq .
 - `--allow-bird-account` asserts those cookies match `--account` for Bird-backed timeline, mentions, and DM steps
 
 ```bash
-birdclaw --json jobs install-account-launchd --account acct_openclaw --program /opt/homebrew/bin/birdclaw --env-path ~/.config/bird/openclaw.env --allow-bird-account
+neo-archive --json jobs install-account-launchd --account acct_openclaw --program /opt/homebrew/bin/neo-archive --env-path ~/.config/bird/openclaw.env --allow-bird-account
 ```
 
 ### `jobs sync-bookmarks`
@@ -403,34 +403,34 @@ birdclaw --json jobs install-account-launchd --account acct_openclaw --program /
 - runs a live bookmark refresh with scheduler-friendly defaults
 - appends one JSONL audit entry per run
 - records host, timestamps, duration, before/after bookmark counts, transport source, fetched count, backup sync result, and errors
-- uses `~/.birdclaw/locks/bookmarks-sync.lock` to skip overlapping runs
+- uses `~/.neo-archive/locks/bookmarks-sync.lock` to skip overlapping runs
 - exits non-zero when the sync failed
 
 Default audit log:
 
 ```text
-~/.birdclaw/audit/bookmarks-sync.jsonl
+~/.neo-archive/audit/bookmarks-sync.jsonl
 ```
 
 Examples:
 
 ```bash
-birdclaw --json jobs sync-bookmarks --mode auto --limit 100 --max-pages 5 --refresh
-tail -n 20 ~/.birdclaw/audit/bookmarks-sync.jsonl | jq .
+neo-archive --json jobs sync-bookmarks --mode auto --limit 100 --max-pages 5 --refresh
+tail -n 20 ~/.neo-archive/audit/bookmarks-sync.jsonl | jq .
 ```
 
 ### `jobs install-bookmarks-launchd`
 
-- writes `~/Library/LaunchAgents/com.steipete.birdclaw.bookmarks-sync.plist`
+- writes `~/Library/LaunchAgents/com.neotask.neo-archive.bookmarks-sync.plist`
 - runs `jobs sync-bookmarks` every 3 hours by default
 - `--interval-seconds <seconds>` requires a positive safe integer; invalid values exit nonzero before writing a plist
 - uses `launchctl load -w` unless `--no-load` is passed
-- writes launchd stdout/stderr to `~/.birdclaw/logs/bookmarks-sync.*.log`
+- writes launchd stdout/stderr to `~/.neo-archive/logs/bookmarks-sync.*.log`
 - `--env-path <path>` sources an export-only shell env file inside the scheduled process, useful when `bird` needs `AUTH_TOKEN`/`CT0` outside an interactive browser session
 - `--runtime <absolute-path>` plus repeatable `--runtime-arg <value>` pins a source launcher to an exact runtime instead of relying on launchd `PATH`
 
 ```bash
-birdclaw --json jobs install-bookmarks-launchd --program /opt/homebrew/bin/birdclaw
+neo-archive --json jobs install-bookmarks-launchd --program /opt/homebrew/bin/neo-archive
 ```
 
 ### `search tweets <query>`
@@ -456,10 +456,10 @@ Flags:
 Examples:
 
 ```bash
-birdclaw search tweets --liked --limit 20 --json
-birdclaw search tweets --bookmarked --limit 20 --json
-birdclaw search tweets "sqlite" --list Builders --limit 50 --json
-birdclaw search tweets "local-first" --fxtwitter --limit 50 --max-pages 3 --json
+neo-archive search tweets --liked --limit 20 --json
+neo-archive search tweets --bookmarked --limit 20 --json
+neo-archive search tweets "sqlite" --list Builders --limit 50 --json
+neo-archive search tweets "local-first" --fxtwitter --limit 50 --max-pages 3 --json
 ```
 
 ### `search dms <query>`
@@ -523,9 +523,9 @@ Flags:
 Examples:
 
 ```bash
-birdclaw discuss "local-first" --mode bird
-birdclaw discuss "sync engine" --question "what changed over time?"
-birdclaw discuss "prototype" --include-dms --limit 500 --max-pages 5 --json
+neo-archive discuss "local-first" --mode bird
+neo-archive discuss "sync engine" --question "what changed over time?"
+neo-archive discuss "prototype" --include-dms --limit 500 --max-pages 5 --json
 ```
 
 ### `whois <query>`
@@ -561,17 +561,17 @@ Flags:
 Examples:
 
 ```bash
-birdclaw whois blacksmith --context 4 --no-xurl-fallback --json
-birdclaw whois "blacksmith guy" --context 4 --no-xurl-fallback --json
-birdclaw whois "github guy" --current-affiliation github --exclude-domain-only
-birdclaw whois blacksmith --tweets --no-xurl-fallback
+neo-archive whois blacksmith --context 4 --no-xurl-fallback --json
+neo-archive whois "blacksmith guy" --context 4 --no-xurl-fallback --json
+neo-archive whois "github guy" --current-affiliation github --exclude-domain-only
+neo-archive whois blacksmith --tweets --no-xurl-fallback
 ```
 
 ### `mentions export [query]`
 
 - export local mention tweets for scripts and agents
 - always emits JSON
-- supports `birdclaw`, cached `xurl`, or cached `bird` output
+- supports `neo-archive`, cached `xurl`, or cached `bird` output
 - each item includes:
   - raw `text`
   - rendered `plainText`
@@ -582,7 +582,7 @@ birdclaw whois blacksmith --tweets --no-xurl-fallback
 Flags:
 
 - `--account <account-id>`
-- `--mode birdclaw|xurl|bird`
+- `--mode neo-archive|xurl|bird`
 - `--replied`
 - `--unreplied`
 - `--refresh`
@@ -594,12 +594,12 @@ Flags:
 Examples:
 
 ```bash
-birdclaw mentions export "agent" --unreplied --limit 10
-birdclaw mentions export --mode bird --limit 20
-birdclaw mentions export --mode xurl --limit 5
-birdclaw mentions export "codex" --mode xurl --limit 5
-birdclaw mentions export --mode xurl --refresh --cache-ttl 30 --limit 5
-birdclaw mentions export --mode xurl --refresh --all --max-pages 9 --limit 100
+neo-archive mentions export "agent" --unreplied --limit 10
+neo-archive mentions export --mode bird --limit 20
+neo-archive mentions export --mode xurl --limit 5
+neo-archive mentions export "codex" --mode xurl --limit 5
+neo-archive mentions export --mode xurl --refresh --cache-ttl 30 --limit 5
+neo-archive mentions export --mode xurl --refresh --all --max-pages 9 --limit 100
 ```
 
 Notes:
@@ -612,13 +612,13 @@ Notes:
 - `--max-pages` limits that paged xurl scan and implies `--all`
 - in paged `xurl` mode, `--limit` is the page size, not the total returned item count
 - query and reply-state filters still work in `xurl` mode, but the filtered response is rebuilt from the local canonical store after sync
-- default live source can live in `~/.birdclaw/config.json` under `mentions.dataSource`
+- default live source can live in `~/.neo-archive/config.json` under `mentions.dataSource`
 
 ### `media fetch`
 
 - fill the local originals cache for images, videos, and animated GIFs whose tweets already live in the local SQLite store
 - reuse bytes already extracted by `import archive` before falling back to the CDN; reuses are counted in JSON output as `reused_from_archive` and spend zero CDN bandwidth
-- only fetch URLs birdclaw already has from an archive or live sync record; never enumerate, crawl, or derive CDN URLs
+- only fetch URLs neo-archive already has from an archive or live sync record; never enumerate, crawl, or derive CDN URLs
 - skip files already present on disk; resume partial downloads with `Range: bytes=<size>-`
 - back off on `429`; cap each file at `--max-bytes`
 
@@ -642,10 +642,10 @@ JSON output carries `images_fetched`, `videos_fetched`, `gifs_fetched`, `reused_
 Examples:
 
 ```bash
-birdclaw media fetch --json
-birdclaw media fetch --dry-run --limit 20
-birdclaw media fetch --include-video --video-pacing-ms 1500 --max-bytes 209715200 --json
-birdclaw media fetch --no-include-video --parallel 3 --pacing-ms 250 --json
+neo-archive media fetch --json
+neo-archive media fetch --dry-run --limit 20
+neo-archive media fetch --include-video --video-pacing-ms 1500 --max-bytes 209715200 --json
+neo-archive media fetch --no-include-video --parallel 3 --pacing-ms 250 --json
 ```
 
 ### `profiles replies <handle-or-id>`
@@ -663,7 +663,7 @@ Flags:
 Examples:
 
 ```bash
-birdclaw profiles replies @jpctan --limit 12 --json
+neo-archive profiles replies @jpctan --limit 12 --json
 ```
 
 ### `dms list`
@@ -813,26 +813,26 @@ Flags:
 - `--host <host>`
 - `--port <port>`
 
-`birdclaw serve` binds the production server to `127.0.0.1:3000` by default and
-enables local loopback web APIs without a token. `BIRDCLAW_HOST` and
-`BIRDCLAW_PORT` provide environment defaults. Remote access through a trusted
-private proxy requires `BIRDCLAW_ALLOW_REMOTE_WEB=1`. To require an app-level
-token too, set `BIRDCLAW_WEB_TOKEN` and send it as `x-birdclaw-token` or a
+`neo-archive serve` binds the production server to `127.0.0.1:3000` by default and
+enables local loopback web APIs without a token. `NEO_ARCHIVE_HOST` and
+`NEO_ARCHIVE_PORT` provide environment defaults. Remote access through a trusted
+private proxy requires `NEO_ARCHIVE_ALLOW_REMOTE_WEB=1`. To require an app-level
+token too, set `NEO_ARCHIVE_WEB_TOKEN` and send it as `x-neo-archive-token` or a
 `birdclaw_token` cookie.
 
 The same process can expose an adapter-owned, read-only Streamable HTTP MCP
-endpoint at the exact path `/mcp`. Configure both `BIRDCLAW_MCP_TOKEN` and
-`BIRDCLAW_MCP_PUBLIC_URL`; the MCP token must be at least 32 bytes and must
-differ from `BIRDCLAW_WEB_TOKEN`. `BIRDCLAW_MCP_ACCOUNT` optionally selects one
+endpoint at the exact path `/mcp`. Configure both `NEO_ARCHIVE_MCP_TOKEN` and
+`NEO_ARCHIVE_MCP_PUBLIC_URL`; the MCP token must be at least 32 bytes and must
+differ from `NEO_ARCHIVE_WEB_TOKEN`. `NEO_ARCHIVE_MCP_ACCOUNT` optionally selects one
 server-side account by id or handle; otherwise tools read the default account.
 
 When MCP is configured, startup validates the configuration, selected account,
 and an existing initialized database at the current schema. It does not create
-or migrate the database for MCP. Run `birdclaw init` or import/migrate with a
+or migrate the database for MCP. Run `neo-archive init` or import/migrate with a
 trusted CLI command before starting the server.
 
 HTTP MCP URLs are accepted only for loopback hosts. External MCP URLs must use
-HTTPS on a dedicated hostname. Birdclaw reserves that configured hostname for
+HTTPS on a dedicated hostname. Neo Archive reserves that configured hostname for
 MCP and denies every path except `/mcp`; the proxy and outer authentication
 policy must enforce the same rule. See the [MCP server guide](mcp.md).
 
@@ -908,17 +908,17 @@ stderr:
 ## Examples
 
 ```bash
-birdclaw init
-birdclaw init --demo
-birdclaw auth status
-birdclaw import archive ~/Downloads/twitter-archive.zip --select tweets,directMessages
-birdclaw sync all --transport xurl
-birdclaw search tweets "openai" --since 2024-01-01 --limit 20
-birdclaw search tweets --since 2020-01-01 --until 2021-01-01 --originals-only --hide-low-quality --limit 500
-birdclaw search dms "invoice" --participant @someone --min-followers 1000
-birdclaw dms list --unreplied --min-followers 500 --min-influence-score 90 --sort followers
-birdclaw inbox --json
-birdclaw serve
-birdclaw graph events --json
-birdclaw compose reply 1891234567890
+neo-archive init
+neo-archive init --demo
+neo-archive auth status
+neo-archive import archive ~/Downloads/twitter-archive.zip --select tweets,directMessages
+neo-archive sync all --transport xurl
+neo-archive search tweets "openai" --since 2024-01-01 --limit 20
+neo-archive search tweets --since 2020-01-01 --until 2021-01-01 --originals-only --hide-low-quality --limit 500
+neo-archive search dms "invoice" --participant @someone --min-followers 1000
+neo-archive dms list --unreplied --min-followers 500 --min-influence-score 90 --sort followers
+neo-archive inbox --json
+neo-archive serve
+neo-archive graph events --json
+neo-archive compose reply 1891234567890
 ```

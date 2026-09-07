@@ -5,9 +5,9 @@ import {
 } from "vitest/config";
 
 const isBun = Boolean(process.versions.bun);
-const isCoverageRun = process.env.BIRDCLAW_COVERAGE_RUN === "1";
+const isCoverageRun = process.env.NEO_ARCHIVE_COVERAGE_RUN === "1";
 const coverageProvider =
-	process.env.BIRDCLAW_COVERAGE_PROVIDER === "v8" ? "v8" : "istanbul";
+	process.env.NEO_ARCHIVE_COVERAGE_PROVIDER === "v8" ? "v8" : "istanbul";
 
 export default defineConfig({
 	resolve: {

@@ -45,7 +45,9 @@ plain text should be ignored
 	});
 
 	it("imports a blocklist file and reports partial failures", async () => {
-		const tempRoot = mkdtempSync(path.join(os.tmpdir(), "birdclaw-blocklist-"));
+		const tempRoot = mkdtempSync(
+			path.join(os.tmpdir(), "neo-archive-blocklist-"),
+		);
 		tempRoots.push(tempRoot);
 		const filePath = path.join(tempRoot, "blocklist.txt");
 		writeFileSync(filePath, "@alpha\n@beta\n");
@@ -87,7 +89,9 @@ plain text should be ignored
 	});
 
 	it("exposes blocklist imports as Effect programs", async () => {
-		const tempRoot = mkdtempSync(path.join(os.tmpdir(), "birdclaw-blocklist-"));
+		const tempRoot = mkdtempSync(
+			path.join(os.tmpdir(), "neo-archive-blocklist-"),
+		);
 		tempRoots.push(tempRoot);
 		const filePath = path.join(tempRoot, "blocklist.txt");
 		writeFileSync(filePath, "@alpha\n");

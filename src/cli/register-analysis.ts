@@ -452,7 +452,7 @@ export function registerAnalysisCommands({
 		.option("--model <model>", "OpenAI model id")
 		.option(
 			"--language <tag>",
-			"Report language as a Unicode locale id, e.g. zh-CN (env: BIRDCLAW_DIGEST_LANGUAGE)",
+			"Report language as a Unicode locale id, e.g. zh-CN (env: NEO_ARCHIVE_DIGEST_LANGUAGE)",
 		)
 		.option("--refresh", "Bypass the local digest cache")
 		.option("--max-tweets <n>", "Maximum tweet context", "5000")
@@ -480,7 +480,7 @@ export function registerAnalysisCommands({
 		.option("--model <model>", "OpenAI model id")
 		.option(
 			"--language <tag>",
-			"Report language as a Unicode locale id, e.g. zh-CN (env: BIRDCLAW_DIGEST_LANGUAGE)",
+			"Report language as a Unicode locale id, e.g. zh-CN (env: NEO_ARCHIVE_DIGEST_LANGUAGE)",
 		)
 		.option("--refresh", "Bypass the local digest cache")
 		.option("--max-tweets <n>", "Maximum tweet context", "5000")

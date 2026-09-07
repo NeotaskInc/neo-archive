@@ -31,7 +31,7 @@ function isPathCommand(command: string) {
 function formatBirdInstallHint(command: string) {
 	return [
 		`bird command unavailable: ${command}`,
-		"Install bird on PATH, set BIRDCLAW_BIRD_COMMAND, or update ~/.birdclaw/config.json mentions.birdCommand.",
+		"Install bird on PATH, set NEO_ARCHIVE_BIRD_COMMAND, or update ~/.neo-archive/config.json mentions.birdCommand.",
 	].join("\n");
 }
 

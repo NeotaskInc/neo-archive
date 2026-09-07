@@ -103,14 +103,14 @@ const SCENARIOS = {
 
 function parseArgs(argv) {
 	const options = {
-		baseUrl: process.env.BIRDCLAW_PERF_URL || DEFAULT_BASE_URL,
+		baseUrl: process.env.NEO_ARCHIVE_PERF_URL || DEFAULT_BASE_URL,
 		iterations: DEFAULT_ITERATIONS,
 		scenarios: Object.keys(SCENARIOS),
 		json: false,
 		budgets: {},
-		runtime: process.env.BIRDCLAW_PERF_RUNTIME || process.execPath,
+		runtime: process.env.NEO_ARCHIVE_PERF_RUNTIME || process.execPath,
 		runtimeArgs: [],
-		entry: process.env.BIRDCLAW_PERF_ENTRY || "bin/birdclaw.mjs",
+		entry: process.env.NEO_ARCHIVE_PERF_ENTRY || "bin/neo-archive.mjs",
 		startServer: true,
 	};
 
@@ -217,9 +217,9 @@ async function startServerIfNeeded(options) {
 			stdio: ["ignore", "pipe", "pipe"],
 			env: {
 				...withSanitizedNodeOptions(process.env),
-				BIRDCLAW_BACKUP_AUTO_SYNC: "0",
-				BIRDCLAW_DISABLE_LIVE_PROFILE_LOOKUP: "1",
-				BIRDCLAW_DISABLE_LIVE_WRITES: "1",
+				NEO_ARCHIVE_BACKUP_AUTO_SYNC: "0",
+				NEO_ARCHIVE_DISABLE_LIVE_PROFILE_LOOKUP: "1",
+				NEO_ARCHIVE_DISABLE_LIVE_WRITES: "1",
 				DO_NOT_TRACK: "1",
 			},
 		},

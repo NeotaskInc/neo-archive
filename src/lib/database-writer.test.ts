@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { resetBirdclawPathsForTests } from "./config";
+import { resetNeoArchivePathsForTests } from "./config";
 import {
 	enqueueDatabaseWrite,
 	resetDatabaseWriterForTests,
@@ -22,15 +22,15 @@ afterEach(() => {
 	resetDatabaseWriterForTests();
 	resetDatabaseRuntimeMetricsForTests();
 	resetDatabaseForTests();
-	resetBirdclawPathsForTests();
-	delete process.env.BIRDCLAW_HOME;
+	resetNeoArchivePathsForTests();
+	delete process.env.NEO_ARCHIVE_HOME;
 	if (tempDir) rmSync(tempDir, { recursive: true, force: true });
 	tempDir = undefined;
 });
 
 function setupDatabase() {
-	tempDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-writer-"));
-	process.env.BIRDCLAW_HOME = tempDir;
+	tempDir = mkdtempSync(path.join(os.tmpdir(), "neo-archive-writer-"));
+	process.env.NEO_ARCHIVE_HOME = tempDir;
 	const db = getNativeDb({ seedDemoData: false });
 	db.exec(
 		"create table writer_events (position integer primary key, name text)",

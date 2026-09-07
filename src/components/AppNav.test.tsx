@@ -113,7 +113,9 @@ describe("AppNav", () => {
 		expect(screen.getByRole("link", { name: "DMs" })).toHaveClass(
 			"justify-center",
 		);
-		expect(screen.getByText("birdclaw").parentElement).toHaveClass("sr-only");
+		expect(screen.getByText("Neo Archive").parentElement).toHaveClass(
+			"sr-only",
+		);
 		expect(screen.getByText("DMs")).toHaveClass("sr-only");
 	});
 });

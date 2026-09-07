@@ -232,15 +232,15 @@ export function getXurlRateLimitSnapshot(
 		events: events.slice(0, 80),
 		throttle: {
 			conversationDelayMs: envNonNegativeInteger(
-				"BIRDCLAW_PROFILE_ANALYSIS_CONVERSATION_DELAY_MS",
+				"NEO_ARCHIVE_PROFILE_ANALYSIS_CONVERSATION_DELAY_MS",
 				3_100,
 			),
 			rateLimitRetryMs: envNonNegativeInteger(
-				"BIRDCLAW_PROFILE_ANALYSIS_RATE_LIMIT_RETRY_MS",
+				"NEO_ARCHIVE_PROFILE_ANALYSIS_RATE_LIMIT_RETRY_MS",
 				60_000,
 			),
 			rateLimitMaxRetries: envNonNegativeInteger(
-				"BIRDCLAW_PROFILE_ANALYSIS_RATE_LIMIT_MAX_RETRIES",
+				"NEO_ARCHIVE_PROFILE_ANALYSIS_RATE_LIMIT_MAX_RETRIES",
 				1,
 			),
 		},

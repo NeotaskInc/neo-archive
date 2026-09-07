@@ -5,25 +5,25 @@ description: "Explicitly import public tweets, threads, conversations, profiles,
 
 # Public FxTwitter import
 
-Birdclaw can import selected public X data through FxTwitter without X credentials. This transport is off by default and runs only when `--fxtwitter` is present on that invocation:
+Neo Archive can import selected public X data through FxTwitter without X credentials. This transport is off by default and runs only when `--fxtwitter` is present on that invocation:
 
 ```bash
-birdclaw import tweet 20 2030857479001960633 --fxtwitter --json
-birdclaw import thread 2030857479001960633 --fxtwitter --json
-birdclaw import conversation 2030857479001960633 --fxtwitter --limit 200 --json
-birdclaw import profile @jack --fxtwitter --json
-birdclaw search tweets "local-first software" --fxtwitter --limit 50 --max-pages 3 --json
+neo-archive import tweet 20 2030857479001960633 --fxtwitter --json
+neo-archive import thread 2030857479001960633 --fxtwitter --json
+neo-archive import conversation 2030857479001960633 --fxtwitter --limit 200 --json
+neo-archive import profile @jack --fxtwitter --json
+neo-archive search tweets "local-first software" --fxtwitter --limit 50 --max-pages 3 --json
 ```
 
 Tweet inputs must be numeric IDs or canonical HTTPS `x.com/<handle>/status/<id>` or `twitter.com/<handle>/status/<id>` URLs. Profile lookup accepts a public handle. Search accepts a non-empty query and the `latest`, `top`, or `media` feed.
 
-Every request uses the hardcoded `https://api.fxtwitter.com` origin. There is no configuration, environment variable, or flag for a custom or self-hosted origin. Birdclaw sends no cookies or credentials, rejects redirects without following them, limits response size and total time, fetches sequentially, caps searches at 10 pages and 1,000 results, and applies capped Retry-After-aware backoff to rate limits and transient failures.
+Every request uses the hardcoded `https://api.fxtwitter.com` origin. There is no configuration, environment variable, or flag for a custom or self-hosted origin. Neo Archive sends no cookies or credentials, rejects redirects without following them, limits response size and total time, fetches sequentially, caps searches at 10 pages and 1,000 results, and applies capped Retry-After-aware backoff to rate limits and transient failures.
 
 ## Privacy and disclosure
 
-FxTwitter is a third-party service. Passing `--fxtwitter` sends the requested tweet IDs, handles, or search queries to `api.fxtwitter.com`. The service and its hosting/network providers can also observe your IP address, request timing, and versioned Birdclaw user agent. Do not use this transport if that disclosure is unacceptable.
+FxTwitter is a third-party service. Passing `--fxtwitter` sends the requested tweet IDs, handles, or search queries to `api.fxtwitter.com`. The service and its hosting/network providers can also observe your IP address, request timing, and versioned Neo Archive user agent. Do not use this transport if that disclosure is unacceptable.
 
-Birdclaw does not send X cookies, OAuth credentials, Birdclaw account data, DMs, unrelated local searches, or archive contents. It never falls back to FxTwitter from another transport, performs background polling, or turns an ordinary local read into a network request.
+Neo Archive does not send X cookies, OAuth credentials, Neo Archive account data, DMs, unrelated local searches, or archive contents. It never falls back to FxTwitter from another transport, performs background polling, or turns an ordinary local read into a network request.
 
 ## Completeness and partial results
 
@@ -31,7 +31,7 @@ Every thread, conversation, and search result reports `collection.state`, `parti
 
 Thread and conversation responses are always `partial` with `endpoint_has_no_exhaustion_proof`: a clean `200`, a successful provider code, or a matching reply count cannot prove that FxTwitter did not silently omit a tail. Those rows remain useful and are imported.
 
-Search is `complete` only when Birdclaw follows the documented bottom-cursor chain to an explicit terminal cursor. Caller limits, page budgets, timeouts, rate limits, upstream/decode failures, and missing, repeated, or cyclic cursors produce a successful `partial` result when at least one valid tweet was imported. If no usable item exists, JSON errors retain a typed `kind`, HTTP status, and `retryAfterMs` where applicable.
+Search is `complete` only when Neo Archive follows the documented bottom-cursor chain to an explicit terminal cursor. Caller limits, page budgets, timeouts, rate limits, upstream/decode failures, and missing, repeated, or cyclic cursors produce a successful `partial` result when at least one valid tweet was imported. If no usable item exists, JSON errors retain a typed `kind`, HTTP status, and `retryAfterMs` where applicable.
 
 ## Canonical persistence
 

@@ -5,16 +5,16 @@ import { withSanitizedNodeOptions } from "./sanitize-node-options.mjs";
 
 const cwd = process.cwd();
 const home = path.join(cwd, ".playwright-home");
-const port = process.env.BIRDCLAW_PLAYWRIGHT_PORT || "3000";
+const port = process.env.NEO_ARCHIVE_PLAYWRIGHT_PORT || "3000";
 const resolvedHome = path.resolve(home);
 const resolvedCwd = path.resolve(cwd);
 const isBunRuntime = Boolean(process.versions.bun);
 const runtimeArgs = isBunRuntime ? ["--no-env-file"] : [];
 const cliEntry = path.join(
 	cwd,
-	isBunRuntime ? "src/cli.ts" : "dist/cli/birdclaw.js",
+	isBunRuntime ? "src/cli.ts" : "dist/cli/neo-archive.js",
 );
-const serverEntry = path.join(cwd, "bin/birdclaw.mjs");
+const serverEntry = path.join(cwd, "bin/neo-archive.mjs");
 
 if (
 	!resolvedHome.startsWith(`${resolvedCwd}${path.sep}`) ||
@@ -30,11 +30,11 @@ rmSync(resolvedHome, { recursive: true, force: true });
 
 const commonEnv = {
 	...withSanitizedNodeOptions(process.env),
-	BIRDCLAW_HOME: resolvedHome,
-	BIRDCLAW_E2E: "1",
-	BIRDCLAW_BACKUP_AUTO_SYNC: "0",
-	BIRDCLAW_DISABLE_LIVE_PROFILE_LOOKUP: "1",
-	BIRDCLAW_DISABLE_LIVE_WRITES: "1",
+	NEO_ARCHIVE_HOME: resolvedHome,
+	NEO_ARCHIVE_E2E: "1",
+	NEO_ARCHIVE_BACKUP_AUTO_SYNC: "0",
+	NEO_ARCHIVE_DISABLE_LIVE_PROFILE_LOOKUP: "1",
+	NEO_ARCHIVE_DISABLE_LIVE_WRITES: "1",
 	DO_NOT_TRACK: "1",
 };
 const seed = spawnSync(
@@ -54,8 +54,8 @@ const child = spawn(
 		stdio: "inherit",
 		env: {
 			...commonEnv,
-			BIRDCLAW_E2E_FAKE_LIVE_WRITES: "1",
-			BIRDCLAW_WEB_TOKEN: "birdclaw-e2e-token",
+			NEO_ARCHIVE_E2E_FAKE_LIVE_WRITES: "1",
+			NEO_ARCHIVE_WEB_TOKEN: "neo-archive-e2e-token",
 		},
 	},
 );

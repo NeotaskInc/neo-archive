@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { resetBirdclawPathsForTests } from "#/lib/config";
+import { resetNeoArchivePathsForTests } from "#/lib/config";
 import { getNativeDb, resetDatabaseForTests } from "#/lib/db";
 import { recordXurlRateLimitEvent } from "#/lib/xurl-rate-limits";
 import { getRouteHandler } from "#/test/route-handlers";
@@ -14,8 +14,8 @@ const GET = getRouteHandler(Route, "GET");
 
 afterEach(() => {
 	resetDatabaseForTests();
-	resetBirdclawPathsForTests();
-	delete process.env.BIRDCLAW_HOME;
+	resetNeoArchivePathsForTests();
+	delete process.env.NEO_ARCHIVE_HOME;
 
 	for (const dir of tempDirs.splice(0)) {
 		rmSync(dir, { recursive: true, force: true });
@@ -23,9 +23,9 @@ afterEach(() => {
 });
 
 function setupDb() {
-	const tempDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-api-rates-"));
+	const tempDir = mkdtempSync(path.join(os.tmpdir(), "neo-archive-api-rates-"));
 	tempDirs.push(tempDir);
-	process.env.BIRDCLAW_HOME = tempDir;
+	process.env.NEO_ARCHIVE_HOME = tempDir;
 	return getNativeDb();
 }
 

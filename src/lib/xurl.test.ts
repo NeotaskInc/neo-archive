@@ -48,10 +48,10 @@ describe("xurl transport", () => {
 		vi.resetModules();
 		execFile.mockReset();
 		execFileAsyncMock.mockReset();
-		delete process.env.BIRDCLAW_DISABLE_LIVE_WRITES;
-		delete process.env.BIRDCLAW_XURL_RETRY_BASE_MS;
-		delete process.env.BIRDCLAW_XURL_OAUTH2_APP;
-		delete process.env.BIRDCLAW_XURL_OAUTH2_USERNAME;
+		delete process.env.NEO_ARCHIVE_DISABLE_LIVE_WRITES;
+		delete process.env.NEO_ARCHIVE_XURL_RETRY_BASE_MS;
+		delete process.env.NEO_ARCHIVE_XURL_OAUTH2_APP;
+		delete process.env.NEO_ARCHIVE_XURL_OAUTH2_USERNAME;
 	});
 
 	it("falls back to local mode when xurl is missing", async () => {
@@ -200,7 +200,7 @@ describe("xurl transport", () => {
 	});
 
 	it("keeps the unscoped authenticated lookup independent of ambient selection", async () => {
-		process.env.BIRDCLAW_XURL_OAUTH2_USERNAME = "secondary";
+		process.env.NEO_ARCHIVE_XURL_OAUTH2_USERNAME = "secondary";
 		execFileAsyncMock.mockResolvedValueOnce({
 			stdout: JSON.stringify({ data: { id: "1", username: "primary" } }),
 			stderr: "",
@@ -571,8 +571,8 @@ describe("xurl transport", () => {
 	});
 
 	it("ignores configured OAuth2 overrides for recent search reads", async () => {
-		process.env.BIRDCLAW_XURL_OAUTH2_APP = "xurl-steipete";
-		process.env.BIRDCLAW_XURL_OAUTH2_USERNAME = "openclaw";
+		process.env.NEO_ARCHIVE_XURL_OAUTH2_APP = "xurl-steipete";
+		process.env.NEO_ARCHIVE_XURL_OAUTH2_USERNAME = "openclaw";
 		execFileAsyncMock.mockResolvedValueOnce({
 			stdout: JSON.stringify({ data: [] }),
 			stderr: "",
@@ -593,8 +593,8 @@ describe("xurl transport", () => {
 	});
 
 	it("ignores configured OAuth2 overrides for conversation search reads", async () => {
-		process.env.BIRDCLAW_XURL_OAUTH2_APP = "xurl-steipete";
-		process.env.BIRDCLAW_XURL_OAUTH2_USERNAME = "openclaw";
+		process.env.NEO_ARCHIVE_XURL_OAUTH2_APP = "xurl-steipete";
+		process.env.NEO_ARCHIVE_XURL_OAUTH2_USERNAME = "openclaw";
 		execFileAsyncMock.mockResolvedValueOnce({
 			stdout: JSON.stringify({ data: [] }),
 			stderr: "",
@@ -616,8 +616,8 @@ describe("xurl transport", () => {
 	});
 
 	it("can ignore configured OAuth2 overrides for user lookup reads", async () => {
-		process.env.BIRDCLAW_XURL_OAUTH2_APP = "xurl-steipete";
-		process.env.BIRDCLAW_XURL_OAUTH2_USERNAME = "openclaw";
+		process.env.NEO_ARCHIVE_XURL_OAUTH2_APP = "xurl-steipete";
+		process.env.NEO_ARCHIVE_XURL_OAUTH2_USERNAME = "openclaw";
 		execFileAsyncMock.mockResolvedValueOnce({
 			stdout: JSON.stringify({ data: [] }),
 			stderr: "",
@@ -639,8 +639,8 @@ describe("xurl transport", () => {
 	});
 
 	it("can ignore configured OAuth2 overrides for user timeline reads", async () => {
-		process.env.BIRDCLAW_XURL_OAUTH2_APP = "xurl-steipete";
-		process.env.BIRDCLAW_XURL_OAUTH2_USERNAME = "openclaw";
+		process.env.NEO_ARCHIVE_XURL_OAUTH2_APP = "xurl-steipete";
+		process.env.NEO_ARCHIVE_XURL_OAUTH2_USERNAME = "openclaw";
 		execFileAsyncMock.mockResolvedValueOnce({
 			stdout: JSON.stringify({ data: [] }),
 			stderr: "",
@@ -1084,7 +1084,7 @@ describe("xurl transport", () => {
 	});
 
 	it("does not retry rate-limited thread lookups past the timeout budget", async () => {
-		process.env.BIRDCLAW_XURL_RETRY_BASE_MS = "2000";
+		process.env.NEO_ARCHIVE_XURL_RETRY_BASE_MS = "2000";
 		execFileAsyncMock.mockRejectedValueOnce(
 			Object.assign(new Error("rate limited"), {
 				stdout: JSON.stringify({ status: 429 }),
@@ -1101,7 +1101,7 @@ describe("xurl transport", () => {
 	it("starts timeout budgets when xurl effects run", async () => {
 		vi.useFakeTimers();
 		try {
-			process.env.BIRDCLAW_XURL_RETRY_BASE_MS = "500";
+			process.env.NEO_ARCHIVE_XURL_RETRY_BASE_MS = "500";
 			execFileAsyncMock
 				.mockRejectedValueOnce(
 					Object.assign(new Error("rate limited"), {
@@ -1133,7 +1133,7 @@ describe("xurl transport", () => {
 	it("emits per-attempt telemetry for hidden JSON retries", async () => {
 		vi.useFakeTimers();
 		try {
-			process.env.BIRDCLAW_XURL_RETRY_BASE_MS = "500";
+			process.env.NEO_ARCHIVE_XURL_RETRY_BASE_MS = "500";
 			execFileAsyncMock
 				.mockRejectedValueOnce(
 					Object.assign(new Error("rate limited"), {
@@ -1179,7 +1179,7 @@ describe("xurl transport", () => {
 
 		const dmEffect = dmViaXurlEffect("sam", "hello");
 		const muteEffect = muteUserViaXurlEffect("1", "2");
-		process.env.BIRDCLAW_DISABLE_LIVE_WRITES = "1";
+		process.env.NEO_ARCHIVE_DISABLE_LIVE_WRITES = "1";
 
 		await expect(run(dmEffect)).resolves.toEqual({
 			ok: false,
@@ -1578,7 +1578,7 @@ describe("xurl transport", () => {
 	});
 
 	it("retries json reads when xurl returns a rate limit error", async () => {
-		process.env.BIRDCLAW_XURL_RETRY_BASE_MS = "0";
+		process.env.NEO_ARCHIVE_XURL_RETRY_BASE_MS = "0";
 		const rateLimitError = Object.assign(new Error("request failed"), {
 			stdout: JSON.stringify({
 				title: "Too Many Requests",
@@ -1648,7 +1648,7 @@ describe("xurl transport", () => {
 	});
 
 	it("does not retry malformed or exhausted rate limit failures", async () => {
-		process.env.BIRDCLAW_XURL_RETRY_BASE_MS = "-1";
+		process.env.NEO_ARCHIVE_XURL_RETRY_BASE_MS = "-1";
 		execFileAsyncMock.mockRejectedValueOnce(
 			Object.assign(new Error("wrapped"), {
 				stdout: "prefix {not json} suffix",
@@ -1661,7 +1661,7 @@ describe("xurl transport", () => {
 		);
 		expect(execFileAsyncMock).toHaveBeenCalledTimes(1);
 
-		process.env.BIRDCLAW_XURL_RETRY_BASE_MS = "0";
+		process.env.NEO_ARCHIVE_XURL_RETRY_BASE_MS = "0";
 		execFileAsyncMock.mockReset();
 		execFileAsyncMock.mockRejectedValue(
 			Object.assign(new Error("still limited"), {
@@ -1755,8 +1755,8 @@ describe("xurl transport", () => {
 	});
 
 	it("routes reads and writes through the configured operation account", async () => {
-		process.env.BIRDCLAW_XURL_OAUTH2_APP = "personal";
-		process.env.BIRDCLAW_XURL_OAUTH2_USERNAME = "selected_user";
+		process.env.NEO_ARCHIVE_XURL_OAUTH2_APP = "personal";
+		process.env.NEO_ARCHIVE_XURL_OAUTH2_USERNAME = "selected_user";
 		execFileAsyncMock
 			.mockResolvedValueOnce({ stdout: '{"data":{"id":"1"}}', stderr: "" })
 			.mockResolvedValueOnce({ stdout: "posted", stderr: "" })
@@ -1828,7 +1828,7 @@ describe("xurl transport", () => {
 	});
 
 	it("suppresses live write shortcuts when disabled", async () => {
-		process.env.BIRDCLAW_DISABLE_LIVE_WRITES = "1";
+		process.env.NEO_ARCHIVE_DISABLE_LIVE_WRITES = "1";
 		const {
 			blockUserViaXurlEffect,
 			dmViaXurlEffect,

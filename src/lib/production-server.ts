@@ -11,9 +11,9 @@ import { pipeline } from "node:stream/promises";
 import { pathToFileURL } from "node:url";
 import { LOCAL_WEB_PEER_HEADER } from "./http-effect";
 import {
-	type BirdclawMcpRuntime,
-	handleBirdclawMcpExchange,
-	prepareBirdclawMcpRuntime,
+	type NeoArchiveMcpRuntime,
+	handleNeoArchiveMcpExchange,
+	prepareNeoArchiveMcpRuntime,
 } from "./mcp-http";
 
 interface FetchHandler {
@@ -27,7 +27,7 @@ export interface ProductionServerOptions {
 	clientDir?: string;
 	serverEntry?: string;
 	serverVersion?: string;
-	mcpRuntime?: BirdclawMcpRuntime | null;
+	mcpRuntime?: NeoArchiveMcpRuntime | null;
 	requestTimeoutMs?: number;
 	headersTimeoutMs?: number;
 	mcpResponseTimeoutMs?: number;
@@ -124,7 +124,10 @@ function canonicalDnsHostname(hostname: string) {
 	return hostname.toLowerCase().replace(/\.+$/u, "");
 }
 
-function hasReservedMcpHostname(url: URL, runtime: BirdclawMcpRuntime | null) {
+function hasReservedMcpHostname(
+	url: URL,
+	runtime: NeoArchiveMcpRuntime | null,
+) {
 	return Boolean(
 		runtime?.config.reserveHost &&
 		canonicalDnsHostname(url.hostname) ===
@@ -138,9 +141,9 @@ function hasMcpPathPrefix(rawTarget: string, url: URL) {
 	for (let depth = 0; depth < 3; depth += 1) {
 		if (candidate.toLowerCase().startsWith("/mcp")) return true;
 		try {
-			const normalized = new URL(candidate, "http://birdclaw.invalid");
+			const normalized = new URL(candidate, "http://neo-archive.invalid");
 			if (
-				normalized.origin === "http://birdclaw.invalid" &&
+				normalized.origin === "http://neo-archive.invalid" &&
 				normalized.pathname.toLowerCase().startsWith("/mcp")
 			) {
 				return true;
@@ -288,10 +291,10 @@ export async function startProductionServer({
 	headersTimeoutMs = DEFAULT_HEADERS_TIMEOUT_MS,
 	mcpResponseTimeoutMs = DEFAULT_MCP_RESPONSE_TIMEOUT_MS,
 }: ProductionServerOptions) {
-	process.env.BIRDCLAW_LOCAL_WEB = "socket";
+	process.env.NEO_ARCHIVE_LOCAL_WEB = "socket";
 	const mcpRuntime =
 		injectedMcpRuntime === undefined
-			? prepareBirdclawMcpRuntime(serverVersion)
+			? prepareNeoArchiveMcpRuntime(serverVersion)
 			: injectedMcpRuntime;
 	const loaded = (await import(pathToFileURL(serverEntry).href)) as {
 		default?: FetchHandler;
@@ -349,7 +352,7 @@ export async function startProductionServer({
 					request.once("error", abortRequest);
 					response.once("close", abortPrematureResponse);
 					const webRequest = toWebRequest(request, url, requestAbort.signal);
-					const exchange = await handleBirdclawMcpExchange(
+					const exchange = await handleNeoArchiveMcpExchange(
 						webRequest,
 						mcpRuntime,
 						{ isLoopbackPeer: isLoopbackAddress(request.socket.remoteAddress) },
@@ -415,7 +418,9 @@ export async function runProductionServer(options: ProductionServerOptions) {
 		throw new Error("Production server did not bind a TCP address");
 	}
 	const host = options.host ?? "127.0.0.1";
-	console.log(`Birdclaw listening on http://${host}:${String(address.port)}`);
+	console.log(
+		`Neo Archive listening on http://${host}:${String(address.port)}`,
+	);
 	options.onListening?.({ host, port: address.port });
 
 	await new Promise<never>((_, reject) => {

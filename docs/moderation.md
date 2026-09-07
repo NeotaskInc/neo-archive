@@ -5,19 +5,19 @@ description: "Account-scoped blocks, mutes, bans, and bulk blocklist imports wit
 
 # Moderation
 
-birdclaw maintains account-scoped block and mute lists locally. Every action records the local intent first, then attempts the live transport. If the live transport fails, the local row stays and a future re-sync reconciles.
+neo-archive maintains account-scoped block and mute lists locally. Every action records the local intent first, then attempts the live transport. If the live transport fails, the local row stays and a future re-sync reconciles.
 
 All commands accept `--account <id>` to pick an account when more than one is configured.
 
 ## Blocks
 
 ```bash
-birdclaw blocks list --account acct_primary --json
-birdclaw blocks add @amelia --account acct_primary --json
-birdclaw blocks remove @amelia --account acct_primary --json
-birdclaw blocks record @amelia --account acct_primary --json
-birdclaw blocks sync --account acct_primary --json
-birdclaw blocks import ~/triage/blocklist.txt --account acct_primary --json
+neo-archive blocks list --account acct_primary --json
+neo-archive blocks add @amelia --account acct_primary --json
+neo-archive blocks remove @amelia --account acct_primary --json
+neo-archive blocks record @amelia --account acct_primary --json
+neo-archive blocks sync --account acct_primary --json
+neo-archive blocks import ~/triage/blocklist.txt --account acct_primary --json
 ```
 
 ### `blocks add`
@@ -40,12 +40,12 @@ Mirror of `blocks add`. Removes the local block and attempts a live unblock thro
 ### `blocks record`
 
 ```bash
-birdclaw blocks record @amelia --account acct_primary --json
+neo-archive blocks record @amelia --account acct_primary --json
 ```
 
 Records a known-good remote block locally **without** issuing another live write. Useful when:
 
-- a block was made on twitter.com directly and you want birdclaw to know about it
+- a block was made on twitter.com directly and you want neo-archive to know about it
 - a previous `blocks add` succeeded remotely but failed to update the local row
 
 ### `blocks sync`
@@ -57,7 +57,7 @@ Slow / manual remote reconciliation. Walks the live block list (when transport a
 Bulk import a blocklist file. Reads newline-delimited handles, IDs, or Twitter URLs.
 
 ```bash
-birdclaw blocks import ~/triage/blocklist.txt --account acct_primary --json
+neo-archive blocks import ~/triage/blocklist.txt --account acct_primary --json
 ```
 
 Tolerates:
@@ -82,8 +82,8 @@ Per-entry success/failure shows up in the `--json` output so you can grep failur
 ## ban / unban (shorthand)
 
 ```bash
-birdclaw ban @amelia --account acct_primary --transport auto --json
-birdclaw unban @amelia --account acct_primary --transport bird --json
+neo-archive ban @amelia --account acct_primary --transport auto --json
+neo-archive unban @amelia --account acct_primary --transport bird --json
 ```
 
 `ban` / `unban` are aliases for `blocks add` / `blocks remove` with one extra knob: `--transport`.
@@ -95,10 +95,10 @@ birdclaw unban @amelia --account acct_primary --transport bird --json
 ## Mutes
 
 ```bash
-birdclaw mutes list --account acct_primary --json
-birdclaw mute @amelia --account acct_primary --transport xurl --json
-birdclaw unmute @amelia --account acct_primary --transport auto --json
-birdclaw mutes record @amelia --account acct_primary --json
+neo-archive mutes list --account acct_primary --json
+neo-archive mute @amelia --account acct_primary --transport xurl --json
+neo-archive unmute @amelia --account acct_primary --transport auto --json
+neo-archive mutes record @amelia --account acct_primary --json
 ```
 
 Same model as blocks, with one resolution detail: `mute` and `unmute` prefer `bird user --json` for target resolution before falling back to `xurl /2/users`. This is faster and avoids burning an `xurl` user lookup for accounts you can already see in `bird`.

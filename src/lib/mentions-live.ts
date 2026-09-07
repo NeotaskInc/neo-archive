@@ -76,7 +76,7 @@ interface MentionScanShape {
 	boundary: MentionScanBoundary;
 }
 interface MentionCursorValue extends XurlMentionsResponse {
-	birdclaw?: {
+	neoArchive?: {
 		boundary?: MentionScanBoundary;
 		pendingNewestId?: string | null;
 	};
@@ -214,7 +214,7 @@ function parseCachedMentionBoundary(
 	value: MentionCursorValue | XurlMentionsResponse,
 	fallbackBoundary?: MentionScanBoundary,
 ) {
-	const boundary = (value as MentionCursorValue).birdclaw?.boundary;
+	const boundary = (value as MentionCursorValue).neoArchive?.boundary;
 	if (!boundary || typeof boundary !== "object") {
 		return fallbackBoundary;
 	}
@@ -233,7 +233,7 @@ function parseCachedMentionBoundary(
 function getCachedMentionPendingNewestId(
 	value: MentionCursorValue | XurlMentionsResponse | undefined,
 ) {
-	const pendingNewestId = (value as MentionCursorValue | undefined)?.birdclaw
+	const pendingNewestId = (value as MentionCursorValue | undefined)?.neoArchive
 		?.pendingNewestId;
 	return isNumericTweetId(pendingNewestId) ? pendingNewestId : undefined;
 }
@@ -245,7 +245,7 @@ function addMentionCursorState(
 ): MentionCursorValue {
 	return {
 		...payload,
-		birdclaw: { boundary, pendingNewestId: pendingNewestId ?? null },
+		neoArchive: { boundary, pendingNewestId: pendingNewestId ?? null },
 	};
 }
 

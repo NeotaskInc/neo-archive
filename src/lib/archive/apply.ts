@@ -21,6 +21,7 @@ import type {
 } from "./types";
 
 interface ApplyArchiveImportParams {
+	accountId?: string;
 	archivePath: string;
 	db: Database;
 	repository: ImportRepository;
@@ -43,6 +44,7 @@ interface ApplyArchiveImportParams {
 }
 
 export function applyArchiveImportPlanEffect({
+	accountId = "acct_primary",
 	archivePath,
 	db,
 	repository,
@@ -76,18 +78,18 @@ export function applyArchiveImportPlanEffect({
 	return Effect.gen(function* () {
 		const insertAccount = db.prepare(`
 		    insert into accounts (id, name, handle, external_user_id, transport, is_default, created_at)
-		    values (?, ?, ?, ?, ?, 1, ?)
+		    values (?, ?, ?, ?, ?, (select case when count(*) = 0 then 1 else 0 end from accounts), ?)
 		    on conflict(id) do update set
 		      name = excluded.name,
 		      handle = excluded.handle,
 		      external_user_id = excluded.external_user_id,
 		      transport = excluded.transport,
-		      is_default = 1,
+		      is_default = accounts.is_default,
 		      created_at = excluded.created_at
 		  `);
 		const insertAccountIfMissing = db.prepare(`
 		    insert or ignore into accounts (id, name, handle, external_user_id, transport, is_default, created_at)
-		    values (?, ?, ?, ?, ?, 1, ?)
+		    values (?, ?, ?, ?, ?, (select case when count(*) = 0 then 1 else 0 end from accounts), ?)
 		  `);
 		const insertProfile = db.prepare(`
 			    insert into profiles (
@@ -437,10 +439,10 @@ export function applyArchiveImportPlanEffect({
 			entryCount: number,
 			now: string,
 		) {
-			const snapshotId = `follow_snapshot_archive_acct_primary_${direction}`;
+			const snapshotId = `follow_snapshot_archive_${accountId}_${direction}`;
 			const existingEdges = new Map(
 				(
-					selectFollowEdges.all("acct_primary", direction) as Array<{
+					selectFollowEdges.all(accountId, direction) as Array<{
 						profile_id: string;
 						external_user_id: string;
 						current: number;
@@ -498,7 +500,7 @@ export function applyArchiveImportPlanEffect({
 
 			insertFollowSnapshot.run(
 				snapshotId,
-				"acct_primary",
+				accountId,
 				direction,
 				restore ? "complete" : "partial",
 				entryCount,
@@ -532,7 +534,7 @@ export function applyArchiveImportPlanEffect({
 
 				const previous = existingEdges.get(profileId);
 				insertFollowEdge.run(
-					"acct_primary",
+					accountId,
 					direction,
 					profileId,
 					row.externalUserId,
@@ -543,7 +545,7 @@ export function applyArchiveImportPlanEffect({
 				if (!previous || previous.current === 0) {
 					insertFollowEvent.run(
 						`follow_event_${randomUUID()}`,
-						"acct_primary",
+						accountId,
 						direction,
 						profileId,
 						row.externalUserId,
@@ -559,10 +561,10 @@ export function applyArchiveImportPlanEffect({
 				if (previous.current === 0 || currentProfileIds.has(profileId)) {
 					continue;
 				}
-				endFollowEdge.run(now, now, "acct_primary", direction, profileId);
+				endFollowEdge.run(now, now, accountId, direction, profileId);
 				insertFollowEvent.run(
 					`follow_event_${randomUUID()}`,
-					"acct_primary",
+					accountId,
 					direction,
 					profileId,
 					previous.external_user_id,
@@ -575,15 +577,15 @@ export function applyArchiveImportPlanEffect({
 
 		function clearArchiveFollowRows(direction: ArchiveFollowDirection) {
 			deleteArchiveFollowEvents.run(
-				"acct_primary",
+				accountId,
 				direction,
-				`follow_snapshot_archive_acct_primary_${direction}`,
-				"acct_primary",
+				`follow_snapshot_archive_${accountId}_${direction}`,
+				accountId,
 				direction,
 			);
-			deleteArchiveFollowSnapshotMembers.run("acct_primary", direction);
-			deleteArchiveFollowSnapshots.run("acct_primary", direction);
-			deleteArchiveFollowEdges.run("acct_primary", direction);
+			deleteArchiveFollowSnapshotMembers.run(accountId, direction);
+			deleteArchiveFollowSnapshots.run(accountId, direction);
+			deleteArchiveFollowEdges.run(accountId, direction);
 		}
 
 		onProgress({ kind: "writing" });
@@ -600,15 +602,15 @@ export function applyArchiveImportPlanEffect({
 		yield* databaseWriteEffect(() => {
 			if (restore) {
 				if (includeTweets) {
-					repository.clearAuthoredSyncCursors("acct_primary");
-					repository.clearMentionSyncState("acct_primary");
-					clearSelectedArchiveTweetEdges.run("acct_primary", localProfile.id);
+					repository.clearAuthoredSyncCursors(accountId);
+					repository.clearMentionSyncState(accountId);
+					clearSelectedArchiveTweetEdges.run(accountId, localProfile.id);
 				}
 				if (includeLikes) {
-					clearSelectedLikes.run("acct_primary");
+					clearSelectedLikes.run(accountId);
 				}
 				if (includeBookmarks) {
-					clearSelectedBookmarks.run("acct_primary");
+					clearSelectedBookmarks.run(accountId);
 				}
 				if (includeTweets || includeLikes || includeBookmarks) {
 					deleteOrphanTweets.run();
@@ -619,16 +621,16 @@ export function applyArchiveImportPlanEffect({
 					deleteOrphanTweetRevisionEdges.run();
 				}
 				if (includeDirectMessages) {
-					clearDmLinkOccurrences.run("acct_primary");
-					clearDmFts.run("acct_primary");
-					clearDmMessages.run("acct_primary");
-					clearDmConversations.run("acct_primary");
+					clearDmLinkOccurrences.run(accountId);
+					clearDmFts.run(accountId);
+					clearDmMessages.run(accountId);
+					clearDmConversations.run(accountId);
 				}
 			}
 
 			const writeAccount = selection ? insertAccountIfMissing : insertAccount;
 			writeAccount.run(
-				"acct_primary",
+				accountId,
 				accountPayload.displayName,
 				`@${accountPayload.username}`,
 				accountPayload.accountId,
@@ -708,7 +710,7 @@ export function applyArchiveImportPlanEffect({
 				deleteTweetFts.run(tweet.id);
 				if (tweet.kind === "home") {
 					insertTimelineEdge.run(
-						"acct_primary",
+						accountId,
 						tweet.id,
 						tweet.kind,
 						tweet.createdAt,
@@ -718,7 +720,7 @@ export function applyArchiveImportPlanEffect({
 				}
 				if (authorProfileId === localProfile.id) {
 					insertTimelineEdge.run(
-						"acct_primary",
+						accountId,
 						tweet.id,
 						"authored",
 						tweet.createdAt,
@@ -767,7 +769,7 @@ export function applyArchiveImportPlanEffect({
 			let collectionIndex = 0;
 			for (const collection of collectionRows) {
 				insertCollection.run(
-					"acct_primary",
+					accountId,
 					collection.tweetId,
 					collection.kind,
 					collection.collectedAt,

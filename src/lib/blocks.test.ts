@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { Effect } from "effect";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { resetBirdclawPathsForTests } from "./config";
+import { resetNeoArchivePathsForTests } from "./config";
 import { getNativeDb, resetDatabaseForTests } from "./db";
 
 const mocks = vi.hoisted(() => ({
@@ -56,18 +56,18 @@ vi.mock("./xurl", async () => {
 const tempRoots: string[] = [];
 
 function setupTempHome() {
-	const tempRoot = mkdtempSync(path.join(os.tmpdir(), "birdclaw-blocks-"));
+	const tempRoot = mkdtempSync(path.join(os.tmpdir(), "neo-archive-blocks-"));
 	tempRoots.push(tempRoot);
-	process.env.BIRDCLAW_HOME = tempRoot;
-	resetBirdclawPathsForTests();
+	process.env.NEO_ARCHIVE_HOME = tempRoot;
+	resetNeoArchivePathsForTests();
 	resetDatabaseForTests();
 }
 
 afterEach(() => {
 	resetDatabaseForTests();
-	resetBirdclawPathsForTests();
-	delete process.env.BIRDCLAW_HOME;
-	delete process.env.BIRDCLAW_DISABLE_LIVE_WRITES;
+	resetNeoArchivePathsForTests();
+	delete process.env.NEO_ARCHIVE_HOME;
+	delete process.env.NEO_ARCHIVE_DISABLE_LIVE_WRITES;
 	mocks.blockUserViaBird.mockReset();
 	mocks.lookupProfileViaBird.mockReset();
 	mocks.readBirdStatusViaBird.mockReset();
@@ -87,7 +87,7 @@ afterEach(() => {
 
 describe("blocklist", () => {
 	beforeEach(() => {
-		delete process.env.BIRDCLAW_DISABLE_LIVE_WRITES;
+		delete process.env.NEO_ARCHIVE_DISABLE_LIVE_WRITES;
 		mocks.lookupProfileViaBird.mockResolvedValue(null);
 		mocks.lookupAuthenticatedUser.mockResolvedValue({
 			id: "25401953",
@@ -203,7 +203,7 @@ describe("blocklist", () => {
 		const { addBlock, listBlocks } = await import("./blocks");
 		mocks.lookupAuthenticatedUser.mockResolvedValue({
 			id: "42",
-			username: "birdclaw_lab",
+			username: "neo_archive_lab",
 		});
 
 		await addBlock("acct_studio", "8");

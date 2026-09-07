@@ -598,7 +598,7 @@ export function collectPeriodDigestContext(
 
 function languageFromOptions(options: PeriodDigestOptions) {
 	return normalizeDigestLanguage(
-		options.language ?? process.env.BIRDCLAW_DIGEST_LANGUAGE,
+		options.language ?? process.env.NEO_ARCHIVE_DIGEST_LANGUAGE,
 	);
 }
 

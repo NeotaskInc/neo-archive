@@ -1,6 +1,6 @@
 import path from "node:path";
 import { maybeAutoSyncBackup, type BackupAutoUpdateResult } from "./backup";
-import { ensureBirdclawDirs, getBirdclawPaths } from "./config";
+import { ensureNeoArchiveDirs, getNeoArchivePaths } from "./config";
 import { getNativeDb } from "./db";
 import { syncDirectMessagesViaCachedBird } from "./dms-live";
 import {
@@ -28,7 +28,7 @@ import { syncHomeTimeline } from "./timeline-live";
 const DEFAULT_ACCOUNT_SYNC_INTERVAL_SECONDS = 30 * 60;
 const DEFAULT_ACCOUNT_SYNC_LIMIT = 100;
 const DEFAULT_ACCOUNT_SYNC_MAX_PAGES = 3;
-const DEFAULT_ACCOUNT_SYNC_LABEL = "com.steipete.birdclaw.account-sync";
+const DEFAULT_ACCOUNT_SYNC_LABEL = "com.neotask.neo-archive.account-sync";
 const DEFAULT_LOCK_STALE_MS = 60 * 60 * 1000;
 
 export type AccountSyncStepKind =
@@ -119,11 +119,11 @@ const DEFAULT_STEPS: AccountSyncStepKind[] = [
 ];
 
 export function getDefaultAccountSyncAuditLogPath() {
-	return path.join(getBirdclawPaths().rootDir, "audit", "account-sync.jsonl");
+	return path.join(getNeoArchivePaths().rootDir, "audit", "account-sync.jsonl");
 }
 
 export function getDefaultAccountSyncLockPath() {
-	return path.join(getBirdclawPaths().rootDir, "locks", "account-sync.lock");
+	return path.join(getNeoArchivePaths().rootDir, "locks", "account-sync.lock");
 }
 
 function messageFromError(error: unknown) {
@@ -332,7 +332,7 @@ export async function runAccountSyncJob({
 	lockPath,
 	db,
 }: AccountSyncJobOptions = {}): Promise<AccountSyncAuditEntry> {
-	ensureBirdclawDirs();
+	ensureNeoArchiveDirs();
 	const database = db ?? getNativeDb({ seedDemoData: false });
 	const resolvedLogPath = resolveUserPath(
 		logPath ?? getDefaultAccountSyncAuditLogPath(),
@@ -416,7 +416,7 @@ export async function runAccountSyncJob({
 }
 
 function buildProgramArguments({
-	program = "birdclaw",
+	program = "neo-archive",
 	runtime,
 	runtimeArgs,
 	account,
@@ -478,11 +478,11 @@ export function buildAccountSyncLaunchAgentPlist(
 	);
 	const stdoutPath = resolveUserPath(
 		options.stdoutPath ??
-			path.join(getBirdclawPaths().rootDir, "logs", "account-sync.out.log"),
+			path.join(getNeoArchivePaths().rootDir, "logs", "account-sync.out.log"),
 	);
 	const stderrPath = resolveUserPath(
 		options.stderrPath ??
-			path.join(getBirdclawPaths().rootDir, "logs", "account-sync.err.log"),
+			path.join(getNeoArchivePaths().rootDir, "logs", "account-sync.err.log"),
 	);
 	const programArguments = buildProgramArguments({ ...options, logPath });
 	return buildLaunchAgent({
@@ -499,7 +499,7 @@ export function buildAccountSyncLaunchAgentPlist(
 export async function installAccountSyncLaunchAgent(
 	options: AccountSyncLaunchAgentOptions = {},
 ): Promise<AccountSyncLaunchAgentInstallResult> {
-	ensureBirdclawDirs();
+	ensureNeoArchiveDirs();
 	const agent = buildAccountSyncLaunchAgentPlist(options);
 	return installLaunchAgent(agent, options);
 }

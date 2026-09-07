@@ -21,9 +21,9 @@ describe("resolveOpenAIBaseUrl", () => {
 		);
 	});
 
-	it("uses the birdclaw override and trims trailing slashes", () => {
+	it("uses the neo-archive override and trims trailing slashes", () => {
 		const env: Record<string, string> = {
-			BIRDCLAW_OPENAI_BASE_URL: "http://localhost:11434/v1/",
+			NEO_ARCHIVE_OPENAI_BASE_URL: "http://localhost:11434/v1/",
 		};
 		expect(resolveOpenAIBaseUrl((name) => env[name])).toBe(
 			"http://localhost:11434/v1",
@@ -115,7 +115,7 @@ describe("OpenAI response runtime", () => {
 			env: (name: string) =>
 				({
 					OPENAI_API_KEY: "test",
-					BIRDCLAW_OPENAI_BASE_URL: "http://localhost:11434/v1",
+					NEO_ARCHIVE_OPENAI_BASE_URL: "http://localhost:11434/v1",
 				})[name],
 		};
 		await Effect.runPromise(

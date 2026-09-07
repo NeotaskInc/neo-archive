@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { Effect } from "effect";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { resetBirdclawPathsForTests } from "./config";
+import { resetNeoArchivePathsForTests } from "./config";
 import { getNativeDb, resetDatabaseForTests } from "./db";
 import { listInboxItems, scoreInbox } from "./inbox";
 
@@ -22,17 +22,17 @@ vi.mock("./openai", async () => {
 const tempRoots: string[] = [];
 
 function setupTempHome() {
-	const tempRoot = mkdtempSync(path.join(os.tmpdir(), "birdclaw-inbox-"));
+	const tempRoot = mkdtempSync(path.join(os.tmpdir(), "neo-archive-inbox-"));
 	tempRoots.push(tempRoot);
-	process.env.BIRDCLAW_HOME = tempRoot;
-	resetBirdclawPathsForTests();
+	process.env.NEO_ARCHIVE_HOME = tempRoot;
+	resetNeoArchivePathsForTests();
 	resetDatabaseForTests();
 }
 
 afterEach(() => {
 	resetDatabaseForTests();
-	resetBirdclawPathsForTests();
-	delete process.env.BIRDCLAW_HOME;
+	resetNeoArchivePathsForTests();
+	delete process.env.NEO_ARCHIVE_HOME;
 	scoreMock.mockReset();
 
 	for (const tempRoot of tempRoots.splice(0)) {

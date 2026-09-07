@@ -12,16 +12,16 @@ import {
 const root = process.cwd();
 const docsDir = path.join(root, "docs");
 const outDir = path.join(root, "dist", "docs-site");
-const repoBase = "https://github.com/steipete/birdclaw";
+const repoBase = "https://github.com/NeotaskInc/neo-archive";
 const repoEditBase = `${repoBase}/edit/main/docs`;
 const cname = readCname();
 const siteBase = cname ? `https://${cname}` : "";
 
-const productName = "birdclaw";
+const productName = "Neo Archive";
 const productTagline = "Local Twitter memory in SQLite";
 const productDescription =
-	"birdclaw is a local-first Twitter workspace: archive import, cached live reads, focused triage, and reply flows in one local web app + CLI.";
-const brewInstall = "brew install steipete/tap/birdclaw";
+	"neo-archive is a local-first Twitter workspace: archive import, cached live reads, focused triage, and reply flows in one local web app + CLI.";
+const sourceInstall = "git clone https://github.com/NeotaskInc/neo-archive.git";
 
 const sections = [
 	[
@@ -118,7 +118,7 @@ for (const page of pages) {
 	);
 }
 
-copyStaticAsset("birdclaw-mark.png");
+copyStaticAsset("neo-archive-mark.png");
 copyStaticAsset("favicon.ico");
 copyStaticAsset("social-card.svg");
 copyStaticAsset("social-card.png");
@@ -195,7 +195,7 @@ function docsInstallHint() {
 	if (typeof installLine !== "undefined") return installLine;
 	if (typeof installCmd !== "undefined") return installCmd;
 	if (typeof installSnippet !== "undefined") return installSnippet;
-	if (typeof brewInstall !== "undefined") return brewInstall;
+	if (typeof sourceInstall !== "undefined") return sourceInstall;
 	return "";
 }
 
@@ -574,19 +574,19 @@ function homeHero(page) {
 		"Graph",
 	];
 	return `<header class="home-hero">
-        <img class="home-mark" src="birdclaw-mark.png" alt="" aria-hidden="true">
+        <img class="home-mark" src="neo-archive-mark.png" alt="" aria-hidden="true">
         <p class="eyebrow">Local-first · CLI + Web · SQLite</p>
         <h1>Your Twitter, <span class="accent">your bird</span>.</h1>
         <p class="lede">${escapeHtml(description)}</p>
         <div class="home-cta">
           <a class="btn btn-primary" href="${quickstartRel}">Quickstart</a>
           <a class="btn btn-ghost" href="${repoBase}" rel="noopener">GitHub</a>
-          <div class="home-install" aria-label="Install with Homebrew">
+          <div class="home-install" aria-label="Get the Neo Archive source">
             <span class="prompt" aria-hidden="true">$</span>
-            <code>${escapeHtml(brewInstall)}</code>
+            <code>${escapeHtml(sourceInstall)}</code>
           </div>
         </div>
-        <div class="home-services" aria-label="Things birdclaw stores locally">
+        <div class="home-services" aria-label="Things neo-archive stores locally">
           ${surfaces.map((s) => `<span>${escapeHtml(s)}</span>`).join("")}
         </div>
         <p><a href="${installRel}">Other install options →</a></p>
@@ -670,7 +670,7 @@ function layout({ page, html, toc, prev, next, sectionName }) {
     <aside class="sidebar">
       <div class="sidebar-head">
         <a class="brand" href="${hrefToOutRel("index.html", page.outRel)}" aria-label="${productName} docs home">
-          <span class="mark" aria-hidden="true"><img src="${rootPrefix}birdclaw-mark.png" alt=""></span>
+          <span class="mark" aria-hidden="true"><img src="${rootPrefix}neo-archive-mark.png" alt=""></span>
           <span><strong>${escapeHtml(productName)}</strong><small>Local Twitter memory</small></span>
         </a>
         ${themeToggleHtml()}
@@ -731,7 +731,7 @@ function navHtml(currentPage) {
 
 function navTitle(page) {
 	if (page.rel === "index.md") return "Overview";
-	return page.title.replace(/^`birdclaw\s*/, "").replace(/`$/, "");
+	return page.title.replace(/^`neo-archive\s*/, "").replace(/`$/, "");
 }
 
 function hrefToOutRel(targetOutRel, currentOutRel) {
@@ -845,7 +845,7 @@ function highlightShellLine(line) {
 		(_, lead, flag) => `${escapeHtml(lead)}${stashAdd(flag, "hl-f")}`,
 	);
 	working = working.replace(
-		/\b(birdclaw|bun|npm|brew|bird|xurl|git|node|sudo|launchctl|tail|jq|cd|export|cat|curl|cargo|ls|mv|cp|rm|mkdir|cron)\b/g,
+		/\b(neo-archive|bun|npm|brew|bird|xurl|git|node|sudo|launchctl|tail|jq|cd|export|cat|curl|cargo|ls|mv|cp|rm|mkdir|cron)\b/g,
 		(m) => stashAdd(m, "hl-cmd"),
 	);
 	working = working.replace(/\b(\d+(?:\.\d+)?)\b/g, (m) => stashAdd(m, "hl-n"));

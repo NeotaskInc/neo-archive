@@ -1,43 +1,43 @@
 ---
 title: Overview
 permalink: /
-description: "birdclaw is a local-first Twitter workspace: archive import, cached live reads, focused triage, and reply flows in one local web app + CLI."
+description: "neo-archive is a local-first Twitter workspace: archive import, cached live reads, focused triage, and reply flows in one local web app + CLI."
 ---
 
 ## Try it
 
-After [installing](install.md) and running [`birdclaw init`](quickstart.md), every workflow is a one-liner.
+After [installing](install.md) and running [`neo-archive init`](quickstart.md), every workflow is a one-liner.
 
 ```bash
 # Find and import your Twitter archive (auto-discovered on macOS).
-birdclaw archive find --json
-birdclaw import archive --json
-birdclaw import archive ~/Downloads/twitter-archive.zip --select likes,bookmarks --json
+neo-archive archive find --json
+neo-archive import archive --json
+neo-archive import archive ~/Downloads/twitter-archive.zip --select likes,bookmarks --json
 
 # Explicitly import named public tweets through the third-party FxTwitter service.
-birdclaw import tweet 20 --fxtwitter --json
+neo-archive import tweet 20 --fxtwitter --json
 
 # Pull in mentions, likes, bookmarks, and the home timeline.
-birdclaw sync timeline --limit 100 --refresh --json
-birdclaw sync bookmarks --mode auto --all --json
+neo-archive sync timeline --limit 100 --refresh --json
+neo-archive sync bookmarks --mode auto --all --json
 
 # Search every tweet you've ever liked, locally, with FTS5.
-birdclaw search tweets "local-first" --json
-birdclaw search tweets --bookmarked --hide-low-quality --limit 100 --json
+neo-archive search tweets "local-first" --json
+neo-archive search tweets --bookmarked --hide-low-quality --limit 100 --json
 
 # Triage with AI ranking and reply from the CLI.
-birdclaw inbox --score --hide-low-signal --limit 8 --json
-birdclaw compose reply 1891234567890 "On it."
+neo-archive inbox --score --hide-low-signal --limit 8 --json
+neo-archive compose reply 1891234567890 "On it."
 
 # Stream a local "what happened" digest.
-birdclaw today
-birdclaw today --language zh-CN
-birdclaw digest week --json
+neo-archive today
+neo-archive today --language zh-CN
+neo-archive digest week --json
 ```
 
 Stable `--json` envelopes go to stdout, progress and warnings to stderr — pipes stay parseable.
 
-## What birdclaw does
+## What neo-archive does
 
 - **One local SQLite database** for tweets, DMs, likes, bookmarks, mentions, follows, blocks, and mutes — multi-account, FTS5-indexed.
 - **Archive-first, live-aware.** Import a Twitter archive to establish account identity, then selectively re-import stale slices with `--select` or refresh through live transports.
@@ -51,7 +51,7 @@ Stable `--json` envelopes go to stdout, progress and warnings to stderr — pipe
 
 ## Pick your path
 
-- **First time using birdclaw.** [Install](install.md) → [Quickstart](quickstart.md) covers archive-first account setup, live transports, and the local web app.
+- **First time using neo-archive.** [Install](install.md) → [Quickstart](quickstart.md) covers archive-first account setup, live transports, and the local web app.
 - **Have a Twitter archive ZIP.** [Archive import](archive.md) walks through autodiscovery, selected re-imports, and idempotent re-runs.
 - **Need a few named public tweets without X credentials.** [Public tweet import](public-tweets.md) documents the explicit FxTwitter opt-in and third-party disclosure tradeoff.
 - **Already initialized, want fresh live data.** [Sync](sync.md) covers likes, bookmarks, timeline, mention threads, and rate-limit-aware resumable runs.
@@ -67,4 +67,4 @@ Stable `--json` envelopes go to stdout, progress and warnings to stderr — pipe
 
 Active development. Status: real and usable, not finished. Schema churn, transport gaps, and rough edges are expected while the core settles.
 
-The [changelog](https://github.com/steipete/birdclaw/blob/main/CHANGELOG.md) tracks what shipped recently. Product order and boundaries live in the [vision](https://github.com/steipete/birdclaw/blob/main/VISION.md); detailed goals and decisions live in the [spec](spec.md). Released under the [MIT license](https://github.com/steipete/birdclaw/blob/main/LICENSE). Not affiliated with X Corp.
+The [changelog](https://github.com/NeotaskInc/neo-archive/blob/main/CHANGELOG.md) tracks what shipped recently. Product order and boundaries live in the [vision](https://github.com/NeotaskInc/neo-archive/blob/main/VISION.md); detailed goals and decisions live in the [spec](spec.md). Released under the [MIT license](https://github.com/NeotaskInc/neo-archive/blob/main/LICENSE). Not affiliated with X Corp.

@@ -5,28 +5,28 @@ description: "Scheduler-friendly bookmark sync with launchd integration, audit l
 
 # Jobs
 
-`birdclaw jobs` is the scheduler-friendly subset of sync: short defaults, JSONL audit logs, lock files to prevent overlap, and launchd installers for macOS.
+`neo-archive jobs` is the scheduler-friendly subset of sync: short defaults, JSONL audit logs, lock files to prevent overlap, and launchd installers for macOS.
 
 Both LaunchAgent installers accept `--interval-seconds <seconds>` as a positive safe integer. Zero, negative, fractional, non-numeric, and unsafe values exit nonzero before writing a plist. Existing numeric spellings such as `1e3` (1,000 seconds) and `0x10` (16 seconds) remain accepted.
 
 ## `jobs sync-account`
 
 ```bash
-birdclaw --json jobs sync-account --account acct_openclaw --limit 100 --max-pages 3 --refresh --allow-bird-account
+neo-archive --json jobs sync-account --account acct_openclaw --limit 100 --max-pages 3 --refresh --allow-bird-account
 ```
 
 What it does:
 
 - refreshes home timeline, mentions, mention threads, likes, bookmarks, and DMs for one account
 - uses `bird` for home and mentions; DMs can use `auto`/`xurl` for accepted-message imports, while message-request state still needs `bird`
-- appends one JSONL audit entry per run to `~/.birdclaw/audit/account-sync.jsonl`
+- appends one JSONL audit entry per run to `~/.neo-archive/audit/account-sync.jsonl`
 - records each step independently so one rate-limited surface does not hide the others
 - runs backup auto-sync after the scheduled refresh when enabled
 
 Install the LaunchAgent:
 
 ```bash
-birdclaw --json jobs install-account-launchd --account acct_openclaw --program /opt/homebrew/bin/birdclaw --env-path ~/.config/bird/openclaw.env --allow-bird-account
+neo-archive --json jobs install-account-launchd --account acct_openclaw --program /opt/homebrew/bin/neo-archive --env-path ~/.config/bird/openclaw.env --allow-bird-account
 ```
 
 The default interval is 1,800 seconds (30 minutes). Use `--steps timeline,mentions,dms` for a narrower job, or `--env-path ~/.config/bird/openclaw.env` when launchd needs account cookies. Pass `--allow-bird-account` only when the sourced cookies match `--account`; without it, Bird-backed timeline, mentions, and `--mode bird` DM steps refuse non-default account writes.
@@ -34,7 +34,7 @@ The default interval is 1,800 seconds (30 minutes). Use `--steps timeline,mentio
 ## `jobs sync-bookmarks`
 
 ```bash
-birdclaw --json jobs sync-bookmarks --mode auto --limit 100 --max-pages 5 --refresh
+neo-archive --json jobs sync-bookmarks --mode auto --limit 100 --max-pages 5 --refresh
 ```
 
 What it does:
@@ -42,7 +42,7 @@ What it does:
 - runs a live bookmark refresh with scheduler-friendly defaults
 - appends one JSONL audit entry per run
 - exits non-zero when the sync failed, so a scheduler can detect and retry
-- uses `~/.birdclaw/locks/bookmarks-sync.lock` to skip overlapping runs (records `already-running` instead of crashing)
+- uses `~/.neo-archive/locks/bookmarks-sync.lock` to skip overlapping runs (records `already-running` instead of crashing)
 
 Audit entries include:
 
@@ -57,46 +57,46 @@ Audit entries include:
 The default audit log path:
 
 ```text
-~/.birdclaw/audit/bookmarks-sync.jsonl
+~/.neo-archive/audit/bookmarks-sync.jsonl
 ```
 
 Inspect recent runs:
 
 ```bash
-tail -n 5 ~/.birdclaw/audit/bookmarks-sync.jsonl | jq .
+tail -n 5 ~/.neo-archive/audit/bookmarks-sync.jsonl | jq .
 ```
 
-After a successful refresh, the job runs the normal backup auto-sync path. If `~/.birdclaw/config.json` has `backup.autoSync` enabled, the changed local data is merged into the configured Git backup repo, committed, and pushed. The audit entry records that backup result so scheduled runs are inspectable later.
+After a successful refresh, the job runs the normal backup auto-sync path. If `~/.neo-archive/config.json` has `backup.autoSync` enabled, the changed local data is merged into the configured Git backup repo, committed, and pushed. The audit entry records that backup result so scheduled runs are inspectable later.
 
 ## `jobs install-bookmarks-launchd`
 
 macOS only. Writes a LaunchAgent plist that runs `jobs sync-bookmarks` every 3 hours.
 
 ```bash
-birdclaw --json jobs install-bookmarks-launchd --program /opt/homebrew/bin/birdclaw
+neo-archive --json jobs install-bookmarks-launchd --program /opt/homebrew/bin/neo-archive
 ```
 
 A source checkout can pin both the runtime and program in the plist instead of relying on launchd's limited `PATH`:
 
 ```bash
 BUN=$(./scripts/install-bun-canary.sh)
-./scripts/bun-canary.sh bin/birdclaw.mjs --json jobs install-bookmarks-launchd \
+./scripts/bun-canary.sh bin/neo-archive.mjs --json jobs install-bookmarks-launchd \
   --runtime "$BUN" \
   --runtime-arg=--no-env-file \
-  --program "$PWD/bin/birdclaw.mjs"
+  --program "$PWD/bin/neo-archive.mjs"
 ```
 
 What it writes:
 
-- `~/Library/LaunchAgents/com.steipete.birdclaw.bookmarks-sync.plist`
+- `~/Library/LaunchAgents/com.neotask.neo-archive.bookmarks-sync.plist`
 - runs at load, then every 10,800 seconds (3 hours)
-- writes audit log to `~/.birdclaw/audit/bookmarks-sync.jsonl`
-- writes stdout/stderr to `~/.birdclaw/logs/bookmarks-sync.*.log`
+- writes audit log to `~/.neo-archive/audit/bookmarks-sync.jsonl`
+- writes stdout/stderr to `~/.neo-archive/logs/bookmarks-sync.*.log`
 - uses `launchctl load -w` unless `--no-load` is passed
 
 Flags:
 
-- `--program <path>` — `birdclaw` executable, or an absolute source launcher when `--runtime` is set
+- `--program <path>` — `neo-archive` executable, or an absolute source launcher when `--runtime` is set
 - `--runtime <absolute-path>` — invoke `--program` through this exact runtime rather than its shebang
 - `--runtime-arg <value>` — repeatable runtime argument; Bun source jobs should pass `--runtime-arg=--no-env-file`
 - `--env-path <path>` — source an export-only shell env file inside the scheduled process
@@ -118,8 +118,8 @@ export CT0="..."
 SH
 chmod 600 ~/.config/bird/env.sh
 
-birdclaw --json jobs install-bookmarks-launchd \
-  --program /opt/homebrew/bin/birdclaw \
+neo-archive --json jobs install-bookmarks-launchd \
+  --program /opt/homebrew/bin/neo-archive \
   --env-path ~/.config/bird/env.sh
 ```
 
@@ -130,9 +130,9 @@ The plist sources that file inside the scheduled process. The cookies stay on yo
 After install:
 
 ```bash
-launchctl print gui/$(id -u)/com.steipete.birdclaw.bookmarks-sync
-launchctl kickstart -k gui/$(id -u)/com.steipete.birdclaw.bookmarks-sync
-tail -n 1 ~/.birdclaw/audit/bookmarks-sync.jsonl | jq .
+launchctl print gui/$(id -u)/com.neotask.neo-archive.bookmarks-sync
+launchctl kickstart -k gui/$(id -u)/com.neotask.neo-archive.bookmarks-sync
+tail -n 1 ~/.neo-archive/audit/bookmarks-sync.jsonl | jq .
 ```
 
 `kickstart -k` re-runs the job immediately, which is the fastest way to confirm cookies and config work end-to-end.
@@ -140,8 +140,8 @@ tail -n 1 ~/.birdclaw/audit/bookmarks-sync.jsonl | jq .
 ## Uninstall
 
 ```bash
-launchctl bootout gui/$(id -u)/com.steipete.birdclaw.bookmarks-sync
-rm ~/Library/LaunchAgents/com.steipete.birdclaw.bookmarks-sync.plist
+launchctl bootout gui/$(id -u)/com.neotask.neo-archive.bookmarks-sync
+rm ~/Library/LaunchAgents/com.neotask.neo-archive.bookmarks-sync.plist
 ```
 
 The audit log and lock file are kept by design — remove them by hand if you really want them gone.
@@ -153,11 +153,11 @@ Linux is not yet a first-class target for `jobs install-*`. For now, run `jobs s
 Example crontab:
 
 ```text
-0 */3 * * * /usr/local/bin/birdclaw --json jobs sync-bookmarks --mode auto --max-pages 5 --refresh >> ~/.birdclaw/logs/cron.log 2>&1
+0 */3 * * * /usr/local/bin/neo-archive --json jobs sync-bookmarks --mode auto --max-pages 5 --refresh >> ~/.neo-archive/logs/cron.log 2>&1
 ```
 
 ## See also
 
 - [Sync](sync.md) — manual sync flow with the same flags
 - [Backup](backup.md) — the backup auto-sync path that runs after each scheduled bookmark refresh
-- [Configuration](configuration.md) — `backup.autoSync` and `BIRDCLAW_BACKUP_AUTO_SYNC`
+- [Configuration](configuration.md) — `backup.autoSync` and `NEO_ARCHIVE_BACKUP_AUTO_SYNC`

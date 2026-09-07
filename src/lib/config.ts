@@ -9,7 +9,7 @@ import {
 import os from "node:os";
 import path from "node:path";
 
-export interface BirdclawPaths {
+export interface NeoArchivePaths {
 	rootDir: string;
 	dbPath: string;
 	mediaOriginalsDir: string;
@@ -17,10 +17,10 @@ export interface BirdclawPaths {
 	configPath: string;
 }
 
-export type MentionsDataSource = "birdclaw" | "auto" | "xurl" | "bird";
+export type MentionsDataSource = "neo-archive" | "auto" | "xurl" | "bird";
 export type ActionsTransport = "auto" | "bird" | "xurl";
 
-export interface BirdclawConfig {
+export interface NeoArchiveConfig {
 	accounts?: {
 		default?: string;
 	};
@@ -40,24 +40,25 @@ export interface BirdclawConfig {
 }
 
 export function getDefaultAccountSelector() {
-	const selector = getBirdclawConfig().accounts?.default?.trim();
+	const selector = getNeoArchiveConfig().accounts?.default?.trim();
 	return selector || undefined;
 }
 
-let cachedPaths: BirdclawPaths | undefined;
-let cachedConfig: BirdclawConfig | undefined;
+let cachedPaths: NeoArchivePaths | undefined;
+let cachedConfig: NeoArchiveConfig | undefined;
 
-export function getBirdclawPaths(): BirdclawPaths {
+export function getNeoArchivePaths(): NeoArchivePaths {
 	if (cachedPaths) {
 		return cachedPaths;
 	}
 
 	const rootDir =
-		process.env.BIRDCLAW_HOME?.trim() || path.join(os.homedir(), ".birdclaw");
+		process.env.NEO_ARCHIVE_HOME?.trim() ||
+		path.join(os.homedir(), ".neo-archive");
 
 	cachedPaths = {
 		rootDir,
-		dbPath: path.join(rootDir, "birdclaw.sqlite"),
+		dbPath: path.join(rootDir, "neo-archive.sqlite"),
 		mediaOriginalsDir: path.join(rootDir, "media", "originals"),
 		mediaThumbsDir: path.join(rootDir, "media", "thumbs"),
 		configPath: path.join(rootDir, "config.json"),
@@ -66,7 +67,7 @@ export function getBirdclawPaths(): BirdclawPaths {
 	return cachedPaths;
 }
 
-function parseConfigFile(configPath: string): BirdclawConfig {
+function parseConfigFile(configPath: string): NeoArchiveConfig {
 	if (!existsSync(configPath)) {
 		return {};
 	}
@@ -76,26 +77,28 @@ function parseConfigFile(configPath: string): BirdclawConfig {
 		return {};
 	}
 
-	const parsed = JSON.parse(raw) as BirdclawConfig;
+	const parsed = JSON.parse(raw) as NeoArchiveConfig;
 	return parsed && typeof parsed === "object" ? parsed : {};
 }
 
-export function getBirdclawConfig(): BirdclawConfig {
+export function getNeoArchiveConfig(): NeoArchiveConfig {
 	if (cachedConfig) {
 		return cachedConfig;
 	}
 
 	const configPath =
-		process.env.BIRDCLAW_CONFIG?.trim() || getBirdclawPaths().configPath;
+		process.env.NEO_ARCHIVE_CONFIG?.trim() || getNeoArchivePaths().configPath;
 	cachedConfig = parseConfigFile(configPath);
 	return cachedConfig;
 }
 
 function getConfigPath() {
-	return process.env.BIRDCLAW_CONFIG?.trim() || getBirdclawPaths().configPath;
+	return (
+		process.env.NEO_ARCHIVE_CONFIG?.trim() || getNeoArchivePaths().configPath
+	);
 }
 
-export function writeBirdclawConfig(config: BirdclawConfig) {
+export function writeNeoArchiveConfig(config: NeoArchiveConfig) {
 	const configPath = getConfigPath();
 	mkdirSync(path.dirname(configPath), { recursive: true });
 	writeFileSync(configPath, `${JSON.stringify(config, null, "\t")}\n`, "utf8");
@@ -104,15 +107,15 @@ export function writeBirdclawConfig(config: BirdclawConfig) {
 }
 
 export function setActionsTransport(transport: ActionsTransport) {
-	const config = getBirdclawConfig();
-	const nextConfig: BirdclawConfig = {
+	const config = getNeoArchiveConfig();
+	const nextConfig: NeoArchiveConfig = {
 		...config,
 		actions: {
 			...config.actions,
 			transport,
 		},
 	};
-	const configPath = writeBirdclawConfig(nextConfig);
+	const configPath = writeNeoArchiveConfig(nextConfig);
 	return { configPath, transport };
 }
 
@@ -120,7 +123,7 @@ export function resolveMentionsDataSource(
 	requestedMode?: string,
 ): MentionsDataSource {
 	if (
-		requestedMode === "birdclaw" ||
+		requestedMode === "neo-archive" ||
 		requestedMode === "auto" ||
 		requestedMode === "xurl" ||
 		requestedMode === "bird"
@@ -128,9 +131,9 @@ export function resolveMentionsDataSource(
 		return requestedMode;
 	}
 
-	const envMode = process.env.BIRDCLAW_MENTIONS_DATA_SOURCE?.trim();
+	const envMode = process.env.NEO_ARCHIVE_MENTIONS_DATA_SOURCE?.trim();
 	if (
-		envMode === "birdclaw" ||
+		envMode === "neo-archive" ||
 		envMode === "auto" ||
 		envMode === "xurl" ||
 		envMode === "bird"
@@ -138,9 +141,9 @@ export function resolveMentionsDataSource(
 		return envMode;
 	}
 
-	const configMode = getBirdclawConfig().mentions?.dataSource;
+	const configMode = getNeoArchiveConfig().mentions?.dataSource;
 	if (
-		configMode === "birdclaw" ||
+		configMode === "neo-archive" ||
 		configMode === "auto" ||
 		configMode === "xurl" ||
 		configMode === "bird"
@@ -148,7 +151,7 @@ export function resolveMentionsDataSource(
 		return configMode;
 	}
 
-	return "birdclaw";
+	return "neo-archive";
 }
 
 export function resolveActionsTransport(
@@ -162,12 +165,12 @@ export function resolveActionsTransport(
 		return requestedMode;
 	}
 
-	const envMode = process.env.BIRDCLAW_ACTIONS_TRANSPORT?.trim();
+	const envMode = process.env.NEO_ARCHIVE_ACTIONS_TRANSPORT?.trim();
 	if (envMode === "auto" || envMode === "bird" || envMode === "xurl") {
 		return envMode;
 	}
 
-	const configMode = getBirdclawConfig().actions?.transport;
+	const configMode = getNeoArchiveConfig().actions?.transport;
 	if (configMode === "auto" || configMode === "bird" || configMode === "xurl") {
 		return configMode;
 	}
@@ -198,12 +201,12 @@ function findCommandOnPath(command: string) {
 }
 
 export function getBirdCommand() {
-	const envCommand = process.env.BIRDCLAW_BIRD_COMMAND?.trim();
+	const envCommand = process.env.NEO_ARCHIVE_BIRD_COMMAND?.trim();
 	if (envCommand) {
 		return envCommand;
 	}
 
-	const configuredCommand = getBirdclawConfig().mentions?.birdCommand?.trim();
+	const configuredCommand = getNeoArchiveConfig().mentions?.birdCommand?.trim();
 	if (configuredCommand) {
 		return configuredCommand;
 	}
@@ -216,8 +219,8 @@ export function getBirdCommand() {
 	return "bird";
 }
 
-export function ensureBirdclawDirs(): BirdclawPaths {
-	const paths = getBirdclawPaths();
+export function ensureNeoArchiveDirs(): NeoArchivePaths {
+	const paths = getNeoArchivePaths();
 
 	mkdirSync(paths.rootDir, { recursive: true });
 	mkdirSync(paths.mediaOriginalsDir, { recursive: true });
@@ -226,7 +229,7 @@ export function ensureBirdclawDirs(): BirdclawPaths {
 	return paths;
 }
 
-export function resetBirdclawPathsForTests() {
+export function resetNeoArchivePathsForTests() {
 	cachedPaths = undefined;
 	cachedConfig = undefined;
 }

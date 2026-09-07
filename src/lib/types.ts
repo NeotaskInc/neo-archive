@@ -384,7 +384,7 @@ export interface TransportStatus {
 	rawStatus?: string;
 }
 
-export type LiveDataSourceKind = "birdclaw" | "bird" | "xurl";
+export type LiveDataSourceKind = "neo-archive" | "bird" | "xurl";
 
 export interface LiveDataSourceAccount {
 	id?: string;

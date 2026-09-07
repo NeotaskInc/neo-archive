@@ -4,7 +4,7 @@ import {
 	syncBackup,
 	validateBackup,
 } from "#/lib/backup";
-import { getBirdclawPaths } from "#/lib/config";
+import { getNeoArchivePaths } from "#/lib/config";
 import { getDatabaseRuntimeMetrics } from "#/lib/database-metrics";
 import { getQueryEnvelope } from "#/lib/query-status";
 import type { CliCommandContext } from "./command-context";
@@ -22,12 +22,13 @@ export function registerStorageCommands({
 		.action(async () => {
 			await autoUpdateBeforeRead();
 			const meta = await getQueryEnvelope({ includeArchives: false });
-			const paths = getBirdclawPaths();
+			const paths = getNeoArchivePaths();
 			print(
 				{
 					paths,
 					database: getDatabaseRuntimeMetrics(),
 					stats: meta.stats,
+					accounts: meta.accounts,
 					transport: meta.transport,
 				},
 				asJson(),
@@ -47,7 +48,7 @@ export function registerStorageCommands({
 		.option(
 			"--message <message>",
 			"Git commit message",
-			"archive: update birdclaw backup",
+			"archive: update neo-archive backup",
 		)
 		.option("--no-validate", "Skip post-export validation")
 		.action(async (options) => {
@@ -84,7 +85,7 @@ export function registerStorageCommands({
 		.option(
 			"--message <message>",
 			"Git commit message",
-			"archive: sync birdclaw backup",
+			"archive: sync neo-archive backup",
 		)
 		.action(async (options) => {
 			const result = await syncBackup({

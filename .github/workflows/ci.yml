@@ -16,8 +16,8 @@ permissions:
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
   CI: "true"
-  BIRDCLAW_BACKUP_AUTO_SYNC: "0"
-  BIRDCLAW_DISABLE_LIVE_WRITES: "1"
+  NEO_ARCHIVE_BACKUP_AUTO_SYNC: "0"
+  NEO_ARCHIVE_DISABLE_LIVE_WRITES: "1"
   DO_NOT_TRACK: "1"
 
 jobs:
@@ -59,12 +59,12 @@ jobs:
         run: |
           PERF_HOME="$(mktemp -d)"
           BUN_BIN="$(./scripts/install-bun-canary.sh)"
-          BIRDCLAW_HOME="$PERF_HOME" ./scripts/bun-canary.sh src/cli.ts --json init --demo >/dev/null
+          NEO_ARCHIVE_HOME="$PERF_HOME" ./scripts/bun-canary.sh src/cli.ts --json init --demo >/dev/null
           ./scripts/bun-canary.sh scripts/runtime-perf.mjs \
             --label=ci-bun \
             --runtime="$BUN_BIN" \
             --runtime-arg=--no-env-file \
-            --entry=bin/birdclaw.mjs \
+            --entry=bin/neo-archive.mjs \
             --home="$PERF_HOME" \
             --iterations=1 > runtime-perf-smoke.json
           rm -rf "$PERF_HOME"
@@ -138,7 +138,7 @@ jobs:
 
       - name: Installed package smoke
         run: |
-          BIRDCLAW_NODE_BIN="$(command -v node)" ./scripts/bun-canary.sh scripts/package-smoke.mjs --json > package-smoke.json
+          NEO_ARCHIVE_NODE_BIN="$(command -v node)" ./scripts/bun-canary.sh scripts/package-smoke.mjs --json > package-smoke.json
           mkdir -p package-artifacts
           ./scripts/bun-canary.sh pm pack --ignore-scripts --destination package-artifacts
 

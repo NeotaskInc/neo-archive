@@ -5,7 +5,7 @@ description: "Import a Twitter/X archive into local SQLite — autodiscovery, se
 
 # Archive import
 
-`birdclaw import archive` parses a Twitter/X archive ZIP and writes everything into the canonical SQLite tables: tweets, likes, bookmarks, profiles, followers/following edges, DMs, bundled media files, and (when present) blocklists.
+`neo-archive import archive` parses a Twitter/X archive ZIP and writes everything into the canonical SQLite tables: tweets, likes, bookmarks, profiles, followers/following edges, DMs, bundled media files, and (when present) blocklists.
 
 It is **idempotent and merge-safe**. Re-running on the same archive does not produce duplicates, and importing a newer or incomplete archive preserves destination-only rows by default.
 
@@ -13,7 +13,7 @@ By default, archive import merges all supported slices from the ZIP. Use `--sele
 
 ## Get an archive
 
-On a fresh Birdclaw database, archive import establishes the account identity required by live sync. Do not sync an empty database before importing your archive. To replace the synthetic identity created by `init --demo`, use `import archive --restore`. An archive is optional only when restoring an existing Birdclaw database or backup that already contains the correct account.
+On a fresh Neo Archive database, archive import establishes the account identity required by live sync. Do not sync an empty database before importing your archive. To replace the synthetic identity created by `init --demo`, use `import archive --restore`. An archive is optional only when restoring an existing Neo Archive database or backup that already contains the correct account.
 
 Request flow:
 
@@ -30,7 +30,7 @@ The archive is a point-in-time snapshot. You can request a fresh one later and u
 On macOS, archives are autodiscovered via Spotlight (`mdfind`) plus name heuristics borrowed from Sweetistics:
 
 ```bash
-birdclaw archive find --json
+neo-archive archive find --json
 ```
 
 This searches `~/Downloads` first, then runs an `mdfind` pass under `$HOME` for files matching `twitter-*.zip`, `x-*.zip`, and `*archive*.zip`.
@@ -40,8 +40,8 @@ The result lists every plausible candidate so you can confirm before importing.
 ## Import
 
 ```bash
-birdclaw import archive --json
-birdclaw import archive ~/Downloads/twitter-archive-2025.zip --json
+neo-archive import archive --json
+neo-archive import archive ~/Downloads/twitter-archive-2025.zip --json
 ```
 
 Flags:
@@ -61,13 +61,13 @@ Accepted DM aliases:
 Examples:
 
 ```bash
-birdclaw import archive ~/Downloads/twitter-archive.zip --select tweets,directMessages
-birdclaw import archive ~/Downloads/twitter-archive.zip --select likes,bookmarks --json
-birdclaw import archive ~/Downloads/twitter-archive.zip --select dms --json
-birdclaw import archive ~/Downloads/twitter-archive.zip --restore --json
+neo-archive import archive ~/Downloads/twitter-archive.zip --select tweets,directMessages
+neo-archive import archive ~/Downloads/twitter-archive.zip --select likes,bookmarks --json
+neo-archive import archive ~/Downloads/twitter-archive.zip --select dms --json
+neo-archive import archive ~/Downloads/twitter-archive.zip --restore --json
 ```
 
-Use `--select profiles` when you want archive profile metadata refreshed. When selecting only tweets, likes, bookmarks, DMs, followers, or following, birdclaw preserves compatible existing profile rows and only inserts missing stubs needed for references.
+Use `--select profiles` when you want archive profile metadata refreshed. When selecting only tweets, likes, bookmarks, DMs, followers, or following, neo-archive preserves compatible existing profile rows and only inserts missing stubs needed for references.
 
 Every merge import validates the existing `acct_primary` account before writing. If the local default account does not match the archive account ID or handle, the command fails instead of merging two identities into one account. An explicit full `--restore` is the only mode that may replace that identity.
 
@@ -95,35 +95,35 @@ Typical targeted re-imports:
 
 ```bash
 # New archive has fresher original tweets, but keep live likes/bookmarks.
-birdclaw import archive ~/Downloads/twitter-archive.zip --select tweets --json
+neo-archive import archive ~/Downloads/twitter-archive.zip --select tweets --json
 
 # Refresh saved-post collections without touching DMs or follow graph.
-birdclaw import archive ~/Downloads/twitter-archive.zip --select likes,bookmarks --json
+neo-archive import archive ~/Downloads/twitter-archive.zip --select likes,bookmarks --json
 
 # Rebuild DM search after downloading a newer archive.
-birdclaw import archive ~/Downloads/twitter-archive.zip --select directMessages --json
+neo-archive import archive ~/Downloads/twitter-archive.zip --select directMessages --json
 
 # Refresh archive follow graph only.
-birdclaw import archive ~/Downloads/twitter-archive.zip --select followers,following --json
+neo-archive import archive ~/Downloads/twitter-archive.zip --select followers,following --json
 
 # Deliberately replace only the archive-owned tweet slice.
-birdclaw import archive ~/Downloads/twitter-archive.zip --select tweets --restore --json
+neo-archive import archive ~/Downloads/twitter-archive.zip --select tweets --restore --json
 ```
 
 ## Deletions and edit history
 
 Archive absence is not deletion. A tweet that disappears from a home or authored timeline may still exist on X, so a later snapshot that simply does not contain a stored tweet leaves that tweet active locally.
 
-Birdclaw creates a tombstone only from an explicit archive deleted-tweet record. The canonical tweet row retains `deleted_at`, a deletion source, and a reason; active search and timeline reads exclude it. Media identifiers and quoted-tweet relationships belonging to that parent receive subordinate tombstones so deleted content does not leak through media fetching or relationship views.
+Neo Archive creates a tombstone only from an explicit archive deleted-tweet record. The canonical tweet row retains `deleted_at`, a deletion source, and a reason; active search and timeline reads exclude it. Media identifiers and quoted-tweet relationships belonging to that parent receive subordinate tombstones so deleted content does not leak through media fetching or relationship views.
 
-When X exposes an edit-history ID chain, Birdclaw records the ordered revision identities. The raw body is attached only to a revision actually observed in the archive or a live payload; unobserved earlier IDs remain lossless identity stubs rather than invented content. Superseded bodies stay retained but disappear from active timelines, search, links, and media fetching. An explicit deletion of any observed revision tombstones the whole edit chain. Tombstones and revisions are included in portable backups.
+When X exposes an edit-history ID chain, Neo Archive records the ordered revision identities. The raw body is attached only to a revision actually observed in the archive or a live payload; unobserved earlier IDs remain lossless identity stubs rather than invented content. Superseded bodies stay retained but disappear from active timelines, search, links, and media fetching. An explicit deletion of any observed revision tombstones the whole edit chain. Tombstones and revisions are included in portable backups.
 
 ## Bundled media files
 
 Archive ZIPs ship the actual image and video files for every media kind X exports. `import archive` streams them out of the ZIP and into the local originals cache:
 
 ```text
-~/.birdclaw/media/originals/archive/<kind>/<id>/<filename>
+~/.neo-archive/media/originals/archive/<kind>/<id>/<filename>
 ```
 
 `<kind>` is one of the seven archive media kinds X currently exports:
@@ -142,7 +142,7 @@ Archive ZIPs ship the actual image and video files for every media kind X export
 
 Archive tweet rows ship `extended_entities.media[].video_info.variants[]` for every video and animated GIF. `import archive` lifts that array onto each media row's `media_json` payload so:
 
-- `birdclaw search tweets` and the local web UI can render archive video without a live call
+- `neo-archive search tweets` and the local web UI can render archive video without a live call
 - downstream live media fetchers can pick the highest-bitrate mp4 from `variants[]` rather than re-deriving the URL
 
 Bitrate, content type, and URL fields stay verbatim from the archive, so a fresh archive download replaces stale variants on re-import.
@@ -155,34 +155,34 @@ When the archive ships with `data/follower.js` and `data/following.js`, `import 
 - counts land in the archive-import result envelope under `counts.followers` and `counts.following`
 - re-importing the same archive is a no-op; switching to a fresher archive tops up new edges without treating missing relationships as ended unless `--restore` is used
 
-A fresh install with just an archive and no live transport still gets a usable [follow graph](follow-graph.md). `birdclaw graph summary`, `graph mutuals`, and `graph top-followers` all work against archive-imported edges. Live `sync followers --yes` can layer churn on top later.
+A fresh install with just an archive and no live transport still gets a usable [follow graph](follow-graph.md). `neo-archive graph summary`, `graph mutuals`, and `graph top-followers` all work against archive-imported edges. Live `sync followers --yes` can layer churn on top later.
 
 ## Hydrate profiles
 
 The archive ships with stale profile metadata (bios, follower counts, avatars from years ago). Hydrate from live Twitter when you can:
 
 ```bash
-birdclaw import hydrate-profiles --account steipete --json
+neo-archive import hydrate-profiles --account steipete --json
 ```
 
 With xurl available, this walks the imported profiles table and refreshes each entry. On large archives, that can mean hundreds or thousands of live X profile reads and may spend API credits. `--account` accepts a username or stored account ID and routes the operation through that account. In Bird-only mode, the command verifies `bird whoami`; without an explicit selection it retains the legacy seeded-account correction, while explicit selection never relabels another stored identity. Without a live transport, hydration is a no-op and the archive's snapshot stays.
 
-Avatars are written to `~/.birdclaw/media/thumbs/avatars/` so the web UI does not re-fetch them on every render.
+Avatars are written to `~/.neo-archive/media/thumbs/avatars/` so the web UI does not re-fetch them on every render.
 
 ## What ends up where
 
 After import, archive data and live data live in the same canonical tables. There is no `archive_*` shadow universe.
 
-- **Tweets** → `tweets` table, indexed by FTS5 — searchable via `birdclaw search tweets`
+- **Tweets** → `tweets` table, indexed by FTS5 — searchable via `neo-archive search tweets`
 - **Explicit deletions** → retained tweet metadata plus `tweet_subordinate_tombstones`; excluded from active timelines, search, links, and media fetches
 - **Edit history** → ordered `tweet_revisions` rows, with raw payloads only for observed revision bodies and superseded canonical rows retained outside active views
 - **Likes** → `tweets` table + a `likes` collection edge — searchable via `--liked`
 - **Bookmarks** → `tweets` table + a `bookmarks` collection edge — searchable via `--bookmarked`
-- **DMs** → `dm_conversations` and `dm_events` tables, indexed by FTS5 — searchable via `birdclaw search dms`
+- **DMs** → `dm_conversations` and `dm_events` tables, indexed by FTS5 — searchable via `neo-archive search dms`
 - **Profiles** → `profiles` table — drives @mention resolution, profile evidence, and DM influence scoring
-- **Bundled media** → files on disk under `~/.birdclaw/media/originals/archive/<kind>/<id>/<filename>` for the seven archive media kinds
+- **Bundled media** → files on disk under `~/.neo-archive/media/originals/archive/<kind>/<id>/<filename>` for the seven archive media kinds
 - **Video variants** → `tweets.media_json[].video_info.variants[]` carries the mp4 URL list for every archive video and animated GIF
-- **Followers/Following** → `profiles` stub rows plus current `follow_edges` rows; surfaced via `birdclaw graph *`
+- **Followers/Following** → `profiles` stub rows plus current `follow_edges` rows; surfaced via `neo-archive graph *`
 - **Affiliations** → `profile_affiliations` table when live profile hydration exposes X badge/highlighted-label organization metadata
 - **Profile history** → `profile_snapshots` table after live hydration observes profile/bio/affiliation changes
 - **Bio entities** → `profile_bio_entities` table for extracted `@handle`, domain, and company-phrase identity hints
@@ -193,9 +193,9 @@ Tweets whose archive timestamps are missing or impossible (`1970-01-01` rows) ge
 ## After import
 
 ```bash
-birdclaw db stats --json
-birdclaw search tweets "ship local software" --limit 5 --json
-birdclaw search tweets --liked --limit 20 --json
+neo-archive db stats --json
+neo-archive search tweets "ship local software" --limit 5 --json
+neo-archive search tweets --liked --limit 20 --json
 ```
 
 `db stats` prints row counts per table and the schema version so you can confirm the import landed.

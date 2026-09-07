@@ -5,7 +5,7 @@ import path from "node:path";
 import { Effect } from "effect";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { birdAccountForTest } from "../test/bird-account";
-import { resetBirdclawPathsForTests } from "./config";
+import { resetNeoArchivePathsForTests } from "./config";
 import { getNativeDb, resetDatabaseForTests } from "./db";
 import { listTimelineItems } from "./timeline-read-model";
 
@@ -91,10 +91,10 @@ function insertCollectionRow({
 }
 
 function setupTempHome() {
-	const tempRoot = mkdtempSync(path.join(os.tmpdir(), "birdclaw-test-"));
+	const tempRoot = mkdtempSync(path.join(os.tmpdir(), "neo-archive-test-"));
 	tempRoots.push(tempRoot);
-	process.env.BIRDCLAW_HOME = tempRoot;
-	resetBirdclawPathsForTests();
+	process.env.NEO_ARCHIVE_HOME = tempRoot;
+	resetNeoArchivePathsForTests();
 	resetDatabaseForTests();
 	mocks.getAuthenticatedBirdAccount.mockResolvedValue({
 		id: "25401953",
@@ -104,8 +104,8 @@ function setupTempHome() {
 
 afterEach(() => {
 	resetDatabaseForTests();
-	resetBirdclawPathsForTests();
-	delete process.env.BIRDCLAW_HOME;
+	resetNeoArchivePathsForTests();
+	delete process.env.NEO_ARCHIVE_HOME;
 	for (const mock of Object.values(mocks)) {
 		mock.mockReset();
 	}

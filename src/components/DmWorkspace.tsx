@@ -38,7 +38,7 @@ import {
 	timestampClass,
 } from "#/lib/ui";
 import { AvatarChip } from "./AvatarChip";
-import { BirdclawEmpty } from "./BrandMark";
+import { NeoArchiveEmpty } from "./BrandMark";
 import { SmartTimestamp } from "./SmartTimestamp";
 
 function MessageBubble({ message }: { message: DmMessageItem }) {
@@ -94,7 +94,7 @@ export function DmWorkspace({
 		<section aria-label="DM workspace" className={dmShellClass}>
 			<aside className={dmListClass}>
 				{conversations.length === 0 ? (
-					<BirdclawEmpty
+					<NeoArchiveEmpty
 						detail="Sync DMs to populate this lane."
 						label="No conversations"
 					/>
@@ -275,7 +275,7 @@ export function DmWorkspace({
 						</div>
 					</>
 				) : (
-					<BirdclawEmpty
+					<NeoArchiveEmpty
 						detail="Pick a conversation to read the thread."
 						label="No DM selected"
 					/>

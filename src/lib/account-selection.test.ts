@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { resetBirdclawPathsForTests } from "./config";
+import { resetNeoArchivePathsForTests } from "./config";
 import { getNativeDb, resetDatabaseForTests } from "./db";
 import {
 	findOperationAccount,
@@ -14,9 +14,9 @@ describe("operation account selection", () => {
 	let homeDir = "";
 
 	beforeEach(() => {
-		homeDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-account-"));
-		process.env.BIRDCLAW_HOME = homeDir;
-		resetBirdclawPathsForTests();
+		homeDir = mkdtempSync(path.join(os.tmpdir(), "neo-archive-account-"));
+		process.env.NEO_ARCHIVE_HOME = homeDir;
+		resetNeoArchivePathsForTests();
 		resetDatabaseForTests();
 		const db = getNativeDb({ seedDemoData: false });
 		db.prepare(
@@ -49,8 +49,8 @@ describe("operation account selection", () => {
 
 	afterEach(() => {
 		resetDatabaseForTests();
-		resetBirdclawPathsForTests();
-		delete process.env.BIRDCLAW_HOME;
+		resetNeoArchivePathsForTests();
+		delete process.env.NEO_ARCHIVE_HOME;
 		rmSync(homeDir, { recursive: true, force: true });
 	});
 

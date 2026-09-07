@@ -44,7 +44,7 @@ const TWITTER_STATUS_HOSTS = new Set([
 ]);
 const TWITTER_IMAGE_HOSTS = new Set(["pbs.twimg.com"]);
 const TWITTER_VIDEO_HOSTS = new Set(["video.twimg.com"]);
-const FXTWITTER_USER_AGENT = `birdclaw/${packageManifest.version} (fxtwitter-read-only)`;
+const FXTWITTER_USER_AGENT = `neo-archive/${packageManifest.version} (fxtwitter-read-only)`;
 
 type JsonRecord = Record<string, unknown>;
 

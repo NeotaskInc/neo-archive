@@ -625,7 +625,7 @@ export function resolveStoredXListSelector({
 				.all(accountId, name) as Array<Record<string, unknown>>);
 	if (rows.length === 0) {
 		throw new Error(
-			`No cached List matches ${listId ? `id ${listId}` : `name ${name}`}; run birdclaw sync lists`,
+			`No cached List matches ${listId ? `id ${listId}` : `name ${name}`}; run neo-archive sync lists`,
 		);
 	}
 	if (rows.length > 1) {

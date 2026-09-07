@@ -5,7 +5,7 @@ import path from "node:path";
 import { Effect } from "effect";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { birdAccountForTest } from "../test/bird-account";
-import { resetBirdclawPathsForTests } from "./config";
+import { resetNeoArchivePathsForTests } from "./config";
 import { getNativeDb, resetDatabaseForTests } from "./db";
 import { listTimelineItems } from "./timeline-read-model";
 
@@ -34,10 +34,10 @@ const tempDirs: string[] = [];
 
 function makeTempHome() {
 	const tempDir = mkdtempSync(
-		path.join(os.tmpdir(), "birdclaw-timeline-live-"),
+		path.join(os.tmpdir(), "neo-archive-timeline-live-"),
 	);
 	tempDirs.push(tempDir);
-	process.env.BIRDCLAW_HOME = tempDir;
+	process.env.NEO_ARCHIVE_HOME = tempDir;
 	getAuthenticatedBirdAccountMock.mockResolvedValue({
 		id: "25401953",
 		username: "steipete",
@@ -47,8 +47,8 @@ function makeTempHome() {
 
 afterEach(() => {
 	resetDatabaseForTests();
-	resetBirdclawPathsForTests();
-	delete process.env.BIRDCLAW_HOME;
+	resetNeoArchivePathsForTests();
+	delete process.env.NEO_ARCHIVE_HOME;
 	listHomeTimelineViaBirdMock.mockReset();
 	listHomeTimelineViaXurlMock.mockReset();
 	getAuthenticatedBirdAccountMock.mockReset();

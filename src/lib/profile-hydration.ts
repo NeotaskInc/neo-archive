@@ -251,7 +251,7 @@ export function hydrateProfilesFromXEffect({
       select id
       from profiles
       where id like 'profile_user_%'
-		and (followers_count = 0 or bio like 'Imported from archive user %' or handle like 'id%' or handle like 'birdclaw_stub_%')
+		and (followers_count = 0 or bio like 'Imported from archive user %' or handle like 'id%' or handle like 'neo_archive_stub_%')
       order by id asc
       `,
 				)

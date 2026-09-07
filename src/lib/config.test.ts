@@ -4,12 +4,12 @@ import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import {
-	ensureBirdclawDirs,
+	ensureNeoArchiveDirs,
 	getBirdCommand,
-	getBirdclawConfig,
-	getBirdclawPaths,
+	getNeoArchiveConfig,
+	getNeoArchivePaths,
 	getDefaultAccountSelector,
-	resetBirdclawPathsForTests,
+	resetNeoArchivePathsForTests,
 	resolveActionsTransport,
 	resolveMentionsDataSource,
 	setActionsTransport,
@@ -19,13 +19,13 @@ const tempRoots: string[] = [];
 const originalPath = process.env.PATH;
 
 afterEach(() => {
-	resetBirdclawPathsForTests();
+	resetNeoArchivePathsForTests();
 	process.env.PATH = originalPath;
-	delete process.env.BIRDCLAW_HOME;
-	delete process.env.BIRDCLAW_CONFIG;
-	delete process.env.BIRDCLAW_ACTIONS_TRANSPORT;
-	delete process.env.BIRDCLAW_BIRD_COMMAND;
-	delete process.env.BIRDCLAW_MENTIONS_DATA_SOURCE;
+	delete process.env.NEO_ARCHIVE_HOME;
+	delete process.env.NEO_ARCHIVE_CONFIG;
+	delete process.env.NEO_ARCHIVE_ACTIONS_TRANSPORT;
+	delete process.env.NEO_ARCHIVE_BIRD_COMMAND;
+	delete process.env.NEO_ARCHIVE_MENTIONS_DATA_SOURCE;
 
 	for (const tempRoot of tempRoots.splice(0)) {
 		rmSync(tempRoot, { recursive: true, force: true });
@@ -33,33 +33,33 @@ afterEach(() => {
 });
 
 describe("config", () => {
-	it("uses BIRDCLAW_HOME when set", () => {
-		const tempRoot = mkdtempSync(path.join(os.tmpdir(), "birdclaw-config-"));
+	it("uses NEO_ARCHIVE_HOME when set", () => {
+		const tempRoot = mkdtempSync(path.join(os.tmpdir(), "neo-archive-config-"));
 		tempRoots.push(tempRoot);
-		process.env.BIRDCLAW_HOME = tempRoot;
+		process.env.NEO_ARCHIVE_HOME = tempRoot;
 
-		const paths = getBirdclawPaths();
+		const paths = getNeoArchivePaths();
 
 		expect(paths.rootDir).toBe(tempRoot);
-		expect(paths.dbPath).toBe(path.join(tempRoot, "birdclaw.sqlite"));
+		expect(paths.dbPath).toBe(path.join(tempRoot, "neo-archive.sqlite"));
 		expect(paths.configPath).toBe(path.join(tempRoot, "config.json"));
 	});
 
 	it("creates expected media directories", () => {
-		const tempRoot = mkdtempSync(path.join(os.tmpdir(), "birdclaw-config-"));
+		const tempRoot = mkdtempSync(path.join(os.tmpdir(), "neo-archive-config-"));
 		tempRoots.push(tempRoot);
-		process.env.BIRDCLAW_HOME = path.join(tempRoot, "custom-home");
+		process.env.NEO_ARCHIVE_HOME = path.join(tempRoot, "custom-home");
 
-		const paths = ensureBirdclawDirs();
+		const paths = ensureNeoArchiveDirs();
 
 		expect(paths.mediaOriginalsDir).toContain(path.join("media", "originals"));
 		expect(paths.mediaThumbsDir).toContain(path.join("media", "thumbs"));
 	});
 
 	it("reads config from the homedir root", () => {
-		const tempRoot = mkdtempSync(path.join(os.tmpdir(), "birdclaw-config-"));
+		const tempRoot = mkdtempSync(path.join(os.tmpdir(), "neo-archive-config-"));
 		tempRoots.push(tempRoot);
-		process.env.BIRDCLAW_HOME = tempRoot;
+		process.env.NEO_ARCHIVE_HOME = tempRoot;
 		writeFileSync(
 			path.join(tempRoot, "config.json"),
 			JSON.stringify({
@@ -76,7 +76,7 @@ describe("config", () => {
 			}),
 		);
 
-		expect(getBirdclawConfig()).toEqual({
+		expect(getNeoArchiveConfig()).toEqual({
 			accounts: {
 				default: "  @steipete  ",
 			},
@@ -95,21 +95,21 @@ describe("config", () => {
 	});
 
 	it("resolves bird from PATH before using the shell fallback", () => {
-		const tempRoot = mkdtempSync(path.join(os.tmpdir(), "birdclaw-config-"));
+		const tempRoot = mkdtempSync(path.join(os.tmpdir(), "neo-archive-config-"));
 		tempRoots.push(tempRoot);
 		const birdPath = path.join(tempRoot, "bird");
 		writeFileSync(birdPath, "#!/bin/sh\n");
 		chmodSync(birdPath, 0o755);
-		process.env.BIRDCLAW_HOME = tempRoot;
+		process.env.NEO_ARCHIVE_HOME = tempRoot;
 		process.env.PATH = tempRoot;
 
 		expect(getBirdCommand()).toBe(birdPath);
 	});
 
 	it("lets env override config for the datasource", () => {
-		process.env.BIRDCLAW_MENTIONS_DATA_SOURCE = "xurl";
-		process.env.BIRDCLAW_ACTIONS_TRANSPORT = "bird";
-		process.env.BIRDCLAW_BIRD_COMMAND = "/tmp/env-bird";
+		process.env.NEO_ARCHIVE_MENTIONS_DATA_SOURCE = "xurl";
+		process.env.NEO_ARCHIVE_ACTIONS_TRANSPORT = "bird";
+		process.env.NEO_ARCHIVE_BIRD_COMMAND = "/tmp/env-bird";
 
 		expect(resolveMentionsDataSource()).toBe("xurl");
 		expect(resolveActionsTransport()).toBe("bird");
@@ -117,9 +117,9 @@ describe("config", () => {
 	});
 
 	it("sets actions transport in the active config file", () => {
-		const tempRoot = mkdtempSync(path.join(os.tmpdir(), "birdclaw-config-"));
+		const tempRoot = mkdtempSync(path.join(os.tmpdir(), "neo-archive-config-"));
 		tempRoots.push(tempRoot);
-		process.env.BIRDCLAW_HOME = tempRoot;
+		process.env.NEO_ARCHIVE_HOME = tempRoot;
 		writeFileSync(
 			path.join(tempRoot, "config.json"),
 			JSON.stringify({
@@ -133,7 +133,7 @@ describe("config", () => {
 			configPath: path.join(tempRoot, "config.json"),
 			transport: "xurl",
 		});
-		expect(getBirdclawConfig()).toEqual({
+		expect(getNeoArchiveConfig()).toEqual({
 			actions: {
 				transport: "xurl",
 			},
@@ -145,9 +145,9 @@ describe("config", () => {
 	});
 
 	it("defaults bird command to PATH lookup", () => {
-		const tempRoot = mkdtempSync(path.join(os.tmpdir(), "birdclaw-config-"));
+		const tempRoot = mkdtempSync(path.join(os.tmpdir(), "neo-archive-config-"));
 		tempRoots.push(tempRoot);
-		process.env.BIRDCLAW_HOME = tempRoot;
+		process.env.NEO_ARCHIVE_HOME = tempRoot;
 		process.env.PATH = "";
 
 		expect(getBirdCommand()).toBe("bird");

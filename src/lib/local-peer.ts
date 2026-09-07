@@ -1,1 +1,1 @@
-export const LOCAL_WEB_PEER_HEADER = "x-birdclaw-local-peer";
+export const LOCAL_WEB_PEER_HEADER = "x-neo-archive-local-peer";

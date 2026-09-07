@@ -129,7 +129,7 @@ function provenExternalUserId(rawJson: unknown) {
 
 function identityConflictIds(rawJson: unknown) {
 	const raw = parseJsonObject(rawJson);
-	const value = raw?.birdclaw_identity_conflicts;
+	const value = raw?.neo_archive_identity_conflicts;
 	return Array.isArray(value)
 		? value.filter(
 				(item): item is string =>
@@ -197,7 +197,7 @@ export function markProfileIdentityConflict(
 	const raw = parseJsonObject(row.raw_json) ?? {};
 	const conflicts = new Set(identityConflictIds(row.raw_json));
 	conflicts.add(externalUserId);
-	raw.birdclaw_identity_conflicts = [...conflicts].sort();
+	raw.neo_archive_identity_conflicts = [...conflicts].sort();
 	db.prepare("update profiles set raw_json = ? where id = ?").run(
 		JSON.stringify(raw),
 		profileId,
@@ -229,7 +229,7 @@ function meaningfulProfileRaw(value: string) {
 
 function isReservedPlaceholderHandle(handle: string, externalUserId: string) {
 	return (
-		handle.startsWith("birdclaw_stub_") ||
+		handle.startsWith("neo_archive_stub_") ||
 		handle === `user_${externalUserId}` ||
 		handle === `id${externalUserId}`
 	);
@@ -238,7 +238,7 @@ function isReservedPlaceholderHandle(handle: string, externalUserId: string) {
 function isReservedBackupMergeHandle(handle: string, externalUserId: string) {
 	return (
 		isReservedPlaceholderHandle(handle, externalUserId) ||
-		handle.startsWith("birdclaw_stale_")
+		handle.startsWith("neo_archive_stale_")
 	);
 }
 
@@ -608,7 +608,7 @@ export function allocateReservedProfileHandle(
 	return collisionHandle(
 		db,
 		profileId,
-		`birdclaw_${kind}`,
+		`neo_archive_${kind}`,
 		unavailableHandleKeys,
 	);
 }

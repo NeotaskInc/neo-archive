@@ -2,33 +2,35 @@
 import { describe, expect, it } from "vitest";
 import { isLoopbackHostname, readMcpConfig } from "./mcp-config";
 
-const token = ["birdclaw-mcp", "test-token", "0123456789", "abcdef"].join("-");
+const token = ["neo-archive-mcp", "test-token", "0123456789", "abcdef"].join(
+	"-",
+);
 
-describe("Birdclaw MCP configuration", () => {
+describe("Neo Archive MCP configuration", () => {
 	it("is disabled only when all MCP settings are absent", () => {
 		expect(readMcpConfig({})).toEqual({ kind: "disabled" });
-		expect(readMcpConfig({ BIRDCLAW_MCP_TOKEN: token })).toMatchObject({
+		expect(readMcpConfig({ NEO_ARCHIVE_MCP_TOKEN: token })).toMatchObject({
 			kind: "invalid",
-			message: expect.stringContaining("BIRDCLAW_MCP_PUBLIC_URL"),
+			message: expect.stringContaining("NEO_ARCHIVE_MCP_PUBLIC_URL"),
 		});
 		expect(
 			readMcpConfig({
-				BIRDCLAW_MCP_PUBLIC_URL: "https://mcp.example.com/mcp",
+				NEO_ARCHIVE_MCP_PUBLIC_URL: "https://mcp.example.com/mcp",
 			}),
 		).toMatchObject({
 			kind: "invalid",
-			message: expect.stringContaining("BIRDCLAW_MCP_TOKEN"),
+			message: expect.stringContaining("NEO_ARCHIVE_MCP_TOKEN"),
 		});
 		expect(
-			readMcpConfig({ BIRDCLAW_MCP_ACCOUNT: "acct_primary" }),
+			readMcpConfig({ NEO_ARCHIVE_MCP_ACCOUNT: "acct_primary" }),
 		).toMatchObject({ kind: "invalid" });
 	});
 
 	it("accepts exact HTTPS and loopback HTTP endpoints", () => {
 		const external = readMcpConfig({
-			BIRDCLAW_MCP_TOKEN: token,
-			BIRDCLAW_MCP_PUBLIC_URL: "https://mcp.example.com/mcp",
-			BIRDCLAW_MCP_ACCOUNT: "@owner",
+			NEO_ARCHIVE_MCP_TOKEN: token,
+			NEO_ARCHIVE_MCP_PUBLIC_URL: "https://mcp.example.com/mcp",
+			NEO_ARCHIVE_MCP_ACCOUNT: "@owner",
 		});
 		expect(external).toMatchObject({
 			kind: "enabled",
@@ -36,8 +38,8 @@ describe("Birdclaw MCP configuration", () => {
 		});
 
 		const local = readMcpConfig({
-			BIRDCLAW_MCP_TOKEN: token,
-			BIRDCLAW_MCP_PUBLIC_URL: "http://127.0.0.1:31415/mcp",
+			NEO_ARCHIVE_MCP_TOKEN: token,
+			NEO_ARCHIVE_MCP_PUBLIC_URL: "http://127.0.0.1:31415/mcp",
 		});
 		expect(local).toMatchObject({
 			kind: "enabled",
@@ -63,8 +65,8 @@ describe("Birdclaw MCP configuration", () => {
 	])("rejects %s", (_label, candidateToken, url) => {
 		expect(
 			readMcpConfig({
-				BIRDCLAW_MCP_TOKEN: candidateToken,
-				BIRDCLAW_MCP_PUBLIC_URL: url,
+				NEO_ARCHIVE_MCP_TOKEN: candidateToken,
+				NEO_ARCHIVE_MCP_PUBLIC_URL: url,
 			}),
 		).toMatchObject({ kind: "invalid" });
 	});
@@ -72,9 +74,9 @@ describe("Birdclaw MCP configuration", () => {
 	it("fails closed for token reuse and all-account scope", () => {
 		expect(
 			readMcpConfig({
-				BIRDCLAW_MCP_TOKEN: token,
-				BIRDCLAW_WEB_TOKEN: token,
-				BIRDCLAW_MCP_PUBLIC_URL: "https://mcp.example.com/mcp",
+				NEO_ARCHIVE_MCP_TOKEN: token,
+				NEO_ARCHIVE_WEB_TOKEN: token,
+				NEO_ARCHIVE_MCP_PUBLIC_URL: "https://mcp.example.com/mcp",
 			}),
 		).toMatchObject({
 			kind: "invalid",
@@ -82,9 +84,9 @@ describe("Birdclaw MCP configuration", () => {
 		});
 		expect(
 			readMcpConfig({
-				BIRDCLAW_MCP_TOKEN: token,
-				BIRDCLAW_MCP_PUBLIC_URL: "https://mcp.example.com/mcp",
-				BIRDCLAW_MCP_ACCOUNT: "all",
+				NEO_ARCHIVE_MCP_TOKEN: token,
+				NEO_ARCHIVE_MCP_PUBLIC_URL: "https://mcp.example.com/mcp",
+				NEO_ARCHIVE_MCP_ACCOUNT: "all",
 			}),
 		).toMatchObject({ kind: "invalid" });
 	});

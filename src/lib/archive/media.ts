@@ -11,7 +11,7 @@ import {
 import path from "node:path";
 import { pipeline } from "node:stream/promises";
 import { Effect } from "effect";
-import { getBirdclawPaths } from "../config";
+import { getNeoArchivePaths } from "../config";
 import { tryPromise } from "../effect-runtime";
 import { listArchiveEntryDetailsEffect, normalizeArchivePath } from "./reader";
 import type {
@@ -76,7 +76,7 @@ function getArchiveMediaDestination(entryPath: string, kind: ArchiveMediaKind) {
 	const separator = fileName.indexOf("-");
 	const ownerId = separator > 0 ? fileName.slice(0, separator) : "unknown";
 	return path.join(
-		getBirdclawPaths().mediaOriginalsDir,
+		getNeoArchivePaths().mediaOriginalsDir,
 		"archive",
 		kind,
 		ownerId,

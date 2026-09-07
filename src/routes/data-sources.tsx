@@ -44,7 +44,7 @@ async function fetchDataSources() {
 }
 
 function sourceIcon(source: LiveDataSourceKind) {
-	if (source === "birdclaw") return Database;
+	if (source === "neo-archive") return Database;
 	if (source === "bird") return TerminalSquare;
 	return RouteIcon;
 }
@@ -66,7 +66,7 @@ function statusIcon(status: LiveDataSourceStatus["status"]) {
 }
 
 function sourceLabel(source: LiveDataSourceKind) {
-	if (source === "birdclaw") return "local";
+	if (source === "neo-archive") return "local";
 	return source;
 }
 

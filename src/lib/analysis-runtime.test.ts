@@ -11,9 +11,9 @@ import { createRuntimeServices } from "./runtime-services";
 
 afterEach(() => {
 	delete process.env.OPENAI_API_KEY;
-	delete process.env.BIRDCLAW_AI_MODEL;
-	delete process.env.BIRDCLAW_OPENAI_REASONING_EFFORT;
-	delete process.env.BIRDCLAW_OPENAI_SERVICE_TIER;
+	delete process.env.NEO_ARCHIVE_AI_MODEL;
+	delete process.env.NEO_ARCHIVE_OPENAI_REASONING_EFFORT;
+	delete process.env.NEO_ARCHIVE_OPENAI_SERVICE_TIER;
 	vi.unstubAllGlobals();
 });
 
@@ -24,7 +24,8 @@ describe("analysis runtime", () => {
 				reasoningEffort: "high",
 			},
 			createRuntimeServices({
-				env: (name) => (name === "BIRDCLAW_AI_MODEL" ? "env-model" : undefined),
+				env: (name) =>
+					name === "NEO_ARCHIVE_AI_MODEL" ? "env-model" : undefined,
 			}),
 		);
 		expect(settings).toEqual({

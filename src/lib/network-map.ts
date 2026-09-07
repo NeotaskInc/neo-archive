@@ -80,7 +80,7 @@ function abortableDelay(ms: number, signal?: AbortSignal) {
 export function getPublicMapboxToken() {
 	const token =
 		process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN?.trim() ||
-		process.env.BIRDCLAW_MAPBOX_ACCESS_TOKEN?.trim() ||
+		process.env.NEO_ARCHIVE_MAPBOX_ACCESS_TOKEN?.trim() ||
 		null;
 	return token?.startsWith("pk.") ? token : null;
 }

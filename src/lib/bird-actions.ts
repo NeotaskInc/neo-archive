@@ -7,13 +7,13 @@ import { runEffectPromise, trySync } from "./effect-runtime";
 import type { XurlMentionUser } from "./types";
 
 function liveWritesDisabled() {
-	return process.env.BIRDCLAW_DISABLE_LIVE_WRITES === "1";
+	return process.env.NEO_ARCHIVE_DISABLE_LIVE_WRITES === "1";
 }
 
 function e2eFakeLiveWritesEnabled() {
 	return (
-		process.env.BIRDCLAW_E2E === "1" &&
-		process.env.BIRDCLAW_E2E_FAKE_LIVE_WRITES === "1"
+		process.env.NEO_ARCHIVE_E2E === "1" &&
+		process.env.NEO_ARCHIVE_E2E_FAKE_LIVE_WRITES === "1"
 	);
 }
 

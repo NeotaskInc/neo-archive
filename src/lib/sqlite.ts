@@ -162,7 +162,7 @@ export class NativeSqliteDatabase {
 	): (...args: TArgs) => TResult {
 		return (...args: TArgs) => {
 			const nested = this.db.isTransaction;
-			const savepoint = `__birdclaw_tx_${++this.transactionDepth}`;
+			const savepoint = `__neo_archive_tx_${++this.transactionDepth}`;
 			this.exec(nested ? `savepoint ${savepoint}` : begin);
 			try {
 				const result = fn(...args);

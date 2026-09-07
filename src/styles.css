@@ -165,7 +165,7 @@ textarea {
 	}
 }
 
-@keyframes birdclaw-load-sway {
+@keyframes neo-archive-load-sway {
 	0%,
 	100% {
 		transform: translateY(0) rotate(-2deg) scale(1);
@@ -180,7 +180,7 @@ textarea {
 	}
 }
 
-@keyframes birdclaw-load-glow {
+@keyframes neo-archive-load-glow {
 	0%,
 	100% {
 		opacity: 0.24;
@@ -193,7 +193,7 @@ textarea {
 	}
 }
 
-.birdclaw-state {
+.neo-archive-state {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -201,7 +201,7 @@ textarea {
 	min-height: 168px;
 }
 
-.birdclaw-mark::before {
+.neo-archive-mark::before {
 	content: "";
 	position: absolute;
 	inset: 16%;
@@ -212,13 +212,13 @@ textarea {
 	opacity: 0.34;
 }
 
-.birdclaw-mark-animated {
-	animation: birdclaw-load-sway 1.7s ease-in-out infinite;
+.neo-archive-mark-animated {
+	animation: neo-archive-load-sway 1.7s ease-in-out infinite;
 	transform-origin: 50% 56%;
 }
 
-.birdclaw-mark-animated::before {
-	animation: birdclaw-load-glow 1.7s ease-in-out infinite;
+.neo-archive-mark-animated::before {
+	animation: neo-archive-load-glow 1.7s ease-in-out infinite;
 }
 
 .today-pdf-meta {
@@ -278,8 +278,8 @@ html.theme-transition::view-transition-new(theme-toggle) {
 		animation: none !important;
 	}
 
-	.birdclaw-mark-animated,
-	.birdclaw-mark-animated::before {
+	.neo-archive-mark-animated,
+	.neo-archive-mark-animated::before {
 		animation: none !important;
 	}
 }

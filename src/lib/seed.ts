@@ -145,7 +145,7 @@ export function seedDemoData(db: Database): DemoSeedResult {
 		{
 			id: "acct_studio",
 			name: "Studio",
-			handle: "@birdclaw_lab",
+			handle: "@neo_archive_lab",
 			externalUserId: null,
 			transport: "xurl",
 			isDefault: 0,
@@ -240,8 +240,8 @@ export function seedDemoData(db: Database): DemoSeedResult {
 				urls: [
 					{
 						url: "https://t.co/local",
-						expandedUrl: "https://birdclaw.dev/local-first-systems",
-						displayUrl: "birdclaw.dev/local-first-systems",
+						expandedUrl: "https://neo-archive.dev/local-first-systems",
+						displayUrl: "neo-archive.dev/local-first-systems",
 						start: 97,
 						end: 115,
 						title: "Local-first systems",
@@ -534,15 +534,15 @@ export function seedDemoData(db: Database): DemoSeedResult {
 	const urlExpansions = [
 		{
 			shortUrl: "https://t.co/local",
-			expandedUrl: "https://birdclaw.dev/local-first-systems",
-			finalUrl: "https://birdclaw.dev/local-first-systems",
+			expandedUrl: "https://neo-archive.dev/local-first-systems",
+			finalUrl: "https://neo-archive.dev/local-first-systems",
 			status: "hit",
 			expandedTweetId: null,
 			expandedHandle: null,
 			title: "Local-first systems",
 			description: "Design notes on durable local software.",
 			imageUrl: null,
-			siteName: "birdclaw",
+			siteName: "neo-archive",
 			error: null,
 			source: "demo",
 			updatedAt: linkNow.toISOString(),

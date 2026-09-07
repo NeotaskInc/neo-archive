@@ -19,20 +19,20 @@ import {
 	useTestHome,
 } from "../test/test-home";
 import { __test__, importArchive, importArchiveEffect } from "./archive-import";
-import { getBirdclawPaths } from "./config";
+import { getNeoArchivePaths } from "./config";
 import { getNativeDb } from "./db";
 import { listFollowEvents, listUnfollowedSince } from "./follow-graph";
 import { getConversationThread, listDmConversations } from "./dm-read-model";
 import { getQueryEnvelope } from "./query-status";
 import { listTimelineItems } from "./timeline-read-model";
 
-const testHome = useTestHome({ prefix: "birdclaw-home-" });
+const testHome = useTestHome({ prefix: "neo-archive-home-" });
 
 function makeArchive({
 	following = [],
 	likeText = "liked archive item",
 }: { following?: string[]; likeText?: string } = {}) {
-	const root = testHome().makeTempDir("birdclaw-archive-");
+	const root = testHome().makeTempDir("neo-archive-archive-");
 	const archiveDir = path.join(root, "sample", "data");
 	mkdirSync(archiveDir, { recursive: true });
 
@@ -55,7 +55,7 @@ function makeArchive({
     "tweet": {
       "id_str": "100",
       "created_at": "Tue Jun 03 19:32:20 +0000 2025",
-      "full_text": "@sam archive-first still wins https://t.co/local #birdclaw",
+      "full_text": "@sam archive-first still wins https://t.co/local #neo-archive",
       "favorite_count": "12",
       "in_reply_to_status_id_str": "99",
       "quoted_status_id_str": "101",
@@ -68,13 +68,13 @@ function makeArchive({
         "urls": [
           {
             "url": "https://t.co/local",
-            "expanded_url": "https://birdclaw.dev/archive",
-            "display_url": "birdclaw.dev/archive",
+            "expanded_url": "https://neo-archive.dev/archive",
+            "display_url": "neo-archive.dev/archive",
             "indices": [30, 48]
           }
         ],
         "hashtags": [
-          { "text": "birdclaw", "indices": [49, 58] }
+          { "text": "neo-archive", "indices": [49, 58] }
         ],
         "media": [
           {
@@ -175,7 +175,7 @@ function makeArchive({
 }
 
 function makeArchiveWithoutAccount() {
-	const root = testHome().makeTempDir("birdclaw-archive-empty-");
+	const root = testHome().makeTempDir("neo-archive-archive-empty-");
 	const archiveDir = path.join(root, "sample", "data");
 	mkdirSync(archiveDir, { recursive: true });
 	writeFileSync(
@@ -188,7 +188,7 @@ function makeArchiveWithoutAccount() {
 }
 
 function makeRootDataArchive() {
-	const root = testHome().makeTempDir("birdclaw-archive-root-");
+	const root = testHome().makeTempDir("neo-archive-archive-root-");
 	const archiveDir = path.join(root, "data");
 	mkdirSync(archiveDir, { recursive: true });
 	mkdirSync(path.join(archiveDir, "tweets_media"), { recursive: true });
@@ -242,7 +242,7 @@ function makeTweetRetentionArchive({
 	deleteEditable?: boolean;
 	deletedRevisionId?: "edit-1" | "edit-2";
 } = {}) {
-	const root = testHome().makeTempDir("birdclaw-archive-retention-");
+	const root = testHome().makeTempDir("neo-archive-archive-retention-");
 	const archiveDir = path.join(root, "sample", "data");
 	mkdirSync(archiveDir, { recursive: true });
 	writeFileSync(
@@ -348,7 +348,9 @@ function makeTweetRetentionArchive({
 }
 
 function makeLateDeletedTweetBodyArchive() {
-	const root = testHome().makeTempDir("birdclaw-archive-late-tombstone-body-");
+	const root = testHome().makeTempDir(
+		"neo-archive-archive-late-tombstone-body-",
+	);
 	const archiveDir = path.join(root, "sample", "data");
 	mkdirSync(archiveDir, { recursive: true });
 	writeFileSync(
@@ -413,7 +415,7 @@ function makeLateDeletedTweetBodyArchive() {
 }
 
 function makeWeirdArchive({ followers = [] }: { followers?: string[] } = {}) {
-	const root = testHome().makeTempDir("birdclaw-archive-weird-");
+	const root = testHome().makeTempDir("neo-archive-archive-weird-");
 	const archiveDir = path.join(root, "sample", "data");
 	mkdirSync(archiveDir, { recursive: true });
 
@@ -514,7 +516,7 @@ function makeFollowArchive({
 	includeFollowers?: boolean;
 	includeFollowing?: boolean;
 }) {
-	const root = testHome().makeTempDir("birdclaw-archive-follow-");
+	const root = testHome().makeTempDir("neo-archive-archive-follow-");
 	const archiveDir = path.join(root, "sample", "data");
 	mkdirSync(archiveDir, { recursive: true });
 
@@ -555,7 +557,7 @@ function makeFollowArchive({
 }
 
 function makeFollowDmArchive(userId: string) {
-	const root = testHome().makeTempDir("birdclaw-archive-follow-dm-");
+	const root = testHome().makeTempDir("neo-archive-archive-follow-dm-");
 	const archiveDir = path.join(root, "sample", "data");
 	mkdirSync(archiveDir, { recursive: true });
 
@@ -603,7 +605,7 @@ function makeFollowDmArchive(userId: string) {
 }
 
 function makeMediaArchive() {
-	const root = testHome().makeTempDir("birdclaw-archive-media-");
+	const root = testHome().makeTempDir("neo-archive-archive-media-");
 	const archiveDir = path.join(root, "sample", "data");
 	mkdirSync(path.join(archiveDir, "tweets_media"), { recursive: true });
 	mkdirSync(path.join(archiveDir, "direct_messages_media"), {
@@ -638,7 +640,7 @@ function makeMediaArchive() {
 }
 
 function makeMediaVariantsArchive() {
-	const root = testHome().makeTempDir("birdclaw-archive-variants-");
+	const root = testHome().makeTempDir("neo-archive-archive-variants-");
 	const archiveDir = path.join(root, "sample", "data");
 	mkdirSync(archiveDir, { recursive: true });
 
@@ -985,7 +987,7 @@ describe("archive import", () => {
 		expect(envelope.stats.dms).toBe(1);
 		expect(tweets.map((item) => item.text)).toEqual([
 			"Longer archive note",
-			"@sam archive-first still wins https://t.co/local #birdclaw",
+			"@sam archive-first still wins https://t.co/local #neo-archive",
 		]);
 		expect(dms).toHaveLength(1);
 		expect(dms[0]?.participant.handle).toBe("sam");
@@ -1004,9 +1006,9 @@ describe("archive import", () => {
 		).toEqual({ handle: "sam" });
 		expect(archivedTweet?.entities.mentions?.[0]?.username).toBe("sam");
 		expect(archivedTweet?.entities.urls?.[0]?.expandedUrl).toBe(
-			"https://birdclaw.dev/archive",
+			"https://neo-archive.dev/archive",
 		);
-		expect(archivedTweet?.entities.hashtags?.[0]?.tag).toBe("birdclaw");
+		expect(archivedTweet?.entities.hashtags?.[0]?.tag).toBe("neo-archive");
 		expect(archivedTweet?.media[0]?.altText).toBe("Archive chart");
 		expect(archivedTweet?.quotedTweet?.id).toBe("101");
 		expect(archivedTweet?.quotedTweet?.text).toBe("Longer archive note");
@@ -1264,7 +1266,7 @@ describe("archive import", () => {
 		const archivePath = makeMediaArchive();
 
 		const result = await importArchive(archivePath);
-		const { mediaOriginalsDir } = getBirdclawPaths();
+		const { mediaOriginalsDir } = getNeoArchivePaths();
 		const tweetMediaPath = path.join(
 			mediaOriginalsDir,
 			"archive",
@@ -1323,7 +1325,7 @@ describe("archive import", () => {
 			select: ["followers", "following"],
 		});
 		const rootMediaPath = path.join(
-			getBirdclawPaths().mediaOriginalsDir,
+			getNeoArchivePaths().mediaOriginalsDir,
 			"archive",
 			"tweets",
 			"rootmedia",
@@ -3381,7 +3383,7 @@ describe("archive import", () => {
 					],
 					hashtags: [
 						{
-							text: "birdclaw",
+							text: "neo-archive",
 							indices: [30, 39],
 						},
 					],
@@ -3409,7 +3411,7 @@ describe("archive import", () => {
 			],
 			hashtags: [
 				{
-					tag: "birdclaw",
+					tag: "neo-archive",
 					start: 30,
 					end: 39,
 				},
@@ -3573,7 +3575,7 @@ describe("archive import", () => {
 		const result = await importArchive(archivePath);
 		const db = getNativeDb();
 		const rootMediaPath = path.join(
-			getBirdclawPaths().mediaOriginalsDir,
+			getNeoArchivePaths().mediaOriginalsDir,
 			"archive",
 			"tweets",
 			"rootmedia",

@@ -5,12 +5,12 @@ description: "AI-ranked actionable queue for mentions and DMs with optional Open
 
 # Inbox
 
-`birdclaw inbox` is the unified triage queue. It mixes mentions and DMs, applies heuristic and (optionally) OpenAI-driven scoring, and lets you filter low-signal items out so the high-context stuff floats up.
+`neo-archive inbox` is the unified triage queue. It mixes mentions and DMs, applies heuristic and (optionally) OpenAI-driven scoring, and lets you filter low-signal items out so the high-context stuff floats up.
 
 ## Default
 
 ```bash
-birdclaw inbox --json
+neo-archive inbox --json
 ```
 
 Returns a flat list of actionable items, ranked by:
@@ -23,9 +23,9 @@ Returns a flat list of actionable items, ranked by:
 ## By kind
 
 ```bash
-birdclaw inbox --kind mentions --limit 10 --json
-birdclaw inbox --kind dms --limit 10 --json
-birdclaw inbox --kind mixed --limit 20 --json
+neo-archive inbox --kind mentions --limit 10 --json
+neo-archive inbox --kind dms --limit 10 --json
+neo-archive inbox --kind mixed --limit 20 --json
 ```
 
 `mixed` is the default. The mixed queue interleaves mentions and DMs while preserving the same ranking heuristic.
@@ -35,8 +35,8 @@ birdclaw inbox --kind mixed --limit 20 --json
 Pass `--score` to refresh stored OpenAI scores before listing. This requires `OPENAI_API_KEY` in the environment (or in `~/.profile`):
 
 ```bash
-birdclaw inbox --score --hide-low-signal --limit 8 --json
-birdclaw inbox --score --kind mentions --min-score 60 --limit 12 --json
+neo-archive inbox --score --hide-low-signal --limit 8 --json
+neo-archive inbox --score --kind mentions --min-score 60 --limit 12 --json
 ```
 
 What `--score` does:

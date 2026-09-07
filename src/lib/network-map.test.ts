@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { resetBirdclawPathsForTests } from "./config";
+import { resetNeoArchivePathsForTests } from "./config";
 import { getNativeDb, resetDatabaseForTests } from "./db";
 import { storeGeocode } from "./geocoding";
 import { getNetworkMap, getPublicMapboxToken } from "./network-map";
@@ -12,10 +12,10 @@ const tempDirs: string[] = [];
 
 afterEach(() => {
 	resetDatabaseForTests();
-	resetBirdclawPathsForTests();
-	delete process.env.BIRDCLAW_HOME;
+	resetNeoArchivePathsForTests();
+	delete process.env.NEO_ARCHIVE_HOME;
 	delete process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
-	delete process.env.BIRDCLAW_MAPBOX_ACCESS_TOKEN;
+	delete process.env.NEO_ARCHIVE_MAPBOX_ACCESS_TOKEN;
 	delete process.env.OPENCAGE_API_KEY;
 	vi.restoreAllMocks();
 
@@ -25,9 +25,9 @@ afterEach(() => {
 });
 
 function makeDb() {
-	const tempDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-map-"));
+	const tempDir = mkdtempSync(path.join(os.tmpdir(), "neo-archive-map-"));
 	tempDirs.push(tempDir);
-	process.env.BIRDCLAW_HOME = tempDir;
+	process.env.NEO_ARCHIVE_HOME = tempDir;
 	return getNativeDb({ seedDemoData: false });
 }
 
@@ -173,10 +173,10 @@ describe("network map", () => {
 	});
 
 	it("only exposes public Mapbox tokens to the browser config", () => {
-		process.env.BIRDCLAW_MAPBOX_ACCESS_TOKEN = "sk.secret";
+		process.env.NEO_ARCHIVE_MAPBOX_ACCESS_TOKEN = "sk.secret";
 		expect(getPublicMapboxToken()).toBeNull();
 
-		process.env.BIRDCLAW_MAPBOX_ACCESS_TOKEN = "pk.public";
+		process.env.NEO_ARCHIVE_MAPBOX_ACCESS_TOKEN = "pk.public";
 		expect(getPublicMapboxToken()).toBe("pk.public");
 	});
 

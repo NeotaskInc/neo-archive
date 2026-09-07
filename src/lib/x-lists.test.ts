@@ -5,7 +5,7 @@ import path from "node:path";
 import { Effect } from "effect";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { exportBackup, importBackup } from "./backup";
-import { resetBirdclawPathsForTests } from "./config";
+import { resetNeoArchivePathsForTests } from "./config";
 import { getNativeDb, resetDatabaseForTests } from "./db";
 import { listTimelineItems } from "./timeline-read-model";
 import { ingestTweetPayload } from "./tweet-repository";
@@ -68,12 +68,12 @@ function member(id: string, username: string): XurlMentionUser {
 	};
 }
 
-function switchHome(prefix = "birdclaw-lists-") {
+function switchHome(prefix = "neo-archive-lists-") {
 	const root = mkdtempSync(path.join(os.tmpdir(), prefix));
 	tempRoots.push(root);
 	resetDatabaseForTests();
-	process.env.BIRDCLAW_HOME = root;
-	resetBirdclawPathsForTests();
+	process.env.NEO_ARCHIVE_HOME = root;
+	resetNeoArchivePathsForTests();
 	return root;
 }
 
@@ -113,8 +113,8 @@ function ownedList(memberCount = 2) {
 
 afterEach(() => {
 	resetDatabaseForTests();
-	resetBirdclawPathsForTests();
-	delete process.env.BIRDCLAW_HOME;
+	resetNeoArchivePathsForTests();
+	delete process.env.NEO_ARCHIVE_HOME;
 	for (const mock of Object.values(mocks)) mock.mockReset();
 	for (const root of tempRoots.splice(0)) {
 		rmSync(root, { recursive: true, force: true });
@@ -317,7 +317,7 @@ describe("X List sync and local filtering", () => {
 			await import("./x-lists");
 		await syncXLists({ mode: "bird", maxLists: 1, delayMs: 0 });
 		const backupRoot = mkdtempSync(
-			path.join(os.tmpdir(), "birdclaw-lists-backup-"),
+			path.join(os.tmpdir(), "neo-archive-lists-backup-"),
 		);
 		tempRoots.push(backupRoot);
 		const exported = await exportBackup({ repoPath: backupRoot });
@@ -326,7 +326,7 @@ describe("X List sync and local filtering", () => {
 			counts: { x_lists: 1, x_list_members: 1 },
 		});
 
-		switchHome("birdclaw-lists-restored-");
+		switchHome("neo-archive-lists-restored-");
 		await importBackup({ repoPath: backupRoot });
 		expect(listStoredXLists()).toMatchObject([
 			{ listId: "list_builders", membershipStatus: "complete" },

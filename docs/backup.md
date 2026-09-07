@@ -5,7 +5,7 @@ description: "Export, sync, and validate Git-friendly JSONL backups of your loca
 
 # Backup
 
-birdclaw can write the canonical SQLite store as deterministic JSONL shards that Git can diff and merge. The backup repo is the long-lived, version-controlled record; the SQLite file is just a fast local index built from it.
+neo-archive can write the canonical SQLite store as deterministic JSONL shards that Git can diff and merge. The backup repo is the long-lived, version-controlled record; the SQLite file is just a fast local index built from it.
 
 ## Layout
 
@@ -60,8 +60,8 @@ The manifest pins per-shard byte counts, row counts, and SHA hashes. Validation 
 Write text shards to a local directory. Validates the manifest by default.
 
 ```bash
-birdclaw backup export --repo ~/Projects/birdclaw-store --json
-birdclaw backup export --repo ~/Projects/birdclaw-store --commit --push
+neo-archive backup export --repo ~/Projects/neo-archive-store --json
+neo-archive backup export --repo ~/Projects/neo-archive-store --commit --push
 ```
 
 Flags:
@@ -79,9 +79,9 @@ Logical shards at or below 48 MiB keep their existing filename. Larger shards be
 The recommended round-trip workflow:
 
 ```bash
-birdclaw backup sync \
-  --repo ~/Projects/backup-birdclaw \
-  --remote https://github.com/steipete/backup-birdclaw.git \
+neo-archive backup sync \
+  --repo ~/Projects/backup-neo-archive \
+  --remote https://github.com/steipete/backup-neo-archive.git \
   --json
 ```
 
@@ -93,14 +93,14 @@ What `sync` does:
 4. exports the local union back into deterministic text shards
 5. commits and pushes the backup repo
 
-Git operations are rooted at the configured `repoPath`. If that directory sits inside another worktree, Birdclaw initializes or uses a separate repository there instead of staging backup files into the enclosing project.
+Git operations are rooted at the configured `repoPath`. If that directory sits inside another worktree, Neo Archive initializes or uses a separate repository there instead of staging backup files into the enclosing project.
 
-This is what makes birdclaw safe across multiple machines: each machine can sync independently, and the merge step preserves rows that only one side has.
+This is what makes neo-archive safe across multiple machines: each machine can sync independently, and the merge step preserves rows that only one side has.
 
 ## `backup import`
 
 ```bash
-birdclaw backup import ~/Projects/birdclaw-store --json
+neo-archive backup import ~/Projects/neo-archive-store --json
 ```
 
 Validates the backup first (unless `--no-validate`), then merge-imports rows into local SQLite. Local-only rows are preserved by default.
@@ -116,7 +116,7 @@ Revision topology reconciliation visits only multi-revision or explicitly edge-c
 ## `backup validate`
 
 ```bash
-birdclaw backup validate ~/Projects/birdclaw-store --json
+neo-archive backup validate ~/Projects/neo-archive-store --json
 ```
 
 Checks:
@@ -135,8 +135,8 @@ Exits non-zero on validation failure. Run it in CI before publishing a backup, o
 ```json
 {
 	"backup": {
-		"repoPath": "/Users/steipete/Projects/backup-birdclaw",
-		"remote": "https://github.com/steipete/backup-birdclaw.git",
+		"repoPath": "/Users/steipete/Projects/backup-neo-archive",
+		"remote": "https://github.com/steipete/backup-neo-archive.git",
 		"autoSync": true,
 		"staleAfterSeconds": 900
 	}
@@ -148,13 +148,13 @@ When `autoSync` is enabled:
 - CLI read paths pull + merge from Git before returning when the last backup check is older than `staleAfterSeconds`
 - web startup and API reads serve the current local SQLite snapshot immediately and request the stale backup check in the background
 - stale checks compare the manifest `backupHash` and skip validation/import when the already-applied backup is unchanged
-- after a changed backup import, Birdclaw reopens its read pool and requests a passive WAL checkpoint
+- after a changed backup import, Neo Archive reopens its read pool and requests a passive WAL checkpoint
 - data-changing commands (compose, sync, blocks, mutes, etc.) run a full backup sync afterward
 - a changed import still uses synchronous SQLite work in the server process, so concurrent requests may briefly pause while that import commits; use a separate scheduled updater when strict isolation is required
 
-Set `BIRDCLAW_BACKUP_AUTO_SYNC=0` to disable auto-sync for one process — useful for local debugging.
+Set `NEO_ARCHIVE_BACKUP_AUTO_SYNC=0` to disable auto-sync for one process — useful for local debugging.
 
-## Why not commit `birdclaw.sqlite`?
+## Why not commit `neo-archive.sqlite`?
 
 - the FTS5 shadow tables are non-portable and create huge diffs
 - WAL / SHM files churn constantly

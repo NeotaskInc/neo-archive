@@ -1,12 +1,12 @@
-# birdclaw Spec
+# neo-archive Spec
 
 Status: draft 3
 Owner: Peter Steinberger
-Repo: `steipete/birdclaw`
+Repo: `NeotaskInc/neo-archive`
 
 ## One-liner
 
-`birdclaw` is a local-first Twitter archive and operator console:
+`neo-archive` is a local-first Twitter archive and operator console:
 - import full account archives
 - auto-find archives on disk when present
 - work well without an archive by syncing everything possible and waiting through rate limits
@@ -21,7 +21,7 @@ Repo: `steipete/birdclaw`
 
 - full personal archive in local SQLite
 - one shared local database for multiple accounts from day 1
-- default storage root in `~/.birdclaw` with config override
+- default storage root in `~/.neo-archive` with config override
 - fast offline search for tweets and DMs
 - incremental sync so local state stays current
 - full sync path that is resumable and rate-limit-aware
@@ -88,7 +88,7 @@ Repo: `steipete/birdclaw`
 - ESM only
 - latest stable dependencies at scaffold time
 
-The selected Bun is the first Rust-port release line, not a pure-Rust stack: JavaScriptCore, SQLite, and other native components remain embedded. The rolling canary URL is not immutable, so Birdclaw pins archive and binary digests plus the full source revision and fails closed if the public asset changes.
+The selected Bun is the first Rust-port release line, not a pure-Rust stack: JavaScriptCore, SQLite, and other native components remain embedded. The rolling canary URL is not immutable, so Neo Archive pins archive and binary digests plus the full source revision and fails closed if the public asset changes.
 
 ### Tooling
 
@@ -163,7 +163,7 @@ Do not copy:
 - optional auth piggyback
 - raw endpoint access via subprocess
 
-Do not make `birdclaw` depend on `xurl` or `bird` internals as its core architecture.
+Do not make `neo-archive` depend on `xurl` or `bird` internals as its core architecture.
 
 ## Architecture
 
@@ -226,7 +226,7 @@ Excludes:
 
 ## Storage Model
 
-- default root: `~/.birdclaw`
+- default root: `~/.neo-archive`
 - configurable root via CLI/config
 - one shared SQLite database for all configured accounts
 - per-account config, cursors, auth snapshots, and transport preferences live inside the shared root
@@ -300,12 +300,12 @@ Both modes are first-class and must converge on the same canonical tables.
 
 ## Recommendation Summary
 
-Build `birdclaw` as:
+Build `neo-archive` as:
 - TypeScript
 - pinned Bun source workspace with a tested Node package/runtime lane
 - React + TanStack Start
 - native SQLite + FTS5
-- shared multi-account DB in `~/.birdclaw`
+- shared multi-account DB in `~/.neo-archive`
 - `xurl` adapter first
 - `bird` and official adapters after that
 - full DMs by default

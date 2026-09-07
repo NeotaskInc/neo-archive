@@ -1,0 +1,12 @@
+{
+  "project": "Neo Archive",
+  "repository": "https://github.com/NeotaskInc/neo-archive",
+  "upstream": "https://github.com/steipete/birdclaw",
+  "baselineCommit": "bec458ce86bdb3283b82af3d829c087d6dd22265",
+  "baselineVersion": "0.12.3",
+  "forkVersion": "0.12.3-neo.1",
+  "distribution": "reviewed Neotask source checkout with pinned project-local runtime",
+  "dataRoot": "~/.neo-archive",
+  "skill": ".agents/skills/neo-archive",
+  "integration": "developer tool; Electron and gateway deferred"
+}

@@ -4,7 +4,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { resetBirdclawPathsForTests } from "./config";
+import { resetNeoArchivePathsForTests } from "./config";
 import {
 	getNativeDb,
 	getReadDb,
@@ -76,8 +76,8 @@ function spawnWriteLockHolder(dbPath: string, holdMs: number) {
 afterEach(() => {
 	vi.restoreAllMocks();
 	resetDatabaseForTests();
-	resetBirdclawPathsForTests();
-	delete process.env.BIRDCLAW_HOME;
+	resetNeoArchivePathsForTests();
+	delete process.env.NEO_ARCHIVE_HOME;
 
 	for (const dir of tempDirs.splice(0)) {
 		rmSync(dir, { recursive: true, force: true });
@@ -86,17 +86,17 @@ afterEach(() => {
 
 describe("database init", () => {
 	it("seeds demo data only after an explicit request", () => {
-		const tempDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-db-"));
+		const tempDir = mkdtempSync(path.join(os.tmpdir(), "neo-archive-db-"));
 		tempDirs.push(tempDir);
-		process.env.BIRDCLAW_HOME = tempDir;
+		process.env.NEO_ARCHIVE_HOME = tempDir;
 
-		const testSeedFlag = process.env.BIRDCLAW_TEST_SEED_DEMO_DATA;
-		delete process.env.BIRDCLAW_TEST_SEED_DEMO_DATA;
+		const testSeedFlag = process.env.NEO_ARCHIVE_TEST_SEED_DEMO_DATA;
+		delete process.env.NEO_ARCHIVE_TEST_SEED_DEMO_DATA;
 		const unseededDb = getNativeDb();
 		if (testSeedFlag === undefined) {
-			delete process.env.BIRDCLAW_TEST_SEED_DEMO_DATA;
+			delete process.env.NEO_ARCHIVE_TEST_SEED_DEMO_DATA;
 		} else {
-			process.env.BIRDCLAW_TEST_SEED_DEMO_DATA = testSeedFlag;
+			process.env.NEO_ARCHIVE_TEST_SEED_DEMO_DATA = testSeedFlag;
 		}
 		expect(
 			unseededDb.prepare("select count(*) as count from accounts").get(),
@@ -117,9 +117,9 @@ describe("database init", () => {
 	});
 
 	it("refuses to mix demo data into a partially populated database", () => {
-		const tempDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-db-"));
+		const tempDir = mkdtempSync(path.join(os.tmpdir(), "neo-archive-db-"));
 		tempDirs.push(tempDir);
-		process.env.BIRDCLAW_HOME = tempDir;
+		process.env.NEO_ARCHIVE_HOME = tempDir;
 
 		const db = getNativeDb({ seedDemoData: false });
 		db.prepare(`
@@ -142,12 +142,12 @@ describe("database init", () => {
 	});
 
 	it("migrates legacy tweet tables before creating quoted tweet indexes", () => {
-		const tempDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-db-"));
+		const tempDir = mkdtempSync(path.join(os.tmpdir(), "neo-archive-db-"));
 		tempDirs.push(tempDir);
-		process.env.BIRDCLAW_HOME = tempDir;
+		process.env.NEO_ARCHIVE_HOME = tempDir;
 
 		const legacyDb = new NativeSqliteDatabase(
-			path.join(tempDir, "birdclaw.sqlite"),
+			path.join(tempDir, "neo-archive.sqlite"),
 		);
 		legacyDb.exec(`
       create table tweets (
@@ -433,9 +433,9 @@ describe("database init", () => {
 	});
 
 	it("adds revision edges without rewriting v6 revision rows", () => {
-		const tempDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-db-"));
+		const tempDir = mkdtempSync(path.join(os.tmpdir(), "neo-archive-db-"));
 		tempDirs.push(tempDir);
-		process.env.BIRDCLAW_HOME = tempDir;
+		process.env.NEO_ARCHIVE_HOME = tempDir;
 
 		const db = getNativeDb({ seedDemoData: false });
 		db.exec(`
@@ -479,14 +479,14 @@ describe("database init", () => {
 	});
 
 	it("does not request a write lock for completed startup backfills", async () => {
-		const tempDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-db-lock-"));
+		const tempDir = mkdtempSync(path.join(os.tmpdir(), "neo-archive-db-lock-"));
 		tempDirs.push(tempDir);
-		process.env.BIRDCLAW_HOME = tempDir;
+		process.env.NEO_ARCHIVE_HOME = tempDir;
 
 		getNativeDb();
 		resetDatabaseForTests();
 
-		const dbPath = path.join(tempDir, "birdclaw.sqlite");
+		const dbPath = path.join(tempDir, "neo-archive.sqlite");
 		const holder = spawnWriteLockHolder(dbPath, 1500);
 		await waitForOutput(holder, "locked");
 
@@ -504,9 +504,9 @@ describe("database init", () => {
 	});
 
 	it("uses independent query-only connections for reads", () => {
-		const tempDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-db-read-"));
+		const tempDir = mkdtempSync(path.join(os.tmpdir(), "neo-archive-db-read-"));
 		tempDirs.push(tempDir);
-		process.env.BIRDCLAW_HOME = tempDir;
+		process.env.NEO_ARCHIVE_HOME = tempDir;
 
 		const writer = getNativeDb({ seedDemoData: false });
 		writer.exec("create table read_probe (value text)");
@@ -530,9 +530,11 @@ describe("database init", () => {
 	});
 
 	it("refreshes managed readers after a bulk write without closing the writer", () => {
-		const tempDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-db-refresh-"));
+		const tempDir = mkdtempSync(
+			path.join(os.tmpdir(), "neo-archive-db-refresh-"),
+		);
 		tempDirs.push(tempDir);
-		process.env.BIRDCLAW_HOME = tempDir;
+		process.env.NEO_ARCHIVE_HOME = tempDir;
 
 		const writer = getNativeDb({ seedDemoData: false });
 		writer.exec("create table refresh_probe (value text)");
@@ -561,10 +563,10 @@ describe("database init", () => {
 
 	it("ignores reader refresh for an unmanaged writer", () => {
 		const tempDir = mkdtempSync(
-			path.join(os.tmpdir(), "birdclaw-db-refresh-other-"),
+			path.join(os.tmpdir(), "neo-archive-db-refresh-other-"),
 		);
 		tempDirs.push(tempDir);
-		process.env.BIRDCLAW_HOME = tempDir;
+		process.env.NEO_ARCHIVE_HOME = tempDir;
 
 		getNativeDb({ seedDemoData: false });
 		const reader = getReadDb({ seedDemoData: false });
@@ -579,10 +581,10 @@ describe("database init", () => {
 
 	it("keeps imports successful when the passive checkpoint is unavailable", () => {
 		const tempDir = mkdtempSync(
-			path.join(os.tmpdir(), "birdclaw-db-refresh-checkpoint-"),
+			path.join(os.tmpdir(), "neo-archive-db-refresh-checkpoint-"),
 		);
 		tempDirs.push(tempDir);
-		process.env.BIRDCLAW_HOME = tempDir;
+		process.env.NEO_ARCHIVE_HOME = tempDir;
 
 		const writer = getNativeDb({ seedDemoData: false });
 		getReadDb({ seedDemoData: false });
@@ -599,10 +601,10 @@ describe("database init", () => {
 
 	it("opens strict readers without initialization and rejects writes", () => {
 		const tempDir = mkdtempSync(
-			path.join(os.tmpdir(), "birdclaw-db-strict-read-"),
+			path.join(os.tmpdir(), "neo-archive-db-strict-read-"),
 		);
 		tempDirs.push(tempDir);
-		process.env.BIRDCLAW_HOME = tempDir;
+		process.env.NEO_ARCHIVE_HOME = tempDir;
 
 		const writer = getNativeDb({ seedDemoData: false });
 		writer.exec("create table strict_read_probe (value text)");
@@ -633,15 +635,15 @@ describe("database init", () => {
 		"rejects a $kind schema and closes its provisional reader",
 		({ version }) => {
 			const tempDir = mkdtempSync(
-				path.join(os.tmpdir(), "birdclaw-db-strict-schema-"),
+				path.join(os.tmpdir(), "neo-archive-db-strict-schema-"),
 			);
 			tempDirs.push(tempDir);
-			process.env.BIRDCLAW_HOME = tempDir;
+			process.env.NEO_ARCHIVE_HOME = tempDir;
 
 			getNativeDb({ seedDemoData: false });
 			resetDatabaseForTests();
 			const schemaDb = new NativeSqliteDatabase(
-				path.join(tempDir, "birdclaw.sqlite"),
+				path.join(tempDir, "neo-archive.sqlite"),
 			);
 			schemaDb.pragma(`user_version = ${String(version)}`);
 			schemaDb.close();
@@ -656,10 +658,10 @@ describe("database init", () => {
 
 	it("validates the schema before reusing a general read pool", () => {
 		const tempDir = mkdtempSync(
-			path.join(os.tmpdir(), "birdclaw-db-strict-reuse-"),
+			path.join(os.tmpdir(), "neo-archive-db-strict-reuse-"),
 		);
 		tempDirs.push(tempDir);
-		process.env.BIRDCLAW_HOME = tempDir;
+		process.env.NEO_ARCHIVE_HOME = tempDir;
 
 		const writer = getNativeDb({ seedDemoData: false });
 		getReadDb({ seedDemoData: false });
@@ -672,10 +674,10 @@ describe("database init", () => {
 
 	it("closes a read connection when its setup pragmas fail", () => {
 		const tempDir = mkdtempSync(
-			path.join(os.tmpdir(), "birdclaw-db-read-pragma-"),
+			path.join(os.tmpdir(), "neo-archive-db-read-pragma-"),
 		);
 		tempDirs.push(tempDir);
-		process.env.BIRDCLAW_HOME = tempDir;
+		process.env.NEO_ARCHIVE_HOME = tempDir;
 
 		getNativeDb({ seedDemoData: false });
 		resetDatabaseForTests();
@@ -694,10 +696,10 @@ describe("database init", () => {
 
 	it("closes both provisional readers when the second pool open fails", () => {
 		const tempDir = mkdtempSync(
-			path.join(os.tmpdir(), "birdclaw-db-read-pool-"),
+			path.join(os.tmpdir(), "neo-archive-db-read-pool-"),
 		);
 		tempDirs.push(tempDir);
-		process.env.BIRDCLAW_HOME = tempDir;
+		process.env.NEO_ARCHIVE_HOME = tempDir;
 
 		getNativeDb({ seedDemoData: false });
 		resetDatabaseForTests();
@@ -742,7 +744,7 @@ describe("native sqlite compatibility wrapper", () => {
 
 	it("waits for the writer slot before a transaction reads and writes", async () => {
 		const tempDir = mkdtempSync(
-			path.join(os.tmpdir(), "birdclaw-sqlite-lock-"),
+			path.join(os.tmpdir(), "neo-archive-sqlite-lock-"),
 		);
 		tempDirs.push(tempDir);
 		const dbPath = path.join(tempDir, "database.sqlite");
@@ -842,7 +844,7 @@ describe("native sqlite compatibility wrapper", () => {
 
 	it("holds one WAL snapshot in a deferred read transaction", () => {
 		const tempDir = mkdtempSync(
-			path.join(os.tmpdir(), "birdclaw-sqlite-read-tx-"),
+			path.join(os.tmpdir(), "neo-archive-sqlite-read-tx-"),
 		);
 		tempDirs.push(tempDir);
 		const dbPath = path.join(tempDir, "database.sqlite");

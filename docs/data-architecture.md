@@ -2,7 +2,7 @@
 
 ## Effect Runtime Boundary
 
-Birdclaw's core I/O code should be written as Effect programs. Use `Effect.gen` for multi-step workflows, typed failures for expected errors, and `Effect.forEach` / `Effect.sleep` for concurrency, retry, timeout, and pacing logic.
+Neo Archive's core I/O code should be written as Effect programs. Use `Effect.gen` for multi-step workflows, typed failures for expected errors, and `Effect.forEach` / `Effect.sleep` for concurrency, retry, timeout, and pacing logic.
 
 Keep framework edges boring:
 
@@ -83,13 +83,13 @@ Why:
 
 - lower auth risk
 - lower coupling to xurl store internals
-- birdclaw stays transport-agnostic
+- neo-archive stays transport-agnostic
 - users already authenticated in `xurl` get immediate value
 
 Possible later feature:
 
-- `birdclaw auth import-xurl`
-- local one-shot import into birdclaw-managed credentials
+- `neo-archive auth import-xurl`
+- local one-shot import into neo-archive-managed credentials
 - opt-in only
 
 ### `bird` compatibility
@@ -453,7 +453,7 @@ Candidate ranking inputs:
 
 ### Web server mode
 
-`birdclaw serve`
+`neo-archive serve`
 
 - starts the built local production server
 - serves SSR routes and compiled static assets
@@ -479,16 +479,16 @@ Do not store secrets in config JSON.
 Options by transport:
 
 - `xurl`
-  - birdclaw shells out to `xurl`
+  - neo-archive shells out to `xurl`
   - auth remains managed by `xurl`
 - `bird`
-  - birdclaw shells out to `bird` or wraps a narrow stable surface
+  - neo-archive shells out to `bird` or wraps a narrow stable surface
   - useful for GraphQL/cookie-backed capabilities
 
 ## Package Layout
 
 ```text
-birdclaw/
+neo-archive/
   apps/
     web/
   packages/

@@ -42,16 +42,17 @@ export function resolveAnalysisModelSettings(
 	runtime: RuntimeServices = defaultRuntimeServices,
 ): AnalysisModelSettings {
 	return {
-		model: options.model ?? runtime.env("BIRDCLAW_AI_MODEL") ?? DEFAULT_MODEL,
+		model:
+			options.model ?? runtime.env("NEO_ARCHIVE_AI_MODEL") ?? DEFAULT_MODEL,
 		reasoningEffort:
 			options.reasoningEffort ??
 			(runtime.env(
-				"BIRDCLAW_OPENAI_REASONING_EFFORT",
+				"NEO_ARCHIVE_OPENAI_REASONING_EFFORT",
 			) as AnalysisReasoningEffort) ??
 			DEFAULT_REASONING_EFFORT,
 		serviceTier:
 			options.serviceTier ??
-			(runtime.env("BIRDCLAW_OPENAI_SERVICE_TIER") as AnalysisServiceTier) ??
+			(runtime.env("NEO_ARCHIVE_OPENAI_SERVICE_TIER") as AnalysisServiceTier) ??
 			DEFAULT_SERVICE_TIER,
 	};
 }

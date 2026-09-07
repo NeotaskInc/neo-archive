@@ -442,7 +442,7 @@ export const linkInsightResponseSchema = z.object({
 });
 export type LinkInsightResponse = z.infer<typeof linkInsightResponseSchema>;
 
-const liveDataSourceKindSchema = z.enum(["birdclaw", "bird", "xurl"]);
+const liveDataSourceKindSchema = z.enum(["neo-archive", "bird", "xurl"]);
 const liveDataSourceAccountSchema = z.object({
 	id: z.string().optional(),
 	username: z.string().optional(),

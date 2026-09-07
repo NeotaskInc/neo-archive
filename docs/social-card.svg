@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
-  <title id="title">birdclaw social card</title>
-  <desc id="desc">birdclaw: Your Twitter, in a SQLite file. Local-first archive, cached live reads, focused triage, and reply flows in one CLI + web app.</desc>
+  <title id="title">neo-archive social card</title>
+  <desc id="desc">neo-archive: Your Twitter, in a SQLite file. Local-first archive, cached live reads, focused triage, and reply flows in one CLI + web app.</desc>
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#f7fbff"/>
@@ -43,11 +43,11 @@
   <!-- Brand mark (top-left): crab-bird tile -->
   <g transform="translate(76 76)" filter="url(#tileShadow)">
     <rect x="0" y="0" width="118" height="118" rx="26" fill="#020507"/>
-    <image href="birdclaw-mark.png" x="18" y="18" width="82" height="82" preserveAspectRatio="xMidYMid meet"/>
+    <image href="neo-archive-mark.png" x="18" y="18" width="82" height="82" preserveAspectRatio="xMidYMid meet"/>
   </g>
 
   <!-- Title -->
-  <text x="76" y="270" fill="#0f1419" font-family="Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="92" font-weight="800" letter-spacing="-1">birdclaw</text>
+  <text x="76" y="270" fill="#0f1419" font-family="Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="92" font-weight="800" letter-spacing="-1">neo-archive</text>
 
   <!-- Tagline (one strong line) -->
   <text x="80" y="332" fill="#0f1419" font-family="Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="34" font-weight="700">Your Twitter, in a SQLite file.</text>
@@ -64,7 +64,7 @@
     <!-- install pill -->
     <rect x="0" y="0" width="420" height="48" rx="11" fill="#0f1419"/>
     <text x="20" y="32" fill="#71c9f8" font-family="JetBrains Mono, SFMono-Regular, Menlo, monospace" font-size="17" font-weight="500">$</text>
-    <text x="42" y="32" fill="#e7eef6" font-family="JetBrains Mono, SFMono-Regular, Menlo, monospace" font-size="17" font-weight="600">brew install steipete/tap/birdclaw</text>
+    <text x="42" y="32" fill="#e7eef6" font-family="JetBrains Mono, SFMono-Regular, Menlo, monospace" font-size="17" font-weight="600">brew install steipete/tap/neo-archive</text>
 
     <!-- URL pill -->
     <rect x="440" y="0" width="150" height="48" rx="11" fill="#ffffff" stroke="#cfd9de"/>
@@ -79,15 +79,15 @@
     <circle cx="24" cy="21" r="6" fill="#f4212e"/>
     <circle cx="46" cy="21" r="6" fill="#ffd400"/>
     <circle cx="68" cy="21" r="6" fill="#1d9bf0"/>
-    <text x="232" y="27" fill="#8b98a5" font-family="JetBrains Mono, SFMono-Regular, Menlo, monospace" font-size="13" font-weight="500" text-anchor="middle">birdclaw — @steipete</text>
+    <text x="232" y="27" fill="#8b98a5" font-family="JetBrains Mono, SFMono-Regular, Menlo, monospace" font-size="13" font-weight="500" text-anchor="middle">neo-archive — @steipete</text>
 
     <!-- Terminal content -->
-    <text x="22" y="80" fill="#71c9f8" font-family="JetBrains Mono, SFMono-Regular, Menlo, monospace" font-size="15" font-weight="600">$ birdclaw search tweets "local-first" --liked</text>
+    <text x="22" y="80" fill="#71c9f8" font-family="JetBrains Mono, SFMono-Regular, Menlo, monospace" font-size="15" font-weight="600">$ neo-archive search tweets "local-first" --liked</text>
     <text x="22" y="110" fill="#cfd9de" font-family="JetBrains Mono, SFMono-Regular, Menlo, monospace" font-size="13">2024-08-12  @rauchg     local-first beats…   ★ 412</text>
     <text x="22" y="132" fill="#cfd9de" font-family="JetBrains Mono, SFMono-Regular, Menlo, monospace" font-size="13">2023-11-04  @geoffreylitt  CRDTs &amp; you      ★ 198</text>
     <text x="22" y="154" fill="#cfd9de" font-family="JetBrains Mono, SFMono-Regular, Menlo, monospace" font-size="13">2022-06-19  @inkandswitch  ink &amp; switch     ★ 1.2k</text>
 
-    <text x="22" y="194" fill="#71c9f8" font-family="JetBrains Mono, SFMono-Regular, Menlo, monospace" font-size="15" font-weight="600">$ birdclaw inbox --score --hide-low-signal</text>
+    <text x="22" y="194" fill="#71c9f8" font-family="JetBrains Mono, SFMono-Regular, Menlo, monospace" font-size="15" font-weight="600">$ neo-archive inbox --score --hide-low-signal</text>
 
     <rect x="22" y="212" width="420" height="118" rx="10" fill="#04090f" stroke="#1c2a3a"/>
     <text x="38" y="238" fill="#ffd400" font-family="JetBrains Mono, SFMono-Regular, Menlo, monospace" font-size="13">{</text>

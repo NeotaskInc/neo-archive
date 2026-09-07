@@ -232,7 +232,7 @@ describe("today route", () => {
 	}, 15_000);
 
 	it("exports a completed digest through the browser PDF flow", async () => {
-		document.title = "birdclaw";
+		document.title = "neo-archive";
 		const printMock = vi.spyOn(window, "print").mockImplementation(() => {
 			expect(document.title).toBe("BirdClaw Today digest");
 			window.dispatchEvent(new Event("afterprint"));
@@ -263,7 +263,7 @@ describe("today route", () => {
 		fireEvent.click(exportButton);
 
 		expect(printMock).toHaveBeenCalledTimes(1);
-		expect(document.title).toBe("birdclaw");
+		expect(document.title).toBe("neo-archive");
 	});
 
 	it("does not export a partial digest after the stream fails", async () => {
@@ -295,7 +295,7 @@ describe("today route", () => {
 						JSON.stringify({
 							ok: false,
 							message:
-								"Remote API access requires BIRDCLAW_ALLOW_REMOTE_WEB=1 for a trusted private proxy, or BIRDCLAW_WEB_TOKEN for tokened access",
+								"Remote API access requires NEO_ARCHIVE_ALLOW_REMOTE_WEB=1 for a trusted private proxy, or NEO_ARCHIVE_WEB_TOKEN for tokened access",
 						}),
 						{
 							headers: { "content-type": "application/json" },
@@ -309,7 +309,7 @@ describe("today route", () => {
 
 		expect(
 			await screen.findByText(
-				"Digest request failed (403): Remote API access requires BIRDCLAW_ALLOW_REMOTE_WEB=1 for a trusted private proxy, or BIRDCLAW_WEB_TOKEN for tokened access",
+				"Digest request failed (403): Remote API access requires NEO_ARCHIVE_ALLOW_REMOTE_WEB=1 for a trusted private proxy, or NEO_ARCHIVE_WEB_TOKEN for tokened access",
 			),
 		).toBeInTheDocument();
 	});

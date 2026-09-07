@@ -19,7 +19,7 @@ vi.mock("@tanstack/react-router", () => ({
 vi.mock("#/components/AppNav", () => ({
 	AppNav: (props: { compact?: boolean }) => {
 		appNavProps.push(props);
-		return <nav>birdclaw nav {props.compact ? "compact" : "full"}</nav>;
+		return <nav>neo-archive nav {props.compact ? "compact" : "full"}</nav>;
 	},
 }));
 
@@ -50,13 +50,13 @@ describe("root route", () => {
 			meta: expect.arrayContaining([
 				expect.objectContaining({ charSet: "utf-8" }),
 				expect.objectContaining({ name: "viewport" }),
-				expect.objectContaining({ title: "birdclaw" }),
+				expect.objectContaining({ title: "Neo Archive" }),
 			]),
 			links: expect.arrayContaining([
 				expect.objectContaining({ rel: "stylesheet" }),
 			]),
 		});
-		expect(markup).toContain("birdclaw nav");
+		expect(markup).toContain("neo-archive nav");
 		expect(markup).toContain("max-w-[1280px]");
 		expect(markup).toContain("child content");
 		expect(markup).toContain('data-testid="scripts"');
@@ -84,7 +84,7 @@ describe("root route", () => {
 
 		expect(markup).toContain("max-w-[1280px]");
 		expect(markup).not.toContain("max-w-[680px]");
-		expect(markup).toContain("birdclaw nav compact");
+		expect(markup).toContain("neo-archive nav compact");
 		expect(appNavProps).toEqual([{ compact: true }]);
 	});
 
@@ -108,7 +108,7 @@ describe("root route", () => {
 
 		expect(markup).toContain("max-w-[1280px]");
 		expect(markup).not.toContain("max-w-[680px]");
-		expect(markup).toContain("birdclaw nav compact");
+		expect(markup).toContain("neo-archive nav compact");
 		expect(appNavProps).toEqual([{ compact: true }]);
 	});
 });

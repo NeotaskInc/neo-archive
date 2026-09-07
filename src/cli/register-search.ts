@@ -50,6 +50,10 @@ export function registerSearchCommands({
 			"home",
 		)
 		.option("--account <username>", "Account username or id")
+		.option(
+			"--all-accounts",
+			"Search every local account, overriding the configured default",
+		)
 		.option("--list <name>", "Only authors in a cached X List")
 		.option("--list-id <id>", "Only authors in a cached X List id")
 		.option("--replied", "Only replied items")

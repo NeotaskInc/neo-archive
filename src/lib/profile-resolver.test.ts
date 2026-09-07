@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { Effect } from "effect";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { resetBirdclawPathsForTests } from "./config";
+import { resetNeoArchivePathsForTests } from "./config";
 import { getNativeDb, resetDatabaseForTests } from "./db";
 
 const mocks = vi.hoisted(() => ({
@@ -74,9 +74,11 @@ function resetStore() {
 
 describe("profile resolver", () => {
 	beforeEach(() => {
-		homeDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-profile-resolver-"));
-		process.env.BIRDCLAW_HOME = homeDir;
-		resetBirdclawPathsForTests();
+		homeDir = mkdtempSync(
+			path.join(os.tmpdir(), "neo-archive-profile-resolver-"),
+		);
+		process.env.NEO_ARCHIVE_HOME = homeDir;
+		resetNeoArchivePathsForTests();
 		resetDatabaseForTests();
 		mocks.lookupProfileViaBird.mockReset();
 		mocks.lookupProfilesViaBird.mockReset();
@@ -95,8 +97,8 @@ describe("profile resolver", () => {
 
 	afterEach(() => {
 		resetDatabaseForTests();
-		resetBirdclawPathsForTests();
-		delete process.env.BIRDCLAW_HOME;
+		resetNeoArchivePathsForTests();
+		delete process.env.NEO_ARCHIVE_HOME;
 		rmSync(homeDir, { recursive: true, force: true });
 	});
 

@@ -19,7 +19,7 @@ import {
 	type BackupJsonRecord as JsonRecord,
 	type BackupJsonValue as JsonValue,
 } from "./backup-table-codecs";
-import { getBirdclawConfig, getBirdclawPaths } from "./config";
+import { getNeoArchiveConfig, getNeoArchivePaths } from "./config";
 import { getNativeDb, refreshReadDatabasePoolAfterBulkWrite } from "./db";
 import { databaseWriteEffect } from "./database-writer";
 import {
@@ -56,7 +56,7 @@ const AUTO_SYNC_CACHE_KEY = "backup:auto-sync";
 const DEFAULT_STALE_AFTER_SECONDS = 15 * 60;
 const BACKGROUND_AUTO_UPDATE_DELAY_MS = 5_000;
 const BACKUP_LOCK_STALE_MS = 6 * 60 * 60 * 1000;
-const BACKUP_TRANSACTION_DIR = "birdclaw-backup-transaction";
+const BACKUP_TRANSACTION_DIR = "neo-archive-backup-transaction";
 const PENDING_PUSH_RECEIPT_PATH = "pending-push.json";
 const BACKUP_PUSH_REMOTE = "origin";
 const BACKUP_PUSH_REMOTE_REF = "refs/heads/main";
@@ -94,7 +94,7 @@ export interface BackupFileManifest {
 }
 
 export interface BackupManifest {
-	app: "birdclaw";
+	app: "neo-archive";
 	schemaVersion: number;
 	generatedAt: string;
 	counts: Record<string, number>;
@@ -269,7 +269,7 @@ function backupLockPath(repoPath: string) {
 		.slice(0, 12);
 	return path.join(
 		path.dirname(resolved),
-		`.birdclaw-backup-${path.basename(resolved)}-${digest}.lock`,
+		`.neo-archive-backup-${path.basename(resolved)}-${digest}.lock`,
 	);
 }
 
@@ -572,9 +572,9 @@ function ensureBackupReadmeEffect(
 		yield* tryPromise(() =>
 			durableWriteFile(
 				readmePath,
-				`# Birdclaw Store
+				`# Neo Archive Store
 
-Private text backup for Birdclaw data. The committed files are canonical JSONL shards that can rebuild the local SQLite index.
+Private text backup for Neo Archive data. The committed files are canonical JSONL shards that can rebuild the local SQLite index.
 
 ## Layout
 
@@ -660,10 +660,10 @@ function ensureBackupGitattributesEffect(repoPath: string) {
 			`${MANIFEST_PATH} text eol=lf`,
 		];
 		const generatedBlock = [
-			"# BEGIN birdclaw backup attributes",
-			"# Backup hashes use the raw LF-delimited bytes written by Birdclaw.",
+			"# BEGIN neo-archive backup attributes",
+			"# Backup hashes use the raw LF-delimited bytes written by Neo Archive.",
 			...requiredLines,
-			"# END birdclaw backup attributes",
+			"# END neo-archive backup attributes",
 			"",
 		].join("\n");
 		const current = yield* tryPromise(() =>
@@ -722,13 +722,19 @@ function maybeCommitEffect({
 					repoPath,
 					"config",
 					"user.email",
-					"birdclaw@example.invalid",
+					"neo-archive@example.invalid",
 				]),
 			),
 		);
 		yield* gitEffect(["-C", repoPath, "config", "user.name"]).pipe(
 			Effect.catchAll(() =>
-				gitEffect(["-C", repoPath, "config", "user.name", "Birdclaw Backup"]),
+				gitEffect([
+					"-C",
+					repoPath,
+					"config",
+					"user.name",
+					"Neo Archive Backup",
+				]),
 			),
 		);
 
@@ -2195,7 +2201,7 @@ function ensureBackupGitRepoEffect({
 	repoPath,
 	remote,
 	adoptExistingGeneration = false,
-	message = "archive: adopt birdclaw backup",
+	message = "archive: adopt neo-archive backup",
 }: {
 	repoPath: string;
 	remote?: string;
@@ -2774,7 +2780,7 @@ function exportBackupUnlockedEffect({
 	db,
 	commit = false,
 	push = false,
-	message = "archive: update birdclaw backup",
+	message = "archive: update neo-archive backup",
 	validate = true,
 	maxShardBytes,
 	generatedCommitForPushReceipt,
@@ -2871,7 +2877,7 @@ function exportBackupUnlockedEffect({
 			const counts = yield* trySync(() => countBackupFiles(files));
 			const backupHash = yield* trySync(() => computeBackupHash(files));
 			const manifest: BackupManifest = {
-				app: "birdclaw",
+				app: "neo-archive",
 				schemaVersion: BACKUP_SCHEMA_VERSION,
 				generatedAt:
 					previousManifest?.backupHash === backupHash
@@ -2989,9 +2995,9 @@ function readManifestEffect(
 		);
 		const content = yield* tryPromise(() => fs.readFile(manifestPath, "utf8"));
 		const parsed = yield* trySync(() => JSON.parse(content) as BackupManifest);
-		if (parsed.app !== "birdclaw") {
+		if (parsed.app !== "neo-archive") {
 			return yield* Effect.fail(
-				new Error("Backup manifest is not a birdclaw backup"),
+				new Error("Backup manifest is not a neo-archive backup"),
 			);
 		}
 		if (
@@ -3451,7 +3457,7 @@ function rollbackPromotedGitRepositoryEffect(
 function syncBackupUnlockedEffect({
 	repoPath,
 	remote,
-	message = "archive: sync birdclaw backup",
+	message = "archive: sync neo-archive backup",
 	db,
 }: SyncBackupOptions): Effect.Effect<BackupSyncResult, unknown> {
 	let rollbackCreatedGit = false;
@@ -3672,7 +3678,7 @@ function readAutoSyncState(db: Database) {
 }
 
 function readAutoSyncStateWithoutCreatingDatabase() {
-	const dbPath = getBirdclawPaths().dbPath;
+	const dbPath = getNeoArchivePaths().dbPath;
 	if (!existsSync(dbPath)) return null;
 	const db = new NativeSqliteDatabase(dbPath, {
 		readonly: true,
@@ -3703,7 +3709,7 @@ function writeAutoSyncState(
 }
 
 function resolveAutoSyncConfig() {
-	const backup = getBirdclawConfig().backup;
+	const backup = getNeoArchiveConfig().backup;
 	if (!backup || backup.autoSync === false) {
 		return null;
 	}
@@ -3722,7 +3728,7 @@ function resolveAutoSyncConfig() {
 	return {
 		repoPath:
 			repoPath ||
-			path.join(process.env.HOME || ".", "Projects", "backup-birdclaw"),
+			path.join(process.env.HOME || ".", "Projects", "backup-neo-archive"),
 		remote,
 		staleAfterSeconds,
 	};
@@ -3741,12 +3747,12 @@ function runMaybeAutoUpdateBackupEffect(
 	db?: Database,
 ): Effect.Effect<BackupAutoUpdateResult, never> {
 	return Effect.gen(function* () {
-		if (process.env.BIRDCLAW_BACKUP_AUTO_SYNC === "0") {
+		if (process.env.NEO_ARCHIVE_BACKUP_AUTO_SYNC === "0") {
 			return {
 				ok: true,
 				enabled: false,
 				skipped: true,
-				reason: "disabled by BIRDCLAW_BACKUP_AUTO_SYNC=0",
+				reason: "disabled by NEO_ARCHIVE_BACKUP_AUTO_SYNC=0",
 			};
 		}
 		const configResult = yield* trySync(() => resolveAutoSyncConfig()).pipe(
@@ -3892,12 +3898,12 @@ export function requestBackupAutoUpdate(db?: Database) {
 		runEffectBackground(maybeAutoUpdateBackupEffect(db), {
 			onSuccess: (result) => {
 				if (!result.ok) {
-					console.error(`birdclaw backup auto-sync failed: ${result.error}`);
+					console.error(`neo-archive backup auto-sync failed: ${result.error}`);
 				}
 			},
 			onFailure: (error) => {
 				console.error(
-					`birdclaw backup auto-sync failed: ${
+					`neo-archive backup auto-sync failed: ${
 						error instanceof Error ? error.message : String(error)
 					}`,
 				);
@@ -3911,12 +3917,12 @@ export function maybeAutoSyncBackupEffect(
 	db?: Database,
 ): Effect.Effect<BackupAutoUpdateResult, never> {
 	return Effect.gen(function* () {
-		if (process.env.BIRDCLAW_BACKUP_AUTO_SYNC === "0") {
+		if (process.env.NEO_ARCHIVE_BACKUP_AUTO_SYNC === "0") {
 			return {
 				ok: true,
 				enabled: false,
 				skipped: true,
-				reason: "disabled by BIRDCLAW_BACKUP_AUTO_SYNC=0",
+				reason: "disabled by NEO_ARCHIVE_BACKUP_AUTO_SYNC=0",
 			};
 		}
 		const configResult = yield* trySync(() => resolveAutoSyncConfig()).pipe(

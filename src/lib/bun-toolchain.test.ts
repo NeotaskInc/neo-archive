@@ -59,7 +59,7 @@ describe("Bun canary toolchain", () => {
 			"utf8",
 		);
 		expect(installer).toContain("archive checksum mismatch");
-		expect(installer).toContain("BIRDCLAW_BUN_ARCHIVE");
+		expect(installer).toContain("NEO_ARCHIVE_BUN_ARCHIVE");
 		expect(
 			readFileSync(path.join(repositoryRoot, "scripts/bun-canary.sh"), "utf8"),
 		).toContain("--no-env-file");

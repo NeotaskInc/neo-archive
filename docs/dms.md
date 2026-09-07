@@ -5,14 +5,14 @@ description: "Triage direct messages by sender follower count, derived influence
 
 # DMs
 
-birdclaw treats DMs as first-class content: full-text indexed, multi-account, and filterable by sender context. The web app's `DMs` lane uses the same query model you get from the CLI.
+neo-archive treats DMs as first-class content: full-text indexed, multi-account, and filterable by sender context. The web app's `DMs` lane uses the same query model you get from the CLI.
 
 ## List conversations
 
 ```bash
-birdclaw dms list --refresh --limit 10 --json
-birdclaw dms list --refresh --mode auto --limit 10 --json
-birdclaw dms list --unreplied --min-followers 500 --min-influence-score 90 --sort followers --json
+neo-archive dms list --refresh --limit 10 --json
+neo-archive dms list --refresh --mode auto --limit 10 --json
+neo-archive dms list --unreplied --min-followers 500 --min-influence-score 90 --sort followers --json
 ```
 
 `dms list` is the no-query view onto conversations and recent events. It is optimized for agent and operator filtering — you do not need a search query to walk the inbox.
@@ -35,8 +35,8 @@ Flags:
 Refresh live direct messages and merge into the canonical conversation/message tables:
 
 ```bash
-birdclaw dms sync --limit 50 --refresh --json
-birdclaw dms sync --mode auto --limit 50 --refresh --json
+neo-archive dms sync --limit 50 --refresh --json
+neo-archive dms sync --mode auto --limit 50 --refresh --json
 ```
 
 Flags:
@@ -54,12 +54,12 @@ Sync is idempotent — re-running merges new events without disturbing already-i
 ## Search
 
 ```bash
-birdclaw search dms "prototype" --json
-birdclaw search dms "layout" --min-followers 1000 --min-influence-score 120 --sort followers --json
-birdclaw search dms "invoice" --participant @someone --replied --json
-birdclaw search dms "blacksmith" --context 4 --resolve-profiles --expand-urls --no-xurl-fallback --json
-birdclaw whois "blacksmith guy" --context 4 --no-xurl-fallback --json
-birdclaw whois "blacksmith" --context 4 --no-xurl-fallback --json
+neo-archive search dms "prototype" --json
+neo-archive search dms "layout" --min-followers 1000 --min-influence-score 120 --sort followers --json
+neo-archive search dms "invoice" --participant @someone --replied --json
+neo-archive search dms "blacksmith" --context 4 --resolve-profiles --expand-urls --no-xurl-fallback --json
+neo-archive whois "blacksmith guy" --context 4 --no-xurl-fallback --json
+neo-archive whois "blacksmith" --context 4 --no-xurl-fallback --json
 ```
 
 Same FTS5 backbone as tweet search, with the DM-specific filters layered on top. See [Search](search.md#search-dms) for the full flag list.
@@ -77,7 +77,7 @@ evidence even when the literal phrase was not in the DM.
 For "find the people from X" tasks, prefer:
 
 ```bash
-birdclaw whois "github guy" --current-affiliation github --exclude-domain-only --no-xurl-fallback
+neo-archive whois "github guy" --current-affiliation github --exclude-domain-only --no-xurl-fallback
 ```
 
 That keeps current affiliation/bio/history evidence ahead of plain profile
@@ -100,19 +100,19 @@ It is intentionally simple. The goal is to bucket noisy inboxes ("strangers with
 When triaging a quiet day, sort by `followers` to surface higher-context conversations first:
 
 ```bash
-birdclaw dms list --unreplied --sort followers --limit 20 --json
+neo-archive dms list --unreplied --sort followers --limit 20 --json
 ```
 
 When triaging a noisy day, hide low-influence senders entirely:
 
 ```bash
-birdclaw dms list --unreplied --min-influence-score 80 --limit 20 --json
+neo-archive dms list --unreplied --min-influence-score 80 --limit 20 --json
 ```
 
 ## Reply
 
 ```bash
-birdclaw compose dm dm_003 "Send it over."
+neo-archive compose dm dm_003 "Send it over."
 ```
 
 Replies use the active live transport (`auto` by default). Without a working transport, the command fails fast with exit code `4` rather than recording a half-state local row.
@@ -124,8 +124,8 @@ Twitter archives include full DM history but the JSON is awkward. `import archiv
 Use `--select directMessages` when a newer archive has fresher DMs and you do not want to touch tweets, likes, bookmarks, profiles, or follow data. The selected re-import merges archive DM rows for `acct_primary` and preserves other accounts. Add `--restore` to clear and exactly replay that account's archive DMs before rebuilding DM FTS. `dms` is accepted as a shorter alias.
 
 ```bash
-birdclaw import archive ~/Downloads/twitter-archive.zip --select directMessages --json
-birdclaw import archive ~/Downloads/twitter-archive.zip --select dms --json
+neo-archive import archive ~/Downloads/twitter-archive.zip --select directMessages --json
+neo-archive import archive ~/Downloads/twitter-archive.zip --select dms --json
 ```
 
 ## Web UI

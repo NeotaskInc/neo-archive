@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { Effect } from "effect";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { resetBirdclawPathsForTests } from "./config";
+import { resetNeoArchivePathsForTests } from "./config";
 import { getNativeDb, resetDatabaseForTests } from "./db";
 
 const mocks = vi.hoisted(() => ({
@@ -54,9 +54,9 @@ vi.mock("./xurl", async () => {
 const tempDirs: string[] = [];
 
 function makeTempHome() {
-	const tempRoot = mkdtempSync(path.join(os.tmpdir(), "birdclaw-mutes-"));
+	const tempRoot = mkdtempSync(path.join(os.tmpdir(), "neo-archive-mutes-"));
 	tempDirs.push(tempRoot);
-	process.env.BIRDCLAW_HOME = tempRoot;
+	process.env.NEO_ARCHIVE_HOME = tempRoot;
 	return tempRoot;
 }
 
@@ -123,8 +123,8 @@ describe("mutes", () => {
 
 	afterEach(() => {
 		resetDatabaseForTests();
-		resetBirdclawPathsForTests();
-		delete process.env.BIRDCLAW_HOME;
+		resetNeoArchivePathsForTests();
+		delete process.env.NEO_ARCHIVE_HOME;
 
 		for (const dir of tempDirs.splice(0)) {
 			rmSync(dir, { recursive: true, force: true });

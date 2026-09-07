@@ -5,25 +5,27 @@ import path from "node:path";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { resetBirdclawPathsForTests } from "./config";
+import { resetNeoArchivePathsForTests } from "./config";
 import {
 	getDatabaseRuntimeMetrics,
 	resetDatabaseRuntimeMetricsForTests,
 } from "./database-metrics";
 import { getNativeDb, resetDatabaseForTests } from "./db";
 import {
-	type BirdclawMcpRuntime,
+	type NeoArchiveMcpRuntime,
 	__test__,
-	handleBirdclawMcpExchange,
-	handleBirdclawMcpRequest,
-	prepareBirdclawMcpRuntime,
+	handleNeoArchiveMcpExchange,
+	handleNeoArchiveMcpRequest,
+	prepareNeoArchiveMcpRuntime,
 } from "./mcp-http";
 import { MCP_MAX_RESULT_BYTES, __test__ as toolTest } from "./mcp-tools";
 
-const token = ["birdclaw-mcp", "test-token", "0123456789", "abcdef"].join("-");
-const publicUrl = "https://mcp.birdclaw.test/mcp";
+const token = ["neo-archive-mcp", "test-token", "0123456789", "abcdef"].join(
+	"-",
+);
+const publicUrl = "https://mcp.neo-archive.test/mcp";
 const account = { id: "acct_primary", handle: "@steipete" };
-const runtime: BirdclawMcpRuntime = {
+const runtime: NeoArchiveMcpRuntime = {
 	config: {
 		token,
 		publicUrl: new URL(publicUrl),
@@ -38,8 +40,8 @@ let tempHome: string;
 function rpcRequest(
 	body: unknown,
 	{
-		url = "http://mcp.birdclaw.test/mcp",
-		host = "mcp.birdclaw.test",
+		url = "http://mcp.neo-archive.test/mcp",
+		host = "mcp.neo-archive.test",
 		authorization = `Bearer ${token}`,
 		origin,
 		contentType = "application/json",
@@ -67,7 +69,7 @@ function rpcRequest(
 }
 
 async function rpc(body: unknown) {
-	const response = await handleBirdclawMcpRequest(
+	const response = await handleNeoArchiveMcpRequest(
 		rpcRequest(body),
 		runtime,
 		loopbackContext,
@@ -122,29 +124,29 @@ function insertCachedTweet({
 	).run(accountId, id, createdAt, createdAt, createdAt);
 }
 
-describe("Birdclaw MCP HTTP server", () => {
+describe("Neo Archive MCP HTTP server", () => {
 	beforeEach(() => {
-		tempHome = mkdtempSync(path.join(os.tmpdir(), "birdclaw-mcp-"));
-		process.env.BIRDCLAW_HOME = tempHome;
-		resetBirdclawPathsForTests();
+		tempHome = mkdtempSync(path.join(os.tmpdir(), "neo-archive-mcp-"));
+		process.env.NEO_ARCHIVE_HOME = tempHome;
+		resetNeoArchivePathsForTests();
 		resetDatabaseForTests();
 		__test__.resetRateLimits();
 	});
 
 	afterEach(() => {
 		resetDatabaseForTests();
-		resetBirdclawPathsForTests();
-		delete process.env.BIRDCLAW_HOME;
-		delete process.env.BIRDCLAW_MCP_ACCOUNT;
-		delete process.env.BIRDCLAW_MCP_PUBLIC_URL;
-		delete process.env.BIRDCLAW_MCP_TOKEN;
-		delete process.env.BIRDCLAW_WEB_TOKEN;
+		resetNeoArchivePathsForTests();
+		delete process.env.NEO_ARCHIVE_HOME;
+		delete process.env.NEO_ARCHIVE_MCP_ACCOUNT;
+		delete process.env.NEO_ARCHIVE_MCP_PUBLIC_URL;
+		delete process.env.NEO_ARCHIVE_MCP_TOKEN;
+		delete process.env.NEO_ARCHIVE_WEB_TOKEN;
 		__test__.resetRateLimits();
 		rmSync(tempHome, { recursive: true, force: true });
 	});
 
 	it("returns a generic disabled response without a runtime", async () => {
-		const response = await handleBirdclawMcpRequest(
+		const response = await handleNeoArchiveMcpRequest(
 			rpcRequest({ jsonrpc: "2.0", id: 1, method: "ping" }),
 			null,
 			loopbackContext,
@@ -155,21 +157,21 @@ describe("Birdclaw MCP HTTP server", () => {
 	});
 
 	it("validates database readiness and resolves one account before listening", () => {
-		process.env.BIRDCLAW_MCP_TOKEN = token;
-		process.env.BIRDCLAW_MCP_PUBLIC_URL = publicUrl;
-		expect(() => prepareBirdclawMcpRuntime("test")).toThrow(
+		process.env.NEO_ARCHIVE_MCP_TOKEN = token;
+		process.env.NEO_ARCHIVE_MCP_PUBLIC_URL = publicUrl;
+		expect(() => prepareNeoArchiveMcpRuntime("test")).toThrow(
 			/database is not initialized/i,
 		);
 
 		getNativeDb();
-		expect(prepareBirdclawMcpRuntime("test")).toMatchObject({
+		expect(prepareNeoArchiveMcpRuntime("test")).toMatchObject({
 			account: { id: "acct_primary" },
 			serverVersion: "test",
 		});
 
-		process.env.BIRDCLAW_MCP_ACCOUNT = "missing-account";
-		expect(() => prepareBirdclawMcpRuntime("test")).toThrow(
-			/BIRDCLAW_MCP_ACCOUNT does not match/,
+		process.env.NEO_ARCHIVE_MCP_ACCOUNT = "missing-account";
+		expect(() => prepareNeoArchiveMcpRuntime("test")).toThrow(
+			/NEO_ARCHIVE_MCP_ACCOUNT does not match/,
 		);
 	});
 
@@ -197,9 +199,9 @@ describe("Birdclaw MCP HTTP server", () => {
 			selector: "@empty_id_handle",
 		},
 	])("rejects a $label before listening", ({ id, handle, selector }) => {
-		process.env.BIRDCLAW_MCP_TOKEN = token;
-		process.env.BIRDCLAW_MCP_PUBLIC_URL = publicUrl;
-		if (selector) process.env.BIRDCLAW_MCP_ACCOUNT = selector;
+		process.env.NEO_ARCHIVE_MCP_TOKEN = token;
+		process.env.NEO_ARCHIVE_MCP_PUBLIC_URL = publicUrl;
+		if (selector) process.env.NEO_ARCHIVE_MCP_ACCOUNT = selector;
 		const db = getNativeDb();
 		if (!selector) db.prepare("update accounts set is_default = 0").run();
 		db.prepare(
@@ -208,7 +210,7 @@ describe("Birdclaw MCP HTTP server", () => {
 			 values (?, 'Invalid MCP account', ?, 'test', ?, '2000-01-01T00:00:00.000Z')`,
 		).run(id, handle, selector ? 0 : 1);
 
-		expect(() => prepareBirdclawMcpRuntime("test")).toThrow(
+		expect(() => prepareNeoArchiveMcpRuntime("test")).toThrow(
 			/invalid or reserved account ID/i,
 		);
 	});
@@ -230,7 +232,7 @@ describe("Birdclaw MCP HTTP server", () => {
 	});
 
 	it("requires its bearer, the real Host authority, and a loopback peer", async () => {
-		const wrongToken = await handleBirdclawMcpRequest(
+		const wrongToken = await handleNeoArchiveMcpRequest(
 			rpcRequest(
 				{ jsonrpc: "2.0", id: 1, method: "ping" },
 				{ authorization: "Bearer wrong" },
@@ -241,30 +243,30 @@ describe("Birdclaw MCP HTTP server", () => {
 		expect(wrongToken.status).toBe(401);
 		expect(wrongToken.headers.get("www-authenticate")).toContain("Bearer");
 
-		const cookieOnly = new Request("http://mcp.birdclaw.test/mcp", {
+		const cookieOnly = new Request("http://mcp.neo-archive.test/mcp", {
 			method: "POST",
 			headers: {
 				accept: "application/json, text/event-stream",
 				"content-type": "application/json",
-				cookie: `birdclaw_token=${token}`,
-				host: "mcp.birdclaw.test",
-				"x-birdclaw-token": token,
+				cookie: `neo_archive_token=${token}`,
+				host: "mcp.neo-archive.test",
+				"x-neo-archive-token": token,
 			},
 			body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "ping" }),
 		});
 		expect(
-			(await handleBirdclawMcpRequest(cookieOnly, runtime, loopbackContext))
+			(await handleNeoArchiveMcpRequest(cookieOnly, runtime, loopbackContext))
 				.status,
 		).toBe(401);
 
-		const forgedPeer = await handleBirdclawMcpRequest(
+		const forgedPeer = await handleNeoArchiveMcpRequest(
 			rpcRequest({ jsonrpc: "2.0", id: 1, method: "ping" }),
 			runtime,
 			{ isLoopbackPeer: false },
 		);
 		expect(forgedPeer.status).toBe(403);
 
-		const mismatchedHost = await handleBirdclawMcpRequest(
+		const mismatchedHost = await handleNeoArchiveMcpRequest(
 			rpcRequest(
 				{ jsonrpc: "2.0", id: 1, method: "ping" },
 				{ host: "evil.example" },
@@ -274,7 +276,7 @@ describe("Birdclaw MCP HTTP server", () => {
 		);
 		expect(mismatchedHost.status).toBe(403);
 
-		const wrongUrlAuthority = await handleBirdclawMcpRequest(
+		const wrongUrlAuthority = await handleNeoArchiveMcpRequest(
 			rpcRequest(
 				{ jsonrpc: "2.0", id: 1, method: "ping" },
 				{ url: "http://evil.example/mcp" },
@@ -288,13 +290,13 @@ describe("Birdclaw MCP HTTP server", () => {
 	it("enforces exact browser origin, path, and query", async () => {
 		for (const options of [
 			{ origin: "https://evil.example" },
-			{ url: "http://mcp.birdclaw.test/mcp/" },
-			{ url: "http://mcp.birdclaw.test/mcp?debug=1" },
-			{ url: "http://mcp.birdclaw.test/mcp?" },
-			{ url: "http://mcp.birdclaw.test/mcp#" },
-			{ url: "http://mcp.birdclaw.test/mcp?#" },
+			{ url: "http://mcp.neo-archive.test/mcp/" },
+			{ url: "http://mcp.neo-archive.test/mcp?debug=1" },
+			{ url: "http://mcp.neo-archive.test/mcp?" },
+			{ url: "http://mcp.neo-archive.test/mcp#" },
+			{ url: "http://mcp.neo-archive.test/mcp?#" },
 		]) {
-			const response = await handleBirdclawMcpRequest(
+			const response = await handleNeoArchiveMcpRequest(
 				rpcRequest({ jsonrpc: "2.0", id: 1, method: "ping" }, options),
 				runtime,
 				loopbackContext,
@@ -302,10 +304,10 @@ describe("Birdclaw MCP HTTP server", () => {
 			expect(response.status).toBe(403);
 		}
 
-		const sameOrigin = await handleBirdclawMcpRequest(
+		const sameOrigin = await handleNeoArchiveMcpRequest(
 			rpcRequest(
 				{ jsonrpc: "2.0", id: 1, method: "ping" },
-				{ origin: "https://mcp.birdclaw.test" },
+				{ origin: "https://mcp.neo-archive.test" },
 			),
 			runtime,
 			loopbackContext,
@@ -314,11 +316,11 @@ describe("Birdclaw MCP HTTP server", () => {
 	});
 
 	it("rejects methods, misleading media, oversized bodies, batches, and malformed JSON", async () => {
-		const get = await handleBirdclawMcpRequest(
-			new Request("http://mcp.birdclaw.test/mcp", {
+		const get = await handleNeoArchiveMcpRequest(
+			new Request("http://mcp.neo-archive.test/mcp", {
 				headers: {
 					authorization: `Bearer ${token}`,
-					host: "mcp.birdclaw.test",
+					host: "mcp.neo-archive.test",
 				},
 			}),
 			runtime,
@@ -327,21 +329,21 @@ describe("Birdclaw MCP HTTP server", () => {
 		expect(get.status).toBe(405);
 		expect(get.headers.get("allow")).toBe("POST");
 
-		const mediaType = await handleBirdclawMcpRequest(
+		const mediaType = await handleNeoArchiveMcpRequest(
 			rpcRequest("{}", { contentType: "text/application/jsontext" }),
 			runtime,
 			loopbackContext,
 		);
 		expect(mediaType.status).toBe(415);
 
-		const oversized = await handleBirdclawMcpRequest(
+		const oversized = await handleNeoArchiveMcpRequest(
 			rpcRequest("x".repeat(64 * 1024 + 1)),
 			runtime,
 			loopbackContext,
 		);
 		expect(oversized.status).toBe(413);
 
-		const batch = await handleBirdclawMcpRequest(
+		const batch = await handleNeoArchiveMcpRequest(
 			rpcRequest([
 				{ jsonrpc: "2.0", id: 1, method: "ping" },
 				{ jsonrpc: "2.0", id: 2, method: "ping" },
@@ -355,7 +357,7 @@ describe("Birdclaw MCP HTTP server", () => {
 		).toBe(-32600);
 
 		for (const primitive of [null, "request", 42, true]) {
-			const invalidRequest = await handleBirdclawMcpRequest(
+			const invalidRequest = await handleNeoArchiveMcpRequest(
 				rpcRequest(JSON.stringify(primitive)),
 				runtime,
 				loopbackContext,
@@ -367,7 +369,7 @@ describe("Birdclaw MCP HTTP server", () => {
 			).toBe(-32600);
 		}
 
-		const malformed = await handleBirdclawMcpRequest(
+		const malformed = await handleNeoArchiveMcpRequest(
 			rpcRequest("{"),
 			runtime,
 			loopbackContext,
@@ -402,12 +404,12 @@ describe("Birdclaw MCP HTTP server", () => {
 
 	it("rate-limits every authenticated method", async () => {
 		for (let index = 0; index < 20; index += 1) {
-			const response = await handleBirdclawMcpRequest(
-				new Request("http://mcp.birdclaw.test/mcp", {
+			const response = await handleNeoArchiveMcpRequest(
+				new Request("http://mcp.neo-archive.test/mcp", {
 					method: "GET",
 					headers: {
 						authorization: `Bearer ${token}`,
-						host: "mcp.birdclaw.test",
+						host: "mcp.neo-archive.test",
 					},
 				}),
 				runtime,
@@ -415,7 +417,7 @@ describe("Birdclaw MCP HTTP server", () => {
 			);
 			expect(response.status).toBe(405);
 		}
-		const limited = await handleBirdclawMcpRequest(
+		const limited = await handleNeoArchiveMcpRequest(
 			rpcRequest({ jsonrpc: "2.0", id: 21, method: "ping" }),
 			runtime,
 			loopbackContext,
@@ -427,7 +429,7 @@ describe("Birdclaw MCP HTTP server", () => {
 	it("holds four concurrency leases through response delivery", async () => {
 		const held = await Promise.all(
 			Array.from({ length: 4 }, (_, index) =>
-				handleBirdclawMcpExchange(
+				handleNeoArchiveMcpExchange(
 					rpcRequest({ jsonrpc: "2.0", id: index, method: "ping" }),
 					runtime,
 					loopbackContext,
@@ -438,7 +440,7 @@ describe("Birdclaw MCP HTTP server", () => {
 			200, 200, 200, 200,
 		]);
 
-		const fifth = await handleBirdclawMcpExchange(
+		const fifth = await handleNeoArchiveMcpExchange(
 			rpcRequest({ jsonrpc: "2.0", id: 5, method: "ping" }),
 			runtime,
 			loopbackContext,
@@ -447,7 +449,7 @@ describe("Birdclaw MCP HTTP server", () => {
 		fifth.finalize();
 
 		held[0]?.finalize();
-		const recovered = await handleBirdclawMcpExchange(
+		const recovered = await handleNeoArchiveMcpExchange(
 			rpcRequest({ jsonrpc: "2.0", id: 6, method: "ping" }),
 			runtime,
 			loopbackContext,
@@ -467,12 +469,12 @@ describe("Birdclaw MCP HTTP server", () => {
 				cancelled = true;
 			},
 		});
-		const request = new Request("http://mcp.birdclaw.test/mcp", {
+		const request = new Request("http://mcp.neo-archive.test/mcp", {
 			method: "POST",
 			headers: {
 				authorization: `Bearer ${token}`,
 				"content-type": "application/json",
-				host: "mcp.birdclaw.test",
+				host: "mcp.neo-archive.test",
 			},
 			body,
 			duplex: "half",
@@ -488,7 +490,7 @@ describe("Birdclaw MCP HTTP server", () => {
 		expect(cancelled).toBe(true);
 		exchange.finalize();
 
-		const next = await handleBirdclawMcpRequest(
+		const next = await handleNeoArchiveMcpRequest(
 			rpcRequest({ jsonrpc: "2.0", id: 1, method: "ping" }),
 			runtime,
 			loopbackContext,
@@ -535,8 +537,8 @@ describe("Birdclaw MCP HTTP server", () => {
 		const fetchImpl: typeof fetch = async (input, init) => {
 			const incoming = new Request(input, init);
 			const headers = new Headers(incoming.headers);
-			headers.set("host", "mcp.birdclaw.test");
-			const response = await handleBirdclawMcpRequest(
+			headers.set("host", "mcp.neo-archive.test");
+			const response = await handleNeoArchiveMcpRequest(
 				new Request(incoming, { headers }),
 				runtime,
 				loopbackContext,
@@ -548,12 +550,12 @@ describe("Birdclaw MCP HTTP server", () => {
 			fetch: fetchImpl,
 			requestInit: { headers: { authorization: `Bearer ${token}` } },
 		});
-		const client = new Client({ name: "birdclaw-test", version: "1.0.0" });
+		const client = new Client({ name: "neo-archive-test", version: "1.0.0" });
 
 		try {
 			await client.connect(transport);
 			expect(client.getServerVersion()).toEqual({
-				name: "birdclaw",
+				name: "neo-archive",
 				version: runtime.serverVersion,
 			});
 			expect(client.getServerCapabilities()?.tools?.listChanged).toBe(false);
@@ -598,7 +600,7 @@ describe("Birdclaw MCP HTTP server", () => {
 			},
 		});
 		expect((result.body.result as { isError: boolean }).isError).toBe(true);
-		expect(existsSync(path.join(tempHome, "birdclaw.sqlite"))).toBe(false);
+		expect(existsSync(path.join(tempHome, "neo-archive.sqlite"))).toBe(false);
 		expect(getDatabaseRuntimeMetrics().connections.writeStatements).toBe(0);
 	});
 

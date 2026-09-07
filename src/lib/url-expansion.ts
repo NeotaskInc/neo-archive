@@ -100,7 +100,7 @@ function fetchExpansionEffect(
 ): Effect.Effect<CachedUrlExpansion, never> {
 	const requestInit = {
 		redirect: "manual",
-		headers: { "user-agent": "birdclaw/0.3 url-expander" },
+		headers: { "user-agent": "neo-archive/0.3 url-expander" },
 		signal: AbortSignal.timeout(timeoutMs),
 	} satisfies RequestInit;
 

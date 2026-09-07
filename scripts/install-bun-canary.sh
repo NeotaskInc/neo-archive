@@ -7,7 +7,7 @@ root=$(dirname "$script_dir")
 . "$root/toolchains/bun-canary.conf"
 
 fail() {
-	printf 'birdclaw Bun install: %s\n' "$*" >&2
+	printf 'neo-archive Bun install: %s\n' "$*" >&2
 	exit 1
 }
 
@@ -52,7 +52,7 @@ case "$(uname -s)-$(uname -m)" in
 		;;
 esac
 
-install_root=${BIRDCLAW_BUN_INSTALL_ROOT:-"$root/.toolchains/bun/$BUN_CANARY_SOURCE_SHA"}
+install_root=${NEO_ARCHIVE_BUN_INSTALL_ROOT:-"$root/.toolchains/bun/$BUN_CANARY_SOURCE_SHA"}
 binary="$install_root/bin/bun"
 if [ -e "$binary" ]; then
 	verify_binary "$binary" "$binary_sha"
@@ -61,30 +61,30 @@ if [ -e "$binary" ]; then
 fi
 
 command -v unzip >/dev/null 2>&1 || fail "unzip is required"
-temp_dir=$(mktemp -d "${TMPDIR:-/tmp}/birdclaw-bun-canary.XXXXXX")
+temp_dir=$(mktemp -d "${TMPDIR:-/tmp}/neo-archive-bun-canary.XXXXXX")
 cleanup() {
 	rm -rf "$temp_dir"
 }
 trap cleanup EXIT HUP INT TERM
 archive="$temp_dir/$asset_name"
 
-if [ -n "${BIRDCLAW_BUN_ARCHIVE:-}" ]; then
-	case "$BIRDCLAW_BUN_ARCHIVE" in
+if [ -n "${NEO_ARCHIVE_BUN_ARCHIVE:-}" ]; then
+	case "$NEO_ARCHIVE_BUN_ARCHIVE" in
 		http://*|https://*)
 			command -v curl >/dev/null 2>&1 || fail "curl is required"
-			curl -fsSL --retry 3 --retry-delay 2 "$BIRDCLAW_BUN_ARCHIVE" -o "$archive"
+			curl -fsSL --retry 3 --retry-delay 2 "$NEO_ARCHIVE_BUN_ARCHIVE" -o "$archive"
 			;;
 		*)
-			[ -f "$BIRDCLAW_BUN_ARCHIVE" ] ||
-				fail "archive does not exist: $BIRDCLAW_BUN_ARCHIVE"
-			cp "$BIRDCLAW_BUN_ARCHIVE" "$archive"
+			[ -f "$NEO_ARCHIVE_BUN_ARCHIVE" ] ||
+				fail "archive does not exist: $NEO_ARCHIVE_BUN_ARCHIVE"
+			cp "$NEO_ARCHIVE_BUN_ARCHIVE" "$archive"
 			;;
 	esac
 else
 	command -v curl >/dev/null 2>&1 || fail "curl is required"
-	download_url=${BIRDCLAW_BUN_DOWNLOAD_URL:-$artifact_url}
+	download_url=${NEO_ARCHIVE_BUN_DOWNLOAD_URL:-$artifact_url}
 	if ! curl -fsSL --retry 3 --retry-delay 2 "$download_url" -o "$archive"; then
-		fail "could not download the pinned Buildkite artifact; set BIRDCLAW_BUN_ARCHIVE to a cached copy"
+		fail "could not download the pinned Buildkite artifact; set NEO_ARCHIVE_BUN_ARCHIVE to a cached copy"
 	fi
 fi
 

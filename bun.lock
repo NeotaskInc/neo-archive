@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "birdclaw",
+      "name": "neo-archive",
       "dependencies": {
         "@modelcontextprotocol/sdk": "^1.30.0",
         "@tanstack/react-query": "^5.102.8",

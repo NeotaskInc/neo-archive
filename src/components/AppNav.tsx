@@ -35,7 +35,7 @@ import {
 	sidebarShellClass,
 } from "#/lib/ui";
 import { AccountSwitcher } from "./AccountSwitcher";
-import { BirdclawMark } from "./BrandMark";
+import { NeoArchiveMark } from "./BrandMark";
 import { ThemeSlider } from "./ThemeSlider";
 
 const links = [
@@ -65,14 +65,14 @@ export function AppNav({ compact = false }: { compact?: boolean }) {
 			<div className="flex flex-col">
 				<Link to="/" className={sidebarBrandClass}>
 					<span className={sidebarBrandMarkClass}>
-						<BirdclawMark className="size-10" />
+						<NeoArchiveMark className="size-10" />
 					</span>
 					<span
 						className={
 							compact ? sidebarBrandCopyCompactClass : sidebarBrandCopyClass
 						}
 					>
-						<span className={sidebarBrandTitleClass}>birdclaw</span>
+						<span className={sidebarBrandTitleClass}>Neo Archive</span>
 						<span className={sidebarBrandTaglineClass}>
 							Fast search for your archive.
 						</span>

@@ -182,7 +182,10 @@ describe("SavedTimelineView", () => {
 	});
 
 	it("uses a stored account immediately while status is pending", async () => {
-		window.localStorage.setItem("birdclaw:selected-account-id", "acct_primary");
+		window.localStorage.setItem(
+			"neo-archive:selected-account-id",
+			"acct_primary",
+		);
 		const queryUrls: URL[] = [];
 		let resolveStatus!: (response: Response) => void;
 		const statusResponse = new Promise<Response>((resolve) => {

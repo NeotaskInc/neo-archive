@@ -5,8 +5,8 @@ test.beforeEach(async ({ context, baseURL }) => {
 	if (!baseURL) throw new Error("Playwright baseURL is required");
 	await context.addCookies([
 		{
-			name: "birdclaw_token",
-			value: "birdclaw-e2e-token",
+			name: "neo_archive_token",
+			value: "neo-archive-e2e-token",
 			url: baseURL,
 		},
 	]);
@@ -56,7 +56,7 @@ test("navigates across the primary surfaces", async ({ page }) => {
 		page.getByRole("button", { name: "Sync timeline" }),
 	).toBeVisible();
 	await expect(
-		page.locator('img[src="/birdclaw-mark.png"]').first(),
+		page.locator('img[src="/neo-archive-mark.png"]').first(),
 	).toBeVisible();
 
 	await page.getByRole("link", { name: "Mentions" }).click();
@@ -132,7 +132,7 @@ test("filters the home timeline by reply state", async ({ page }) => {
 	await expect(page.getByLabel("Reply open").first()).toBeVisible();
 });
 
-test("shows the animated Birdclaw mark while the timeline loads", async ({
+test("shows the animated Neo Archive mark while the timeline loads", async ({
 	page,
 }) => {
 	await page.route("**/api/query**", async (route) => {
@@ -144,7 +144,7 @@ test("shows the animated Birdclaw mark while the timeline loads", async ({
 
 	await expect(page.getByText("Loading posts")).toBeVisible();
 	await expect(
-		page.locator('.birdclaw-mark-animated img[src="/birdclaw-mark.png"]'),
+		page.locator('.neo-archive-mark-animated img[src="/neo-archive-mark.png"]'),
 	).toBeVisible();
 	await expect(page.locator('[data-perf="tweet-skeleton-row"]')).toHaveCount(4);
 	await expect(page.getByText("No posts to show")).toHaveCount(0);
@@ -169,7 +169,7 @@ test("expands timeline cards with media, quote context, and profile hover", asyn
 		),
 	).toBeVisible();
 
-	await selectAccount(page, "@birdclaw_lab");
+	await selectAccount(page, "@neo_archive_lab");
 	const quoteCard = page.locator('[data-perf="timeline-card"]').filter({
 		hasText: "Agents need retrieval surfaces",
 	});

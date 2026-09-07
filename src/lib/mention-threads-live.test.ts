@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { Effect } from "effect";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { resetBirdclawPathsForTests } from "./config";
+import { resetNeoArchivePathsForTests } from "./config";
 import { getNativeDb, resetDatabaseForTests } from "./db";
 import { listTimelineItems } from "./timeline-read-model";
 
@@ -32,10 +32,10 @@ vi.mock("./xurl", async () => {
 const tempRoots: string[] = [];
 
 function setupTempHome() {
-	const tempRoot = mkdtempSync(path.join(os.tmpdir(), "birdclaw-threads-"));
+	const tempRoot = mkdtempSync(path.join(os.tmpdir(), "neo-archive-threads-"));
 	tempRoots.push(tempRoot);
-	process.env.BIRDCLAW_HOME = tempRoot;
-	resetBirdclawPathsForTests();
+	process.env.NEO_ARCHIVE_HOME = tempRoot;
+	resetNeoArchivePathsForTests();
 	resetDatabaseForTests();
 	const db = getNativeDb();
 	db.exec(
@@ -95,8 +95,8 @@ function upsertMentionEdge(
 
 afterEach(() => {
 	resetDatabaseForTests();
-	resetBirdclawPathsForTests();
-	delete process.env.BIRDCLAW_HOME;
+	resetNeoArchivePathsForTests();
+	delete process.env.NEO_ARCHIVE_HOME;
 	mocks.listThreadViaBird.mockReset();
 	mocks.searchRecentByConversationId.mockReset();
 	mocks.getTweetById.mockReset();

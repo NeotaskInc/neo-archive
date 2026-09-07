@@ -3,16 +3,16 @@ import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { resetBirdclawPathsForTests } from "./config";
+import { resetNeoArchivePathsForTests } from "./config";
 import { getNativeDb, resetDatabaseForTests } from "./db";
 
 const tempRoots: string[] = [];
 
 function setupTempHome() {
-	const tempRoot = mkdtempSync(path.join(os.tmpdir(), "birdclaw-research-"));
+	const tempRoot = mkdtempSync(path.join(os.tmpdir(), "neo-archive-research-"));
 	tempRoots.push(tempRoot);
-	process.env.BIRDCLAW_HOME = tempRoot;
-	resetBirdclawPathsForTests();
+	process.env.NEO_ARCHIVE_HOME = tempRoot;
+	resetNeoArchivePathsForTests();
 	resetDatabaseForTests();
 	return tempRoot;
 }
@@ -96,8 +96,8 @@ function seedResearchThread() {
 			urls: [
 				{
 					url: "https://t.co/demo",
-					expanded_url: "https://github.com/steipete/birdclaw",
-					display_url: "github.com/steipete/birdclaw",
+					expanded_url: "https://github.com/NeotaskInc/neo-archive",
+					display_url: "github.com/NeotaskInc/neo-archive",
 					start: 6,
 					end: 23,
 				},
@@ -158,8 +158,8 @@ describe("research mode", () => {
 
 	afterEach(() => {
 		resetDatabaseForTests();
-		resetBirdclawPathsForTests();
-		delete process.env.BIRDCLAW_HOME;
+		resetNeoArchivePathsForTests();
+		delete process.env.NEO_ARCHIVE_HOME;
 
 		for (const tempRoot of tempRoots.splice(0)) {
 			rmSync(tempRoot, { recursive: true, force: true });
@@ -184,12 +184,12 @@ describe("research mode", () => {
 			"tweet_reply_3",
 		]);
 		expect(report.items[0]?.links).toContain(
-			"https://github.com/steipete/birdclaw",
+			"https://github.com/NeotaskInc/neo-archive",
 		);
 		expect(report.items[0]?.handles).toContain("@researchlee");
-		expect(report.markdown).toContain("# Birdclaw Research");
+		expect(report.markdown).toContain("# Neo Archive Research");
 		expect(report.markdown).toContain("tweet_reply_2");
-		expect(report.markdown).toContain("github.com/steipete/birdclaw");
+		expect(report.markdown).toContain("github.com/NeotaskInc/neo-archive");
 		expect(report.markdown.indexOf("Follow-up with details")).toBeLessThan(
 			report.markdown.indexOf("Another branch"),
 		);
@@ -237,7 +237,10 @@ describe("research mode", () => {
 
 	it("writes the markdown brief to disk when requested", async () => {
 		const { runResearchMode } = await import("./research");
-		const outputPath = path.join(process.env.BIRDCLAW_HOME ?? "", "brief.md");
+		const outputPath = path.join(
+			process.env.NEO_ARCHIVE_HOME ?? "",
+			"brief.md",
+		);
 
 		const report = await runResearchMode({
 			account: "acct_research",
@@ -247,15 +250,15 @@ describe("research mode", () => {
 		});
 
 		expect(report.seedCount).toBe(1);
-		expect(report.markdown).toContain("Birdclaw Research");
-		expect(readFileSync(outputPath, "utf8")).toContain("Birdclaw Research");
+		expect(report.markdown).toContain("Neo Archive Research");
+		expect(readFileSync(outputPath, "utf8")).toContain("Neo Archive Research");
 	});
 
 	it("builds research reports lazily as Effect programs", async () => {
 		const { runEffectPromise } = await import("./effect-runtime");
 		const { runResearchModeEffect } = await import("./research");
 		const outputPath = path.join(
-			process.env.BIRDCLAW_HOME ?? "",
+			process.env.NEO_ARCHIVE_HOME ?? "",
 			"lazy-brief.md",
 		);
 
@@ -269,7 +272,7 @@ describe("research mode", () => {
 		expect(existsSync(outputPath)).toBe(false);
 		const report = await runEffectPromise(effect);
 		expect(report.seedCount).toBe(1);
-		expect(readFileSync(outputPath, "utf8")).toContain("Birdclaw Research");
+		expect(readFileSync(outputPath, "utf8")).toContain("Neo Archive Research");
 	});
 
 	it("normalizes research helper edge cases", async () => {

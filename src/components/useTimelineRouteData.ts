@@ -65,7 +65,7 @@ function buildTimelineQueryUrl({
 	params.sort();
 	const base =
 		typeof window === "undefined"
-			? "http://birdclaw.local"
+			? "http://neo-archive.local"
 			: window.location.origin;
 	return new URL(`/api/query?${params.toString()}`, base).toString();
 }

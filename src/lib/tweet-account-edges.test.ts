@@ -3,24 +3,24 @@ import { mkdtempSync, rmSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { resetBirdclawPathsForTests } from "./config";
+import { resetNeoArchivePathsForTests } from "./config";
 import { getNativeDb, resetDatabaseForTests } from "./db";
 import { upsertTweetAccountEdge } from "./tweet-account-edges";
 
 const tempDirs: string[] = [];
 
 function makeTempHome() {
-	const tempDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-edge-"));
+	const tempDir = mkdtempSync(path.join(os.tmpdir(), "neo-archive-edge-"));
 	tempDirs.push(tempDir);
-	process.env.BIRDCLAW_HOME = tempDir;
-	resetBirdclawPathsForTests();
+	process.env.NEO_ARCHIVE_HOME = tempDir;
+	resetNeoArchivePathsForTests();
 	resetDatabaseForTests();
 }
 
 afterEach(() => {
 	resetDatabaseForTests();
-	resetBirdclawPathsForTests();
-	delete process.env.BIRDCLAW_HOME;
+	resetNeoArchivePathsForTests();
+	delete process.env.NEO_ARCHIVE_HOME;
 
 	for (const dir of tempDirs.splice(0)) {
 		rmSync(dir, { recursive: true, force: true });

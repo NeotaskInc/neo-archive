@@ -381,7 +381,7 @@ export function upsertSparseProfileFromXUser(
 		const placeholderDisplayName =
 			!current.display_name ||
 			current.display_name === current.handle ||
-			current.display_name.startsWith("birdclaw_stub_");
+			current.display_name.startsWith("neo_archive_stub_");
 		const displayName =
 			incomingName && (username || placeholderDisplayName)
 				? incomingName

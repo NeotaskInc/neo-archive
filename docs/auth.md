@@ -1,18 +1,18 @@
 ---
 title: Sign in
-description: "Connect birdclaw to X through xurl or bird, verify each tool, and choose the moderation write transport."
+description: "Connect neo-archive to X through xurl or bird, verify each tool, and choose the moderation write transport."
 ---
 
 # Sign in
 
-birdclaw keeps its database local. Archive import needs no X credentials. Live reads and writes are delegated to external CLIs:
+neo-archive keeps its database local. Archive import needs no X credentials. Live reads and writes are delegated to external CLIs:
 
 - [`xurl`](https://github.com/xdevplatform/xurl) is the recommended setup for new users and uses the official X API with your own developer app.
 - Existing private `bird` installations remain supported for cookie-backed workflows and compatibility fallback.
 
 Install xurl for a new live-transport setup. Transport selection is workflow-specific: sync commands expose `--mode`, while `auth use` only controls moderation writes such as block, unblock, mute, and unmute.
 
-On a fresh Birdclaw database, import your X archive before the first live sync. Archive import establishes your real account identity; `init --demo` creates only synthetic sample data. The current auth commands verify transports but do not bind a new database to the authenticated X account.
+On a fresh Neo Archive database, import your X archive before the first live sync. Archive import establishes your real account identity; `init --demo` creates only synthetic sample data. The current auth commands verify transports but do not bind a new database to the authenticated X account.
 
 ## Set up xurl
 
@@ -33,7 +33,7 @@ Alternatively, use xurl's [no-sudo install script](https://github.com/xdevplatfo
 
 ## Existing bird installations
 
-Birdclaw preserves compatibility with existing private bird installations, but bird is not a public setup path for new users. If bird is already installed and authenticated, verify the detected account:
+Neo Archive preserves compatibility with existing private bird installations, but bird is not a public setup path for new users. If bird is already installed and authenticated, verify the detected account:
 
 ```text
 bird whoami
@@ -41,10 +41,10 @@ bird whoami
 
 Existing bird configurations continue to provide cookie-backed fallback for supported reads and writes.
 
-## Verify xurl in birdclaw
+## Verify xurl in neo-archive
 
 ```text
-birdclaw auth status --json
+neo-archive auth status --json
 ```
 
 `auth status` runs a coarse xurl status probe. It does not probe bird, prove that a specific X API request will succeed, or choose a transport for every command.
@@ -61,38 +61,38 @@ Use `xurl whoami` as the end-to-end authentication check. Run `xurl auth status`
 Persist the preferred transport for block, unblock, mute, and unmute:
 
 ```text
-birdclaw auth use auto
-birdclaw auth use bird
-birdclaw auth use xurl
+neo-archive auth use auto
+neo-archive auth use bird
+neo-archive auth use xurl
 ```
 
-`auto` tries bird first for moderation writes, then xurl. A command-level `--transport` flag overrides the saved value. `BIRDCLAW_ACTIONS_TRANSPORT` overrides the config for one process.
+`auto` tries bird first for moderation writes, then xurl. A command-level `--transport` flag overrides the saved value. `NEO_ARCHIVE_ACTIONS_TRANSPORT` overrides the config for one process.
 
 Sync commands do not use this saved moderation setting. Select their source with the command's `--mode` flag:
 
 ```text
-birdclaw sync timeline --mode auto
-birdclaw sync mentions --mode bird
-birdclaw sync likes --mode xurl
+neo-archive sync timeline --mode auto
+neo-archive sync mentions --mode bird
+neo-archive sync likes --mode xurl
 ```
 
-Select an existing Birdclaw account per operation with its username or stored ID:
+Select an existing Neo Archive account per operation with its username or stored ID:
 
 ```text
-birdclaw sync timeline --account steipete --mode xurl
-birdclaw import hydrate-profiles --account @steipete
-birdclaw profiles replies @someone --account steipete
+neo-archive sync timeline --account steipete --mode xurl
+neo-archive import hydrate-profiles --account @steipete
+neo-archive profiles replies @someone --account steipete
 ```
 
-With xurl, Birdclaw routes that invocation to the matching named OAuth2 account. With Bird, Birdclaw cannot switch cookie jars itself and instead refuses the operation when `bird whoami` does not match. Put `{"accounts":{"default":"steipete"}}` in `config.json` to omit the repeated flag. This selects an existing row only; it does not change the database default or persist credential identity.
+With xurl, Neo Archive routes that invocation to the matching named OAuth2 account. With Bird, Neo Archive cannot switch cookie jars itself and instead refuses the operation when `bird whoami` does not match. Put `{"accounts":{"default":"steipete"}}` in `config.json` to omit the repeated flag. This selects an existing row only; it does not change the database default or persist credential identity.
 
-Supported modes differ by command; use `birdclaw sync <command> --help`.
+Supported modes differ by command; use `neo-archive sync <command> --help`.
 
 ## Security
 
 - xurl stores developer-app credentials and OAuth tokens under `~/.xurl`.
 - bird uses browser session cookies. Treat `auth_token` and `ct0` as full account credentials.
 - Use archive-only mode when live access is unnecessary.
-- Set `BIRDCLAW_DISABLE_LIVE_WRITES=1` for development or dry runs.
+- Set `NEO_ARCHIVE_DISABLE_LIVE_WRITES=1` for development or dry runs.
 
-For multiple Birdclaw accounts, use `--account <username>` or a stored account ID on commands that support it. See [Configuration](configuration.md#multi-account).
+For multiple Neo Archive accounts, use `--account <username>` or a stored account ID on commands that support it. See [Configuration](configuration.md#multi-account).

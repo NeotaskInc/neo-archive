@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
-import { createBirdclawQueryClient, queryKeys } from "./query-client";
+import { createNeoArchiveQueryClient, queryKeys } from "./query-client";
 
 describe("query client", () => {
 	it("deduplicates concurrent requests and retains fresh data", async () => {
-		const queryClient = createBirdclawQueryClient();
+		const queryClient = createNeoArchiveQueryClient();
 		const queryFn = vi.fn(async () => ({ home: 42 }));
 
 		const [first, second] = await Promise.all([
@@ -22,7 +22,7 @@ describe("query client", () => {
 	});
 
 	it("invalidates a query family without evicting unrelated data", async () => {
-		const queryClient = createBirdclawQueryClient();
+		const queryClient = createNeoArchiveQueryClient();
 		queryClient.setQueryData([...queryKeys.timelines, { resource: "home" }], {
 			pages: [],
 		});

@@ -12,18 +12,18 @@ import {
 
 describe("test home", () => {
 	it("owns environment, database resets, home switches, and cleanup", async () => {
-		const previousHome = process.env.BIRDCLAW_HOME;
-		const previousSentinel = process.env.BIRDCLAW_TEST_SENTINEL;
+		const previousHome = process.env.NEO_ARCHIVE_HOME;
+		const previousSentinel = process.env.NEO_ARCHIVE_TEST_SENTINEL;
 		const roots: string[] = [];
 
 		await withTestHome(async (home) => {
-			process.env.BIRDCLAW_TEST_SENTINEL = "changed";
+			process.env.NEO_ARCHIVE_TEST_SENTINEL = "changed";
 			roots.push(home.root);
-			expect(process.env.BIRDCLAW_HOME).toBe(home.root);
+			expect(process.env.NEO_ARCHIVE_HOME).toBe(home.root);
 			expect(home.paths.rootDir).toBe(home.root);
 			home.db.exec("create table fixture_marker (value text)");
 
-			home.switchHome("birdclaw-test-switched-");
+			home.switchHome("neo-archive-test-switched-");
 			roots.push(home.root);
 			expect(home.paths.rootDir).toBe(home.root);
 			expect(
@@ -35,8 +35,8 @@ describe("test home", () => {
 			).toEqual({ count: 0 });
 		});
 
-		expect(process.env.BIRDCLAW_HOME).toBe(previousHome);
-		expect(process.env.BIRDCLAW_TEST_SENTINEL).toBe(previousSentinel);
+		expect(process.env.NEO_ARCHIVE_HOME).toBe(previousHome);
+		expect(process.env.NEO_ARCHIVE_TEST_SENTINEL).toBe(previousSentinel);
 		for (const root of roots) expect(existsSync(root)).toBe(false);
 	});
 

@@ -5,7 +5,7 @@ import {
 	maybeAutoSyncBackupEffect,
 	type BackupAutoUpdateResult,
 } from "./backup";
-import { ensureBirdclawDirs, getBirdclawPaths } from "./config";
+import { ensureNeoArchiveDirs, getNeoArchivePaths } from "./config";
 import { getNativeDb } from "./db";
 import { runEffectPromise, trySync } from "./effect-runtime";
 import {
@@ -28,7 +28,7 @@ import {
 const DEFAULT_BOOKMARK_SYNC_INTERVAL_SECONDS = 3 * 60 * 60;
 const DEFAULT_BOOKMARK_SYNC_LIMIT = 100;
 const DEFAULT_BOOKMARK_SYNC_MAX_PAGES = 5;
-const DEFAULT_LAUNCHD_LABEL = "com.steipete.birdclaw.bookmarks-sync";
+const DEFAULT_LAUNCHD_LABEL = "com.neotask.neo-archive.bookmarks-sync";
 const DEFAULT_LOCK_STALE_MS = 6 * 60 * 60 * 1000;
 
 export interface BookmarkSyncJobOptions {
@@ -102,11 +102,19 @@ export interface BookmarkSyncLaunchAgentOptions {
 export interface BookmarkSyncLaunchAgentInstallResult extends LaunchAgentInstallResult {}
 
 export function getDefaultBookmarkSyncAuditLogPath() {
-	return path.join(getBirdclawPaths().rootDir, "audit", "bookmarks-sync.jsonl");
+	return path.join(
+		getNeoArchivePaths().rootDir,
+		"audit",
+		"bookmarks-sync.jsonl",
+	);
 }
 
 export function getDefaultBookmarkSyncLockPath() {
-	return path.join(getBirdclawPaths().rootDir, "locks", "bookmarks-sync.lock");
+	return path.join(
+		getNeoArchivePaths().rootDir,
+		"locks",
+		"bookmarks-sync.lock",
+	);
 }
 
 function countBookmarks(db: Database) {
@@ -136,7 +144,7 @@ export function runBookmarkSyncJobEffect({
 	unknown
 > {
 	return Effect.gen(function* () {
-		yield* trySync(() => ensureBirdclawDirs());
+		yield* trySync(() => ensureNeoArchiveDirs());
 		const database =
 			db ?? (yield* trySync(() => getNativeDb({ seedDemoData: false })));
 		const resolvedLogPath = yield* trySync(() =>
@@ -242,7 +250,7 @@ export function runBookmarkSyncJob(
 }
 
 function buildProgramArguments({
-	program = "birdclaw",
+	program = "neo-archive",
 	runtime,
 	runtimeArgs,
 	account,
@@ -301,11 +309,11 @@ export function buildBookmarkSyncLaunchAgentPlist(
 	);
 	const stdoutPath = resolveUserPath(
 		options.stdoutPath ??
-			path.join(getBirdclawPaths().rootDir, "logs", "bookmarks-sync.out.log"),
+			path.join(getNeoArchivePaths().rootDir, "logs", "bookmarks-sync.out.log"),
 	);
 	const stderrPath = resolveUserPath(
 		options.stderrPath ??
-			path.join(getBirdclawPaths().rootDir, "logs", "bookmarks-sync.err.log"),
+			path.join(getNeoArchivePaths().rootDir, "logs", "bookmarks-sync.err.log"),
 	);
 	const programArguments = buildProgramArguments({ ...options, logPath });
 	return buildLaunchAgent({
@@ -323,7 +331,7 @@ export function installBookmarkSyncLaunchAgentEffect(
 	options: BookmarkSyncLaunchAgentOptions = {},
 ): Effect.Effect<BookmarkSyncLaunchAgentInstallResult, unknown> {
 	return Effect.gen(function* () {
-		yield* trySync(() => ensureBirdclawDirs());
+		yield* trySync(() => ensureNeoArchiveDirs());
 		const agent = yield* trySync(() =>
 			buildBookmarkSyncLaunchAgentPlist(options),
 		);

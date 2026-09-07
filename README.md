@@ -1,98 +1,63 @@
-# birdclaw 🪶 — Your Twitter history, with a longer memory
+# Neo Archive
 
-[![CI](https://img.shields.io/github/actions/workflow/status/steipete/birdclaw/ci.yml?branch=main&style=flat-square&label=ci)](https://github.com/steipete/birdclaw/actions/workflows/ci.yml)
-[![npm](https://img.shields.io/npm/v/birdclaw?style=flat-square)](https://www.npmjs.com/package/birdclaw)
-[![Node](https://img.shields.io/node/v/birdclaw?style=flat-square)](https://nodejs.org/)
-[![Bun source toolchain](https://img.shields.io/badge/Bun-1.4.0--canary.1-black?style=flat-square)](https://bun.sh/blog/bun-in-rust)
-[![License](https://img.shields.io/github/license/steipete/birdclaw?style=flat-square)](LICENSE)
-[![Homebrew](https://img.shields.io/badge/homebrew-steipete%2Ftap-blue?style=flat-square)](https://github.com/steipete/homebrew-tap)
-[![Docs](https://img.shields.io/badge/docs-birdclaw.sh-blue?style=flat-square)](https://birdclaw.sh)
+Neo Archive keeps X archives, bookmarks, likes, posts, and imported messages in a local searchable SQLite database. It is Neotask's fork of [Peter Steinberger's Birdclaw](https://github.com/steipete/birdclaw), adapted for multiaccount research and the developer Flywheel.
 
-Birdclaw imports Twitter/X archives into local SQLite, adds explicit cached live reads, and exposes the result through a web app, CLI, and optional read-only MCP server. It is for people who want their own searchable history, DMs, saved posts, and follow graph without a cloud backend.
+The command is `neo-archive`. Local data lives in `~/.neo-archive`, and the agent skill is named `neo-archive`. This repository contains source code; account archives and credentials stay outside it.
 
-![Birdclaw's local Home timeline populated with demo data](docs/birdclaw-app.png)
+## Local setup
 
-## Install
+Clone `NeotaskInc/neo-archive`, then run:
 
-Homebrew is the shortest path on macOS and Linux:
-
-```bash
-brew install steipete/tap/birdclaw
+```sh
+./scripts/bun-canary.sh install --frozen-lockfile
+./scripts/bun-canary.sh run --bun build
+python3 scripts/install-local.py
+neo-archive --json init
 ```
 
-The package is also published on npm:
+The checked-in installer verifies and uses a project-local Bun runtime. It does not change the system Node or Bun default. Node users can use the version range in `package.json` and the `*:node` scripts. Neo Archive installs from source (`private: true` in package metadata); no npm release is configured.
 
-```bash
-npm install -g birdclaw
+The local installer exposes the CLI in `~/.local/bin` and the rewritten developer skill to Codex and Claude. It refuses to overwrite another installation. Add that bin directory to PATH if needed. The runtime and source checkout must remain available at their installed paths.
+
+## Accounts and search
+
+Import each account's downloaded X archive to establish its local identity:
+
+```sh
+neo-archive import archive /path/to/first-account-archive.zip --account FIRST_HANDLE
+neo-archive import archive /path/to/second-account-archive.zip --account SECOND_HANDLE
+neo-archive --json db stats
 ```
 
-The npm and Homebrew installs retain the public Node.js `>=26.5.1 <27` contract. Source development uses one checksum-pinned Bun `1.4.0-canary.1` build and keeps Node as a tested compatibility lane. See the [installation guide](https://birdclaw.sh/install.html) for setup and the [Bun canary reference](https://birdclaw.sh/bun-canary.html) for exact checksums, constraints, and rollback boundaries.
+Use the [authentication guide](docs/auth.md) to register your X developer app with `xurl` and authorize each account. Confirm each selected identity before its first live sync. Archive import and live authentication are separate steps.
 
-## Quick start
-
-Create a self-contained demo, search it locally, then open the web app:
-
-```bash
-birdclaw init --demo
-birdclaw search tweets "local-first" --limit 3 --json
-birdclaw serve
+```sh
+neo-archive sync bookmarks --account HANDLE --mode xurl --all
+neo-archive sync likes --account HANDLE --mode xurl --all
+neo-archive --json search tweets "agent tools" --bookmarked --all-accounts
+neo-archive --json search tweets "agent tools" --liked --all-accounts
+neo-archive --json search dms "agent tools"
 ```
 
-Open <http://localhost:3000>. The demo seeds sample tweets, DMs, profiles, and links without credentials or network requests.
+`--all-accounts` overrides a configured default account for tweet search. Use `--account HANDLE` to narrow it. Search bookmarks and likes separately to match either collection; combining the flags requires both. All-account results deduplicate posts and show a representative matching account. Repeat a search for each account when you need every saving account's provenance.
 
-## Use your archive
+An X archive can contain likes or bookmark IDs without the post body. Live API access may fill those gaps, subject to X access and history limits. Local DM archive search works independently of live DM fetching; the inherited live DM transport currently requires a private `bird` installation. Search is SQLite full-text search.
 
-A Twitter/X archive establishes the account identity for a new real database and imports tweets, DMs, likes, bookmarks, profiles, media, and follow edges:
+## Ongoing sync
 
-```bash
-birdclaw import archive ~/Downloads/twitter-archive.zip --json
-```
+The existing `jobs sync-account` and `jobs install-account-launchd` commands can refresh bookmarks and likes for each account. Use a separate label per account, an explicit program path, `--mode xurl`, and `--steps bookmarks,likes`. Verify a manual run and agree on API use and cadence before loading a schedule. See [jobs](docs/jobs.md) for available limits and audit files.
 
-Imports are idempotent and merge destination-only rows by default. Selected re-imports and exact replacement are documented in [Archive import](https://birdclaw.sh/archive.html).
+Keep Git backup auto-sync disabled until a private archive destination is explicitly configured. Sharing this source repository does not share the local archive. Additional fleet machines install code and the skill; they need their own authorized account/data setup to search locally.
 
-Birdclaw stores its database, configuration, and media under `~/.birdclaw`. Set `BIRDCLAW_HOME` to use another root.
-
-## Add live data
-
-Archive and local search work without an X login. Live sync delegates to [`xurl`](https://github.com/xdevplatform/xurl) or an existing private `bird` installation and only runs when requested:
-
-```bash
-birdclaw sync timeline --limit 100 --refresh --json
-birdclaw sync bookmarks --mode auto --limit 100 --refresh --json
-```
-
-Import an archive before the first live sync on a new database. The [sign-in guide](https://birdclaw.sh/auth.html) explains xurl setup and transport selection; the [sync guide](https://birdclaw.sh/sync.html) covers caching, pagination, and rate limits.
-
-## Work locally
-
-SQLite is the canonical store. Archive imports and live transports converge on the same tables, and FTS5 powers local tweet and DM search.
-
-| Surface | What it provides | Guide |
-| --- | --- | --- |
-| Web app | Home, mentions, saved posts, DMs, inbox, moderation, and network views | [Quickstart](https://birdclaw.sh/quickstart.html) |
-| CLI | Search, sync, moderation, research, JSON output, and scheduled jobs | [CLI reference](https://birdclaw.sh/cli.html) |
-| Backup | Deterministic JSONL shards that round-trip through Git | [Backup](https://birdclaw.sh/backup.html) |
-| MCP | Read-only cached tweet search and thread tools behind a dedicated token | [MCP server](https://birdclaw.sh/mcp.html) |
-
-Local reads do not trigger network traffic by default. The web server listens on loopback, live writes can be disabled with `BIRDCLAW_DISABLE_LIVE_WRITES=1`, and the MCP endpoint remains off until its token and public URL are configured.
-
-## Configuration
-
-`~/.birdclaw/config.json` selects default accounts, transport preferences, mention sources, and backup behavior. Command flags override environment variables, which override the config file.
-
-See [Configuration](https://birdclaw.sh/configuration.html) for the complete file and environment reference. Product boundaries live in [VISION.md](VISION.md), and storage and transport details live in [Data and architecture](https://birdclaw.sh/data-architecture.html).
+An automatic selected-author watchlist is still pending. Cached X Lists filter stored posts and do not automatically archive each member's timeline. Electron and gateway product integration is also deferred.
 
 ## Development
 
-```bash
-./scripts/bun-canary.sh install --frozen-lockfile
+Use the workspace Flywheel guidance and [Neo Archive skill](.agents/skills/neo-archive/SKILL.md). Relevant checks:
+
+```sh
 ./scripts/bun-canary.sh run --bun check
-./scripts/bun-canary.sh run --bun test
-./scripts/bun-canary.sh run --bun build
+./scripts/bun-canary.sh run --bun test --maxWorkers=4
 ```
 
-The wrapper installs and verifies the exact Rust-port canary recorded in `toolchains/bun-canary.conf`; it refuses a newer rolling canary with a different checksum or revision. CI also runs Bun/Istanbul and Node/V8 coverage, dual-runtime installed-package smoke, and Playwright against the Bun production server.
-
-## License
-
-MIT. Created by [Peter Steinberger](https://github.com/steipete). Birdclaw is not affiliated with X Corp.
+Inherited documentation under `docs/` describes the existing command capabilities. Historical release notes and the MIT license retain upstream attribution. The inherited Pages and Homebrew publication jobs are restricted to the upstream repository; configure Neotask publication separately if needed.

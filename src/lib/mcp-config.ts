@@ -28,16 +28,16 @@ export function isLoopbackHostname(hostname: string) {
 export function readMcpConfig(
 	environment: McpEnvironment = process.env,
 ): McpConfigState {
-	const configuredMcpBearer = environment.BIRDCLAW_MCP_TOKEN;
-	const publicUrlValue = environment.BIRDCLAW_MCP_PUBLIC_URL;
-	const accountSelectorValue = environment.BIRDCLAW_MCP_ACCOUNT;
+	const configuredMcpBearer = environment.NEO_ARCHIVE_MCP_TOKEN;
+	const publicUrlValue = environment.NEO_ARCHIVE_MCP_PUBLIC_URL;
+	const accountSelectorValue = environment.NEO_ARCHIVE_MCP_ACCOUNT;
 
 	if (!configuredMcpBearer && !publicUrlValue) {
 		if (accountSelectorValue) {
 			return {
 				kind: "invalid",
 				message:
-					"BIRDCLAW_MCP_ACCOUNT requires BIRDCLAW_MCP_TOKEN and BIRDCLAW_MCP_PUBLIC_URL",
+					"NEO_ARCHIVE_MCP_ACCOUNT requires NEO_ARCHIVE_MCP_TOKEN and NEO_ARCHIVE_MCP_PUBLIC_URL",
 			};
 		}
 		return { kind: "disabled" };
@@ -45,13 +45,13 @@ export function readMcpConfig(
 	if (!configuredMcpBearer) {
 		return {
 			kind: "invalid",
-			message: "BIRDCLAW_MCP_TOKEN is required when MCP is configured",
+			message: "NEO_ARCHIVE_MCP_TOKEN is required when MCP is configured",
 		};
 	}
 	if (!publicUrlValue) {
 		return {
 			kind: "invalid",
-			message: "BIRDCLAW_MCP_PUBLIC_URL is required when MCP is configured",
+			message: "NEO_ARCHIVE_MCP_PUBLIC_URL is required when MCP is configured",
 		};
 	}
 	if (
@@ -62,14 +62,14 @@ export function readMcpConfig(
 		return {
 			kind: "invalid",
 			message:
-				"BIRDCLAW_MCP_TOKEN must be at least 32 bytes and use RFC 6750 bearer-token characters",
+				"NEO_ARCHIVE_MCP_TOKEN must be at least 32 bytes and use RFC 6750 bearer-token characters",
 		};
 	}
-	const webToken = environment.BIRDCLAW_WEB_TOKEN?.trim();
+	const webToken = environment.NEO_ARCHIVE_WEB_TOKEN?.trim();
 	if (webToken && webToken === configuredMcpBearer) {
 		return {
 			kind: "invalid",
-			message: "BIRDCLAW_MCP_TOKEN must differ from BIRDCLAW_WEB_TOKEN",
+			message: "NEO_ARCHIVE_MCP_TOKEN must differ from NEO_ARCHIVE_WEB_TOKEN",
 		};
 	}
 
@@ -79,7 +79,7 @@ export function readMcpConfig(
 	} catch {
 		return {
 			kind: "invalid",
-			message: "BIRDCLAW_MCP_PUBLIC_URL must be an absolute URL",
+			message: "NEO_ARCHIVE_MCP_PUBLIC_URL must be an absolute URL",
 		};
 	}
 	if (
@@ -94,7 +94,7 @@ export function readMcpConfig(
 		return {
 			kind: "invalid",
 			message:
-				"BIRDCLAW_MCP_PUBLIC_URL must use the exact /mcp path without credentials, query, or fragment",
+				"NEO_ARCHIVE_MCP_PUBLIC_URL must use the exact /mcp path without credentials, query, or fragment",
 		};
 	}
 	const loopback = isLoopbackHostname(publicUrl.hostname);
@@ -105,7 +105,7 @@ export function readMcpConfig(
 		return {
 			kind: "invalid",
 			message:
-				"BIRDCLAW_MCP_PUBLIC_URL must use HTTPS, except for loopback HTTP",
+				"NEO_ARCHIVE_MCP_PUBLIC_URL must use HTTPS, except for loopback HTTP",
 		};
 	}
 
@@ -120,14 +120,14 @@ export function readMcpConfig(
 		return {
 			kind: "invalid",
 			message:
-				"BIRDCLAW_MCP_ACCOUNT must be one account ID or handle without surrounding whitespace",
+				"NEO_ARCHIVE_MCP_ACCOUNT must be one account ID or handle without surrounding whitespace",
 		};
 	}
 	if (accountSelector?.toLowerCase() === "all") {
 		return {
 			kind: "invalid",
 			message:
-				"BIRDCLAW_MCP_ACCOUNT must select one account; all-account MCP access is disabled",
+				"NEO_ARCHIVE_MCP_ACCOUNT must select one account; all-account MCP access is disabled",
 		};
 	}
 

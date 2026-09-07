@@ -59,7 +59,7 @@ describe("ThemeSlider", () => {
 			expect(document.documentElement.dataset.theme).toBe("light");
 		});
 		expect(document.documentElement.dataset.themePreference).toBe("light");
-		expect(window.localStorage.getItem("birdclaw-theme")).toBe("light");
+		expect(window.localStorage.getItem("neo-archive-theme")).toBe("light");
 
 		fireEvent.click(
 			screen.getByRole("button", {
@@ -71,7 +71,7 @@ describe("ThemeSlider", () => {
 			expect(document.documentElement.dataset.theme).toBe("dark");
 		});
 		expect(document.documentElement.dataset.themePreference).toBe("dark");
-		expect(window.localStorage.getItem("birdclaw-theme")).toBe("dark");
+		expect(window.localStorage.getItem("neo-archive-theme")).toBe("dark");
 	});
 
 	it("uses one button instead of a three-way selector", async () => {

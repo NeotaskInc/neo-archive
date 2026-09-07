@@ -4,7 +4,7 @@ import { getStrictReadDb } from "./db";
 import { type McpConfig, readMcpConfig } from "./mcp-config";
 import {
 	assertValidMcpAccountScope,
-	createBirdclawMcpServer,
+	createNeoArchiveMcpServer,
 	type McpAccountScope,
 } from "./mcp-tools";
 import type { Database } from "./sqlite";
@@ -15,7 +15,7 @@ const MCP_RATE_CAPACITY = 20;
 const MCP_RATE_REFILL_PER_MS = 1 / 1_000;
 const MCP_MAX_CONCURRENT = 4;
 
-export interface BirdclawMcpRuntime {
+export interface NeoArchiveMcpRuntime {
 	config: McpConfig;
 	account: McpAccountScope;
 	serverVersion: string;
@@ -26,7 +26,7 @@ export interface McpRequestContext {
 	timeoutMs?: number;
 }
 
-export interface BirdclawMcpExchange {
+export interface NeoArchiveMcpExchange {
 	response: Response;
 	finalize(): void;
 }
@@ -107,21 +107,21 @@ function resolveMcpAccount(
 	if (!row) {
 		throw new Error(
 			selector
-				? "BIRDCLAW_MCP_ACCOUNT does not match a local Birdclaw account"
-				: "Birdclaw MCP requires an initialized database with a local account; run birdclaw init/import first",
+				? "NEO_ARCHIVE_MCP_ACCOUNT does not match a local Neo Archive account"
+				: "Neo Archive MCP requires an initialized database with a local account; run neo-archive init/import first",
 		);
 	}
 	assertValidMcpAccountScope(row);
 	return row;
 }
 
-export function prepareBirdclawMcpRuntime(
+export function prepareNeoArchiveMcpRuntime(
 	serverVersion: string,
-): BirdclawMcpRuntime | null {
+): NeoArchiveMcpRuntime | null {
 	const state = readMcpConfig();
 	if (state.kind === "disabled") return null;
 	if (state.kind === "invalid") {
-		throw new Error(`Invalid Birdclaw MCP configuration: ${state.message}`);
+		throw new Error(`Invalid Neo Archive MCP configuration: ${state.message}`);
 	}
 	const db = getStrictReadDb();
 	return {
@@ -143,7 +143,7 @@ function authorizeRequest(request: Request, config: McpConfig) {
 	const candidateDigest = tokenDigest(candidate);
 	if (!match || !timingSafeEqual(expectedDigest, candidateDigest)) {
 		throw new McpHttpError(401, "Unauthorized", {
-			"www-authenticate": 'Bearer realm="birdclaw-mcp"',
+			"www-authenticate": 'Bearer realm="neo-archive-mcp"',
 		});
 	}
 	return expectedDigest.toString("hex");
@@ -359,18 +359,18 @@ function secureResponse(response: Response) {
 	});
 }
 
-async function handleBirdclawMcpExchangeWithTimeout(
+async function handleNeoArchiveMcpExchangeWithTimeout(
 	request: Request,
-	runtime: BirdclawMcpRuntime | null,
+	runtime: NeoArchiveMcpRuntime | null,
 	context: McpRequestContext,
 	requestTimeoutMs: number,
-): Promise<BirdclawMcpExchange> {
+): Promise<NeoArchiveMcpExchange> {
 	let release: (() => void) | undefined;
-	let server: ReturnType<typeof createBirdclawMcpServer> | undefined;
+	let server: ReturnType<typeof createNeoArchiveMcpServer> | undefined;
 	let response: Response;
 	try {
 		if (!runtime) {
-			throw new McpHttpError(503, "Birdclaw MCP is not configured");
+			throw new McpHttpError(503, "Neo Archive MCP is not configured");
 		}
 		const principal = authorizeRequest(request, runtime.config);
 		validateHostAndOrigin(request, runtime.config, context);
@@ -383,7 +383,7 @@ async function handleBirdclawMcpExchangeWithTimeout(
 		} else {
 			response = await withRequestDeadline(async (deadlineSignal) => {
 				const parsedBody = await readJsonBody(request, deadlineSignal);
-				server = createBirdclawMcpServer({
+				server = createNeoArchiveMcpServer({
 					version: runtime.serverVersion,
 					account: runtime.account,
 				});
@@ -425,12 +425,12 @@ async function handleBirdclawMcpExchangeWithTimeout(
 	};
 }
 
-export function handleBirdclawMcpExchange(
+export function handleNeoArchiveMcpExchange(
 	request: Request,
-	runtime: BirdclawMcpRuntime | null,
+	runtime: NeoArchiveMcpRuntime | null,
 	context: McpRequestContext,
 ) {
-	return handleBirdclawMcpExchangeWithTimeout(
+	return handleNeoArchiveMcpExchangeWithTimeout(
 		request,
 		runtime,
 		context,
@@ -438,12 +438,12 @@ export function handleBirdclawMcpExchange(
 	);
 }
 
-export async function handleBirdclawMcpRequest(
+export async function handleNeoArchiveMcpRequest(
 	request: Request,
-	runtime: BirdclawMcpRuntime | null,
+	runtime: NeoArchiveMcpRuntime | null,
 	context: McpRequestContext,
 ) {
-	const exchange = await handleBirdclawMcpExchange(request, runtime, context);
+	const exchange = await handleNeoArchiveMcpExchange(request, runtime, context);
 	exchange.finalize();
 	return exchange.response;
 }
@@ -453,7 +453,7 @@ export const __test__ = {
 	tokenDigest,
 	isJsonContentType,
 	readJsonBody,
-	handleExchangeWithTimeout: handleBirdclawMcpExchangeWithTimeout,
+	handleExchangeWithTimeout: handleNeoArchiveMcpExchangeWithTimeout,
 	resetRateLimits() {
 		rateBuckets.clear();
 	},

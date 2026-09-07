@@ -1,4 +1,4 @@
-import { getBirdclawPaths, type BirdclawPaths } from "./config";
+import { getNeoArchivePaths, type NeoArchivePaths } from "./config";
 import { getNativeDb, type InitDatabaseOptions } from "./db";
 import {
 	createRuntimeServices,
@@ -9,13 +9,13 @@ import type { Database } from "./sqlite";
 
 export interface ServerRuntimeServices extends RuntimeServices {
 	getDatabase(options?: InitDatabaseOptions): Database;
-	getPaths(): BirdclawPaths;
+	getPaths(): NeoArchivePaths;
 }
 
 export const defaultServerRuntimeServices: ServerRuntimeServices = {
 	...defaultRuntimeServices,
 	getDatabase: (options) => getNativeDb(options),
-	getPaths: () => getBirdclawPaths(),
+	getPaths: () => getNeoArchivePaths(),
 };
 
 export function createServerRuntimeServices(

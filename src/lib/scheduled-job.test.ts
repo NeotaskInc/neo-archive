@@ -23,7 +23,7 @@ const tempDirs: string[] = [];
 
 function makeTempDir() {
 	const directory = mkdtempSync(
-		path.join(os.tmpdir(), "birdclaw-job-runtime-"),
+		path.join(os.tmpdir(), "neo-archive-job-runtime-"),
 	);
 	tempDirs.push(directory);
 	return directory;

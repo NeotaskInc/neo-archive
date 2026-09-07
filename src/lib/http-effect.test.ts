@@ -85,12 +85,12 @@ describe("http Effect helpers", () => {
 	it("allows default local API requests outside tests", () => {
 		const originalNodeEnv = process.env.NODE_ENV;
 		const originalVitest = process.env.VITEST;
-		const originalToken = process.env.BIRDCLAW_WEB_TOKEN;
-		const originalLocalWeb = process.env.BIRDCLAW_LOCAL_WEB;
+		const originalToken = process.env.NEO_ARCHIVE_WEB_TOKEN;
+		const originalLocalWeb = process.env.NEO_ARCHIVE_LOCAL_WEB;
 		delete process.env.VITEST;
 		process.env.NODE_ENV = "production";
-		delete process.env.BIRDCLAW_WEB_TOKEN;
-		process.env.BIRDCLAW_LOCAL_WEB = "1";
+		delete process.env.NEO_ARCHIVE_WEB_TOKEN;
+		process.env.NEO_ARCHIVE_LOCAL_WEB = "1";
 
 		try {
 			expect(
@@ -112,14 +112,14 @@ describe("http Effect helpers", () => {
 				process.env.VITEST = originalVitest;
 			}
 			if (originalToken === undefined) {
-				delete process.env.BIRDCLAW_WEB_TOKEN;
+				delete process.env.NEO_ARCHIVE_WEB_TOKEN;
 			} else {
-				process.env.BIRDCLAW_WEB_TOKEN = originalToken;
+				process.env.NEO_ARCHIVE_WEB_TOKEN = originalToken;
 			}
 			if (originalLocalWeb === undefined) {
-				delete process.env.BIRDCLAW_LOCAL_WEB;
+				delete process.env.NEO_ARCHIVE_LOCAL_WEB;
 			} else {
-				process.env.BIRDCLAW_LOCAL_WEB = originalLocalWeb;
+				process.env.NEO_ARCHIVE_LOCAL_WEB = originalLocalWeb;
 			}
 		}
 	});
@@ -127,12 +127,12 @@ describe("http Effect helpers", () => {
 	it("requires socket provenance in production server mode", () => {
 		const originalNodeEnv = process.env.NODE_ENV;
 		const originalVitest = process.env.VITEST;
-		const originalToken = process.env.BIRDCLAW_WEB_TOKEN;
-		const originalLocalWeb = process.env.BIRDCLAW_LOCAL_WEB;
+		const originalToken = process.env.NEO_ARCHIVE_WEB_TOKEN;
+		const originalLocalWeb = process.env.NEO_ARCHIVE_LOCAL_WEB;
 		delete process.env.VITEST;
 		process.env.NODE_ENV = "production";
-		delete process.env.BIRDCLAW_WEB_TOKEN;
-		process.env.BIRDCLAW_LOCAL_WEB = "socket";
+		delete process.env.NEO_ARCHIVE_WEB_TOKEN;
+		process.env.NEO_ARCHIVE_LOCAL_WEB = "socket";
 
 		try {
 			expect(
@@ -152,22 +152,23 @@ describe("http Effect helpers", () => {
 			else process.env.NODE_ENV = originalNodeEnv;
 			if (originalVitest === undefined) delete process.env.VITEST;
 			else process.env.VITEST = originalVitest;
-			if (originalToken === undefined) delete process.env.BIRDCLAW_WEB_TOKEN;
-			else process.env.BIRDCLAW_WEB_TOKEN = originalToken;
-			if (originalLocalWeb === undefined) delete process.env.BIRDCLAW_LOCAL_WEB;
-			else process.env.BIRDCLAW_LOCAL_WEB = originalLocalWeb;
+			if (originalToken === undefined) delete process.env.NEO_ARCHIVE_WEB_TOKEN;
+			else process.env.NEO_ARCHIVE_WEB_TOKEN = originalToken;
+			if (originalLocalWeb === undefined)
+				delete process.env.NEO_ARCHIVE_LOCAL_WEB;
+			else process.env.NEO_ARCHIVE_LOCAL_WEB = originalLocalWeb;
 		}
 	});
 
 	it("does not trust localhost Host without local web mode", async () => {
 		const originalNodeEnv = process.env.NODE_ENV;
 		const originalVitest = process.env.VITEST;
-		const originalToken = process.env.BIRDCLAW_WEB_TOKEN;
-		const originalLocalWeb = process.env.BIRDCLAW_LOCAL_WEB;
+		const originalToken = process.env.NEO_ARCHIVE_WEB_TOKEN;
+		const originalLocalWeb = process.env.NEO_ARCHIVE_LOCAL_WEB;
 		delete process.env.VITEST;
 		process.env.NODE_ENV = "production";
-		delete process.env.BIRDCLAW_WEB_TOKEN;
-		delete process.env.BIRDCLAW_LOCAL_WEB;
+		delete process.env.NEO_ARCHIVE_WEB_TOKEN;
+		delete process.env.NEO_ARCHIVE_LOCAL_WEB;
 
 		try {
 			const response = sensitiveRequestErrorResponse(
@@ -192,14 +193,14 @@ describe("http Effect helpers", () => {
 				process.env.VITEST = originalVitest;
 			}
 			if (originalToken === undefined) {
-				delete process.env.BIRDCLAW_WEB_TOKEN;
+				delete process.env.NEO_ARCHIVE_WEB_TOKEN;
 			} else {
-				process.env.BIRDCLAW_WEB_TOKEN = originalToken;
+				process.env.NEO_ARCHIVE_WEB_TOKEN = originalToken;
 			}
 			if (originalLocalWeb === undefined) {
-				delete process.env.BIRDCLAW_LOCAL_WEB;
+				delete process.env.NEO_ARCHIVE_LOCAL_WEB;
 			} else {
-				process.env.BIRDCLAW_LOCAL_WEB = originalLocalWeb;
+				process.env.NEO_ARCHIVE_LOCAL_WEB = originalLocalWeb;
 			}
 		}
 	});
@@ -207,12 +208,12 @@ describe("http Effect helpers", () => {
 	it("does not trust forwarded localhost requests as local", async () => {
 		const originalNodeEnv = process.env.NODE_ENV;
 		const originalVitest = process.env.VITEST;
-		const originalToken = process.env.BIRDCLAW_WEB_TOKEN;
-		const originalLocalWeb = process.env.BIRDCLAW_LOCAL_WEB;
+		const originalToken = process.env.NEO_ARCHIVE_WEB_TOKEN;
+		const originalLocalWeb = process.env.NEO_ARCHIVE_LOCAL_WEB;
 		delete process.env.VITEST;
 		process.env.NODE_ENV = "production";
-		delete process.env.BIRDCLAW_WEB_TOKEN;
-		process.env.BIRDCLAW_LOCAL_WEB = "1";
+		delete process.env.NEO_ARCHIVE_WEB_TOKEN;
+		process.env.NEO_ARCHIVE_LOCAL_WEB = "1";
 
 		try {
 			const response = sensitiveRequestErrorResponse(
@@ -240,14 +241,14 @@ describe("http Effect helpers", () => {
 				process.env.VITEST = originalVitest;
 			}
 			if (originalToken === undefined) {
-				delete process.env.BIRDCLAW_WEB_TOKEN;
+				delete process.env.NEO_ARCHIVE_WEB_TOKEN;
 			} else {
-				process.env.BIRDCLAW_WEB_TOKEN = originalToken;
+				process.env.NEO_ARCHIVE_WEB_TOKEN = originalToken;
 			}
 			if (originalLocalWeb === undefined) {
-				delete process.env.BIRDCLAW_LOCAL_WEB;
+				delete process.env.NEO_ARCHIVE_LOCAL_WEB;
 			} else {
-				process.env.BIRDCLAW_LOCAL_WEB = originalLocalWeb;
+				process.env.NEO_ARCHIVE_LOCAL_WEB = originalLocalWeb;
 			}
 		}
 	});
@@ -255,14 +256,14 @@ describe("http Effect helpers", () => {
 	it("requires remote web opt-in for remote sensitive API requests outside tests", async () => {
 		const originalNodeEnv = process.env.NODE_ENV;
 		const originalVitest = process.env.VITEST;
-		const originalToken = process.env.BIRDCLAW_WEB_TOKEN;
+		const originalToken = process.env.NEO_ARCHIVE_WEB_TOKEN;
 		delete process.env.VITEST;
 		process.env.NODE_ENV = "production";
-		delete process.env.BIRDCLAW_WEB_TOKEN;
+		delete process.env.NEO_ARCHIVE_WEB_TOKEN;
 
 		try {
 			const response = sensitiveRequestErrorResponse(
-				new Request("https://birdclaw.example/api/action"),
+				new Request("https://neo-archive.example/api/action"),
 			);
 
 			expect(response?.status).toBe(403);
@@ -281,9 +282,9 @@ describe("http Effect helpers", () => {
 				process.env.VITEST = originalVitest;
 			}
 			if (originalToken === undefined) {
-				delete process.env.BIRDCLAW_WEB_TOKEN;
+				delete process.env.NEO_ARCHIVE_WEB_TOKEN;
 			} else {
-				process.env.BIRDCLAW_WEB_TOKEN = originalToken;
+				process.env.NEO_ARCHIVE_WEB_TOKEN = originalToken;
 			}
 		}
 	});
@@ -291,14 +292,14 @@ describe("http Effect helpers", () => {
 	it("accepts trusted remote private-proxy requests without a token", () => {
 		const originalNodeEnv = process.env.NODE_ENV;
 		const originalVitest = process.env.VITEST;
-		const originalToken = process.env.BIRDCLAW_WEB_TOKEN;
-		const originalAllowRemote = process.env.BIRDCLAW_ALLOW_REMOTE_WEB;
-		const originalLocalWeb = process.env.BIRDCLAW_LOCAL_WEB;
+		const originalToken = process.env.NEO_ARCHIVE_WEB_TOKEN;
+		const originalAllowRemote = process.env.NEO_ARCHIVE_ALLOW_REMOTE_WEB;
+		const originalLocalWeb = process.env.NEO_ARCHIVE_LOCAL_WEB;
 		delete process.env.VITEST;
 		process.env.NODE_ENV = "production";
-		delete process.env.BIRDCLAW_WEB_TOKEN;
-		process.env.BIRDCLAW_ALLOW_REMOTE_WEB = "1";
-		delete process.env.BIRDCLAW_LOCAL_WEB;
+		delete process.env.NEO_ARCHIVE_WEB_TOKEN;
+		process.env.NEO_ARCHIVE_ALLOW_REMOTE_WEB = "1";
+		delete process.env.NEO_ARCHIVE_LOCAL_WEB;
 
 		try {
 			expect(
@@ -341,19 +342,19 @@ describe("http Effect helpers", () => {
 				process.env.VITEST = originalVitest;
 			}
 			if (originalToken === undefined) {
-				delete process.env.BIRDCLAW_WEB_TOKEN;
+				delete process.env.NEO_ARCHIVE_WEB_TOKEN;
 			} else {
-				process.env.BIRDCLAW_WEB_TOKEN = originalToken;
+				process.env.NEO_ARCHIVE_WEB_TOKEN = originalToken;
 			}
 			if (originalAllowRemote === undefined) {
-				delete process.env.BIRDCLAW_ALLOW_REMOTE_WEB;
+				delete process.env.NEO_ARCHIVE_ALLOW_REMOTE_WEB;
 			} else {
-				process.env.BIRDCLAW_ALLOW_REMOTE_WEB = originalAllowRemote;
+				process.env.NEO_ARCHIVE_ALLOW_REMOTE_WEB = originalAllowRemote;
 			}
 			if (originalLocalWeb === undefined) {
-				delete process.env.BIRDCLAW_LOCAL_WEB;
+				delete process.env.NEO_ARCHIVE_LOCAL_WEB;
 			} else {
-				process.env.BIRDCLAW_LOCAL_WEB = originalLocalWeb;
+				process.env.NEO_ARCHIVE_LOCAL_WEB = originalLocalWeb;
 			}
 		}
 	});
@@ -361,14 +362,14 @@ describe("http Effect helpers", () => {
 	it("requires configured remote tokens even with trusted remote web enabled", () => {
 		const originalNodeEnv = process.env.NODE_ENV;
 		const originalVitest = process.env.VITEST;
-		const originalToken = process.env.BIRDCLAW_WEB_TOKEN;
-		const originalAllowRemote = process.env.BIRDCLAW_ALLOW_REMOTE_WEB;
-		const originalLocalWeb = process.env.BIRDCLAW_LOCAL_WEB;
+		const originalToken = process.env.NEO_ARCHIVE_WEB_TOKEN;
+		const originalAllowRemote = process.env.NEO_ARCHIVE_ALLOW_REMOTE_WEB;
+		const originalLocalWeb = process.env.NEO_ARCHIVE_LOCAL_WEB;
 		delete process.env.VITEST;
 		process.env.NODE_ENV = "production";
-		process.env.BIRDCLAW_WEB_TOKEN = "secret";
-		process.env.BIRDCLAW_ALLOW_REMOTE_WEB = "1";
-		delete process.env.BIRDCLAW_LOCAL_WEB;
+		process.env.NEO_ARCHIVE_WEB_TOKEN = "secret";
+		process.env.NEO_ARCHIVE_ALLOW_REMOTE_WEB = "1";
+		delete process.env.NEO_ARCHIVE_LOCAL_WEB;
 
 		try {
 			expect(
@@ -383,7 +384,7 @@ describe("http Effect helpers", () => {
 					new Request("http://clawmac.sheep-coho.ts.net/api/action", {
 						headers: {
 							"sec-fetch-site": "same-origin",
-							"x-birdclaw-token": "wrong",
+							"x-neo-archive-token": "wrong",
 						},
 					}),
 				)?.status,
@@ -391,7 +392,7 @@ describe("http Effect helpers", () => {
 			expect(
 				sensitiveRequestErrorResponse(
 					new Request("http://clawmac.sheep-coho.ts.net/api/action", {
-						headers: { "x-birdclaw-token": "secret" },
+						headers: { "x-neo-archive-token": "secret" },
 					}),
 				),
 			).toBeNull();
@@ -407,19 +408,19 @@ describe("http Effect helpers", () => {
 				process.env.VITEST = originalVitest;
 			}
 			if (originalToken === undefined) {
-				delete process.env.BIRDCLAW_WEB_TOKEN;
+				delete process.env.NEO_ARCHIVE_WEB_TOKEN;
 			} else {
-				process.env.BIRDCLAW_WEB_TOKEN = originalToken;
+				process.env.NEO_ARCHIVE_WEB_TOKEN = originalToken;
 			}
 			if (originalAllowRemote === undefined) {
-				delete process.env.BIRDCLAW_ALLOW_REMOTE_WEB;
+				delete process.env.NEO_ARCHIVE_ALLOW_REMOTE_WEB;
 			} else {
-				process.env.BIRDCLAW_ALLOW_REMOTE_WEB = originalAllowRemote;
+				process.env.NEO_ARCHIVE_ALLOW_REMOTE_WEB = originalAllowRemote;
 			}
 			if (originalLocalWeb === undefined) {
-				delete process.env.BIRDCLAW_LOCAL_WEB;
+				delete process.env.NEO_ARCHIVE_LOCAL_WEB;
 			} else {
-				process.env.BIRDCLAW_LOCAL_WEB = originalLocalWeb;
+				process.env.NEO_ARCHIVE_LOCAL_WEB = originalLocalWeb;
 			}
 		}
 	});
@@ -427,10 +428,10 @@ describe("http Effect helpers", () => {
 	it("rejects cross-site local API requests without a token", async () => {
 		const originalNodeEnv = process.env.NODE_ENV;
 		const originalVitest = process.env.VITEST;
-		const originalToken = process.env.BIRDCLAW_WEB_TOKEN;
+		const originalToken = process.env.NEO_ARCHIVE_WEB_TOKEN;
 		delete process.env.VITEST;
 		process.env.NODE_ENV = "production";
-		delete process.env.BIRDCLAW_WEB_TOKEN;
+		delete process.env.NEO_ARCHIVE_WEB_TOKEN;
 
 		try {
 			const response = sensitiveRequestErrorResponse(
@@ -455,9 +456,9 @@ describe("http Effect helpers", () => {
 				process.env.VITEST = originalVitest;
 			}
 			if (originalToken === undefined) {
-				delete process.env.BIRDCLAW_WEB_TOKEN;
+				delete process.env.NEO_ARCHIVE_WEB_TOKEN;
 			} else {
-				process.env.BIRDCLAW_WEB_TOKEN = originalToken;
+				process.env.NEO_ARCHIVE_WEB_TOKEN = originalToken;
 			}
 		}
 	});
@@ -465,14 +466,14 @@ describe("http Effect helpers", () => {
 	it("accepts valid local web tokens and keeps remote access opt-in", () => {
 		const originalNodeEnv = process.env.NODE_ENV;
 		const originalVitest = process.env.VITEST;
-		const originalToken = process.env.BIRDCLAW_WEB_TOKEN;
-		const originalAllowRemote = process.env.BIRDCLAW_ALLOW_REMOTE_WEB;
-		const originalLocalWeb = process.env.BIRDCLAW_LOCAL_WEB;
+		const originalToken = process.env.NEO_ARCHIVE_WEB_TOKEN;
+		const originalAllowRemote = process.env.NEO_ARCHIVE_ALLOW_REMOTE_WEB;
+		const originalLocalWeb = process.env.NEO_ARCHIVE_LOCAL_WEB;
 		delete process.env.VITEST;
 		process.env.NODE_ENV = "production";
-		process.env.BIRDCLAW_WEB_TOKEN = "secret";
-		process.env.BIRDCLAW_LOCAL_WEB = "1";
-		delete process.env.BIRDCLAW_ALLOW_REMOTE_WEB;
+		process.env.NEO_ARCHIVE_WEB_TOKEN = "secret";
+		process.env.NEO_ARCHIVE_LOCAL_WEB = "1";
+		delete process.env.NEO_ARCHIVE_ALLOW_REMOTE_WEB;
 
 		try {
 			expect(
@@ -485,23 +486,23 @@ describe("http Effect helpers", () => {
 			expect(
 				sensitiveRequestErrorResponse(
 					new Request("http://localhost/api/action", {
-						headers: { "x-birdclaw-token": "secret" },
+						headers: { "x-neo-archive-token": "secret" },
 					}),
 				),
 			).toBeNull();
 			expect(
 				sensitiveRequestErrorResponse(
-					new Request("https://birdclaw.example/api/action", {
-						headers: { "x-birdclaw-token": "secret" },
+					new Request("https://neo-archive.example/api/action", {
+						headers: { "x-neo-archive-token": "secret" },
 					}),
 				)?.status,
 			).toBe(403);
 
-			process.env.BIRDCLAW_ALLOW_REMOTE_WEB = "1";
+			process.env.NEO_ARCHIVE_ALLOW_REMOTE_WEB = "1";
 			expect(
 				sensitiveRequestErrorResponse(
-					new Request("https://birdclaw.example/api/action", {
-						headers: { "x-birdclaw-token": "secret" },
+					new Request("https://neo-archive.example/api/action", {
+						headers: { "x-neo-archive-token": "secret" },
 					}),
 				),
 			).toBeNull();
@@ -517,19 +518,19 @@ describe("http Effect helpers", () => {
 				process.env.VITEST = originalVitest;
 			}
 			if (originalToken === undefined) {
-				delete process.env.BIRDCLAW_WEB_TOKEN;
+				delete process.env.NEO_ARCHIVE_WEB_TOKEN;
 			} else {
-				process.env.BIRDCLAW_WEB_TOKEN = originalToken;
+				process.env.NEO_ARCHIVE_WEB_TOKEN = originalToken;
 			}
 			if (originalAllowRemote === undefined) {
-				delete process.env.BIRDCLAW_ALLOW_REMOTE_WEB;
+				delete process.env.NEO_ARCHIVE_ALLOW_REMOTE_WEB;
 			} else {
-				process.env.BIRDCLAW_ALLOW_REMOTE_WEB = originalAllowRemote;
+				process.env.NEO_ARCHIVE_ALLOW_REMOTE_WEB = originalAllowRemote;
 			}
 			if (originalLocalWeb === undefined) {
-				delete process.env.BIRDCLAW_LOCAL_WEB;
+				delete process.env.NEO_ARCHIVE_LOCAL_WEB;
 			} else {
-				process.env.BIRDCLAW_LOCAL_WEB = originalLocalWeb;
+				process.env.NEO_ARCHIVE_LOCAL_WEB = originalLocalWeb;
 			}
 		}
 	});
@@ -537,14 +538,14 @@ describe("http Effect helpers", () => {
 	it("accepts tokened same-origin requests through forwarded https proxies", () => {
 		const originalNodeEnv = process.env.NODE_ENV;
 		const originalVitest = process.env.VITEST;
-		const originalToken = process.env.BIRDCLAW_WEB_TOKEN;
-		const originalAllowRemote = process.env.BIRDCLAW_ALLOW_REMOTE_WEB;
-		const originalLocalWeb = process.env.BIRDCLAW_LOCAL_WEB;
+		const originalToken = process.env.NEO_ARCHIVE_WEB_TOKEN;
+		const originalAllowRemote = process.env.NEO_ARCHIVE_ALLOW_REMOTE_WEB;
+		const originalLocalWeb = process.env.NEO_ARCHIVE_LOCAL_WEB;
 		delete process.env.VITEST;
 		process.env.NODE_ENV = "production";
-		process.env.BIRDCLAW_WEB_TOKEN = "secret";
-		process.env.BIRDCLAW_ALLOW_REMOTE_WEB = "1";
-		delete process.env.BIRDCLAW_LOCAL_WEB;
+		process.env.NEO_ARCHIVE_WEB_TOKEN = "secret";
+		process.env.NEO_ARCHIVE_ALLOW_REMOTE_WEB = "1";
+		delete process.env.NEO_ARCHIVE_LOCAL_WEB;
 
 		try {
 			expect(
@@ -552,7 +553,7 @@ describe("http Effect helpers", () => {
 					new Request("http://clawmac.sheep-coho.ts.net/api/action", {
 						headers: {
 							origin: "https://clawmac.sheep-coho.ts.net",
-							"x-birdclaw-token": "secret",
+							"x-neo-archive-token": "secret",
 							"x-forwarded-host": "clawmac.sheep-coho.ts.net",
 							"x-forwarded-proto": "https",
 						},
@@ -564,7 +565,7 @@ describe("http Effect helpers", () => {
 					new Request("http://clawmac.sheep-coho.ts.net/api/action", {
 						headers: {
 							origin: "https://evil.example",
-							"x-birdclaw-token": "secret",
+							"x-neo-archive-token": "secret",
 							"x-forwarded-host": "clawmac.sheep-coho.ts.net",
 							"x-forwarded-proto": "https",
 						},
@@ -583,19 +584,19 @@ describe("http Effect helpers", () => {
 				process.env.VITEST = originalVitest;
 			}
 			if (originalToken === undefined) {
-				delete process.env.BIRDCLAW_WEB_TOKEN;
+				delete process.env.NEO_ARCHIVE_WEB_TOKEN;
 			} else {
-				process.env.BIRDCLAW_WEB_TOKEN = originalToken;
+				process.env.NEO_ARCHIVE_WEB_TOKEN = originalToken;
 			}
 			if (originalAllowRemote === undefined) {
-				delete process.env.BIRDCLAW_ALLOW_REMOTE_WEB;
+				delete process.env.NEO_ARCHIVE_ALLOW_REMOTE_WEB;
 			} else {
-				process.env.BIRDCLAW_ALLOW_REMOTE_WEB = originalAllowRemote;
+				process.env.NEO_ARCHIVE_ALLOW_REMOTE_WEB = originalAllowRemote;
 			}
 			if (originalLocalWeb === undefined) {
-				delete process.env.BIRDCLAW_LOCAL_WEB;
+				delete process.env.NEO_ARCHIVE_LOCAL_WEB;
 			} else {
-				process.env.BIRDCLAW_LOCAL_WEB = originalLocalWeb;
+				process.env.NEO_ARCHIVE_LOCAL_WEB = originalLocalWeb;
 			}
 		}
 	});
@@ -603,15 +604,15 @@ describe("http Effect helpers", () => {
 	it("treats malformed token cookies as invalid credentials", async () => {
 		const originalNodeEnv = process.env.NODE_ENV;
 		const originalVitest = process.env.VITEST;
-		const originalToken = process.env.BIRDCLAW_WEB_TOKEN;
+		const originalToken = process.env.NEO_ARCHIVE_WEB_TOKEN;
 		delete process.env.VITEST;
 		process.env.NODE_ENV = "production";
-		process.env.BIRDCLAW_WEB_TOKEN = "secret";
+		process.env.NEO_ARCHIVE_WEB_TOKEN = "secret";
 
 		try {
 			const response = sensitiveRequestErrorResponse(
 				new Request("http://localhost/api/action", {
-					headers: { cookie: "birdclaw_token=%" },
+					headers: { cookie: "neo_archive_token=%" },
 				}),
 			);
 
@@ -631,9 +632,9 @@ describe("http Effect helpers", () => {
 				process.env.VITEST = originalVitest;
 			}
 			if (originalToken === undefined) {
-				delete process.env.BIRDCLAW_WEB_TOKEN;
+				delete process.env.NEO_ARCHIVE_WEB_TOKEN;
 			} else {
-				process.env.BIRDCLAW_WEB_TOKEN = originalToken;
+				process.env.NEO_ARCHIVE_WEB_TOKEN = originalToken;
 			}
 		}
 	});

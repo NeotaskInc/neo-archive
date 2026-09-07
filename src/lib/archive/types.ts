@@ -48,6 +48,7 @@ export type ImportProgressEvent =
 	| { kind: "done" };
 
 export interface ImportArchiveOptions {
+	account?: string;
 	select?: ArchiveImportSlice[];
 	restore?: boolean;
 	onProgress?: (event: ImportProgressEvent) => void;

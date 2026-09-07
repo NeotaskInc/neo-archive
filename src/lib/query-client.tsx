@@ -17,7 +17,7 @@ export const queryKeys = {
 	rateLimits: ["rate-limits"] as const,
 };
 
-export function createBirdclawQueryClient() {
+export function createNeoArchiveQueryClient() {
 	return new QueryClient({
 		defaultOptions: {
 			queries: {
@@ -30,8 +30,8 @@ export function createBirdclawQueryClient() {
 	});
 }
 
-export function BirdclawQueryProvider({ children }: { children: ReactNode }) {
-	const [queryClient] = useState(createBirdclawQueryClient);
+export function NeoArchiveQueryProvider({ children }: { children: ReactNode }) {
+	const [queryClient] = useState(createNeoArchiveQueryClient);
 	return (
 		<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
 	);

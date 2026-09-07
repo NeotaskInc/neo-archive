@@ -1,5 +1,5 @@
 /**
- * Respectful media caching for tweet records already present in birdclaw.
+ * Respectful media caching for tweet records already present in neo-archive.
  *
  * This is not a scraper: it never crawls, enumerates, or derives Twitter/X CDN
  * URLs. It only downloads media URLs already stored in `tweets.media_json`,
@@ -15,7 +15,7 @@ import {
 import { appendFile, copyFile, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { Effect } from "effect";
-import { getBirdclawPaths } from "./config";
+import { getNeoArchivePaths } from "./config";
 import { getNativeDb } from "./db";
 import { runEffectPromise } from "./effect-runtime";
 
@@ -752,8 +752,8 @@ export function fetchTweetMediaEffect(options: MediaFetchOptions = {}) {
 		);
 		const userAgent =
 			options.userAgent ??
-			`birdclaw/${packageVersion ?? "0.0.0"} (https://github.com/steipete/birdclaw)`;
-		const { mediaOriginalsDir } = getBirdclawPaths();
+			`neo-archive/${packageVersion ?? "0.0.0"} (https://github.com/NeotaskInc/neo-archive)`;
+		const { mediaOriginalsDir } = getNeoArchivePaths();
 		yield* tryMediaSync(() =>
 			mkdirSync(mediaOriginalsDir, { recursive: true }),
 		);

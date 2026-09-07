@@ -200,7 +200,7 @@ export function registerDirectMessageCommands({
 					`Conversation belongs to ${conversation.conversation.accountId}, not ${selected.id}`,
 				);
 			}
-			if (process.env.BIRDCLAW_DISABLE_LIVE_WRITES !== "1") {
+			if (process.env.NEO_ARCHIVE_DISABLE_LIVE_WRITES !== "1") {
 				const authenticated = await getAuthenticatedBirdAccount();
 				assertLiveAccountMatches({
 					source: "bird",

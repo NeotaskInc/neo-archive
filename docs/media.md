@@ -5,20 +5,20 @@ description: "Local cache of pbs.twimg.com images and video.twimg.com mp4 varian
 
 # Media
 
-`birdclaw media fetch` fills the local originals cache with image, video, and animated-GIF files for tweets that already live in the local SQLite store.
+`neo-archive media fetch` fills the local originals cache with image, video, and animated-GIF files for tweets that already live in the local SQLite store.
 
 ## Posture
 
 This is a respectful client-rendering cache, not a scraper. The command:
 
-- only fetches URLs that birdclaw already has from an archive or live sync record
+- only fetches URLs that neo-archive already has from an archive or live sync record
 - never enumerates, crawls, or derives `pbs.twimg.com` / `video.twimg.com` URLs
 - skips files already present on disk
 - streams response bodies to a `.tmp` file with `Range: bytes=<size>-` resume
 - paces image requests sequentially by default, caps optional image parallelism at five, runs video downloads serially with their own pacing knob
 - caps each file at `--max-bytes` (100MB default)
 - backs off on `429 Too Many Requests`
-- sends a `birdclaw/<version>` user agent
+- sends a `neo-archive/<version>` user agent
 
 Thumbnail generation and automatic invocation from sync commands are intentionally out of scope. Run `media fetch` separately, for example on a cron loop every few hours.
 
@@ -34,27 +34,27 @@ For every tweet row whose `media_json` carries a media item:
 
 ## Archive byte reuse
 
-Before reaching for the CDN, `media fetch` looks for bytes already extracted by a previous archive import under `~/.birdclaw/media/originals/archive/tweets/<tweetId>/<tweetId>-<mediaKey><ext>`. When a match is found, the file is copied into the canonical originals path, counted as `reused_from_archive`, and CDN bandwidth is never spent.
+Before reaching for the CDN, `media fetch` looks for bytes already extracted by a previous archive import under `~/.neo-archive/media/originals/archive/tweets/<tweetId>/<tweetId>-<mediaKey><ext>`. When a match is found, the file is copied into the canonical originals path, counted as `reused_from_archive`, and CDN bandwidth is never spent.
 
 This means a freshly imported archive (when bundled-media extraction is available) instantly populates the originals cache for every video and GIF in the archive — `media fetch` then only has to round-trip to the CDN for live-only tweets and anything missing from the archive.
 
 ## On-disk layout
 
 ```text
-~/.birdclaw/media/originals/<media_key>.<ext>
+~/.neo-archive/media/originals/<media_key>.<ext>
 ```
 
 `<media_key>` is the Twitter media key as it appears in `media_json`; `<ext>` is the canonical extension derived from the URL (`.jpg` for JPEG fallbacks, `.png`/`.webp`/`.gif` when the URL explicitly carries that format, `.mp4` for video and animated GIFs).
 
-Archive-sourced files keep their original archive layout at `~/.birdclaw/media/originals/archive/<kind>/<id>/<filename>` until `media fetch` reuses them; the canonical originals path is the deduplicated, addressable view.
+Archive-sourced files keep their original archive layout at `~/.neo-archive/media/originals/archive/<kind>/<id>/<filename>` until `media fetch` reuses them; the canonical originals path is the deduplicated, addressable view.
 
 ## CLI
 
 ```bash
-birdclaw media fetch --json
-birdclaw media fetch --dry-run --limit 20
-birdclaw media fetch --include-video --video-pacing-ms 1500 --max-bytes 209715200 --json
-birdclaw media fetch --no-include-video --parallel 3 --pacing-ms 250 --json
+neo-archive media fetch --json
+neo-archive media fetch --dry-run --limit 20
+neo-archive media fetch --include-video --video-pacing-ms 1500 --max-bytes 209715200 --json
+neo-archive media fetch --no-include-video --parallel 3 --pacing-ms 250 --json
 ```
 
 Flags:
@@ -104,7 +104,7 @@ In `--dry-run` mode the envelope also carries `dry_run: true` and a `would_fetch
 
 ```bash
 # every 6 hours, top up the originals cache without hammering CDNs
-birdclaw media fetch --parallel 3 --pacing-ms 500 --video-pacing-ms 1500 --max-bytes 209715200 --json
+neo-archive media fetch --parallel 3 --pacing-ms 500 --video-pacing-ms 1500 --max-bytes 209715200 --json
 ```
 
 ## See also

@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { resetBirdclawPathsForTests } from "#/lib/config";
+import { resetNeoArchivePathsForTests } from "#/lib/config";
 import { getNativeDb, resetDatabaseForTests } from "#/lib/db";
 import { getRouteHandler } from "#/test/route-handlers";
 import { Route } from "./avatar";
@@ -13,8 +13,8 @@ const GET = getRouteHandler(Route, "GET");
 
 afterEach(() => {
 	resetDatabaseForTests();
-	resetBirdclawPathsForTests();
-	delete process.env.BIRDCLAW_HOME;
+	resetNeoArchivePathsForTests();
+	delete process.env.NEO_ARCHIVE_HOME;
 
 	for (const dir of tempDirs.splice(0)) {
 		rmSync(dir, { recursive: true, force: true });
@@ -27,16 +27,18 @@ describe("avatar api route", () => {
 
 	it("returns 400 when profileId is missing", async () => {
 		const response = await GET({
-			request: new Request("http://birdclaw.test/api/avatar"),
+			request: new Request("http://neo-archive.test/api/avatar"),
 		});
 
 		expect(response.status).toBe(400);
 	});
 
 	it("returns cached avatar bytes for a profile", async () => {
-		const tempDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-avatar-api-"));
+		const tempDir = mkdtempSync(
+			path.join(os.tmpdir(), "neo-archive-avatar-api-"),
+		);
 		tempDirs.push(tempDir);
-		process.env.BIRDCLAW_HOME = tempDir;
+		process.env.NEO_ARCHIVE_HOME = tempDir;
 
 		const db = getNativeDb();
 		db.prepare(
@@ -54,7 +56,7 @@ describe("avatar api route", () => {
 
 		const response = await GET({
 			request: new Request(
-				"http://birdclaw.test/api/avatar?profileId=profile_demo",
+				"http://neo-archive.test/api/avatar?profileId=profile_demo",
 			),
 		});
 
@@ -66,9 +68,11 @@ describe("avatar api route", () => {
 	});
 
 	it("returns 404 when a profile has no avatar", async () => {
-		const tempDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-avatar-api-"));
+		const tempDir = mkdtempSync(
+			path.join(os.tmpdir(), "neo-archive-avatar-api-"),
+		);
 		tempDirs.push(tempDir);
-		process.env.BIRDCLAW_HOME = tempDir;
+		process.env.NEO_ARCHIVE_HOME = tempDir;
 
 		getNativeDb()
 			.prepare(
@@ -86,7 +90,7 @@ describe("avatar api route", () => {
 
 		const response = await GET({
 			request: new Request(
-				"http://birdclaw.test/api/avatar?profileId=profile_demo",
+				"http://neo-archive.test/api/avatar?profileId=profile_demo",
 			),
 		});
 
@@ -94,9 +98,11 @@ describe("avatar api route", () => {
 	});
 
 	it("returns 404 instead of serving unsupported avatar data", async () => {
-		const tempDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-avatar-api-"));
+		const tempDir = mkdtempSync(
+			path.join(os.tmpdir(), "neo-archive-avatar-api-"),
+		);
 		tempDirs.push(tempDir);
-		process.env.BIRDCLAW_HOME = tempDir;
+		process.env.NEO_ARCHIVE_HOME = tempDir;
 
 		getNativeDb()
 			.prepare(
@@ -118,7 +124,7 @@ describe("avatar api route", () => {
 
 		const response = await GET({
 			request: new Request(
-				"http://birdclaw.test/api/avatar?profileId=profile_demo",
+				"http://neo-archive.test/api/avatar?profileId=profile_demo",
 			),
 		});
 

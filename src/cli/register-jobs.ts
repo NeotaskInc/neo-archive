@@ -21,7 +21,7 @@ export function registerJobCommands({
 }: CliCommandContext) {
 	const jobsCommand = program
 		.command("jobs")
-		.description("Run and install background Birdclaw jobs");
+		.description("Run and install background Neo Archive jobs");
 
 	jobsCommand
 		.command("sync-account")
@@ -66,8 +66,8 @@ export function registerJobCommands({
 		.option("--interval-seconds <seconds>", "Launch interval", "1800")
 		.option(
 			"--program <path>",
-			"birdclaw executable or source entry",
-			"birdclaw",
+			"neo-archive executable or source entry",
+			"neo-archive",
 		)
 		.option("--runtime <absolute-path>", "Runtime executable for --program")
 		.option(
@@ -161,8 +161,8 @@ export function registerJobCommands({
 		.option("--interval-seconds <seconds>", "Launch interval", "10800")
 		.option(
 			"--program <path>",
-			"birdclaw executable or source entry",
-			"birdclaw",
+			"neo-archive executable or source entry",
+			"neo-archive",
 		)
 		.option("--runtime <absolute-path>", "Runtime executable for --program")
 		.option(

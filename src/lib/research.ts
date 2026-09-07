@@ -492,7 +492,7 @@ function renderThreadMarkdown(thread: ResearchNode[]) {
 
 function renderReportMarkdown(report: Omit<ResearchReport, "markdown">) {
 	const lines = [
-		"# Birdclaw Research",
+		"# Neo Archive Research",
 		"",
 		`- Generated: ${report.generatedAt}`,
 		`- Query: ${report.query ? `\`${report.query}\`` : "(all bookmarks)"}`,

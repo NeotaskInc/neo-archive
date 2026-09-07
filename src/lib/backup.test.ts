@@ -39,14 +39,14 @@ import {
 	validateBackupEffect,
 } from "./backup";
 import { BACKUP_TABLE_CODECS } from "./backup-table-codecs";
-import { getBirdclawPaths, resetBirdclawPathsForTests } from "./config";
+import { getNeoArchivePaths, resetNeoArchivePathsForTests } from "./config";
 import { getNativeDb } from "./db";
 import { syncIdentitySearchIndexForProfileIds } from "./identity-search-index";
 import NativeSqliteDatabase, { type Database } from "./sqlite";
 import { acquireScheduledJobLock } from "./scheduled-job";
 import { upsertProfileFromXUser } from "./x-profile";
 
-const testHome = useTestHome({ prefix: "birdclaw-backup-home-" });
+const testHome = useTestHome({ prefix: "neo-archive-backup-home-" });
 
 function makeTempDir(prefix: string) {
 	return testHome().makeTempDir(prefix);
@@ -62,7 +62,7 @@ function snapshotTree(root: string) {
 		for (const entry of readdirSync(directory).sort()) {
 			if (
 				entry === ".git" ||
-				entry.startsWith(".birdclaw-backup-transaction")
+				entry.startsWith(".neo-archive-backup-transaction")
 			) {
 				continue;
 			}
@@ -198,7 +198,7 @@ function writeBackupConfig(
 	},
 ) {
 	writeFileSync(path.join(home, "config.json"), JSON.stringify({ backup }));
-	resetBirdclawPathsForTests();
+	resetNeoArchivePathsForTests();
 }
 
 function seedBackupFixture() {
@@ -422,9 +422,9 @@ function expectNoDemoSeedRows() {
 
 describe("text backup", () => {
 	it("builds backup Git update effects lazily", async () => {
-		switchHome("birdclaw-backup-lazy-home-");
+		switchHome("neo-archive-backup-lazy-home-");
 		const repoPath = path.join(
-			makeTempDir("birdclaw-backup-lazy-parent-"),
+			makeTempDir("neo-archive-backup-lazy-parent-"),
 			"repo",
 		);
 		const canonicalRepoPath =
@@ -443,14 +443,14 @@ describe("text backup", () => {
 	}, 20000);
 
 	it("exposes backup export, import, and validation as Effects", async () => {
-		switchHome("birdclaw-backup-effect-src-");
+		switchHome("neo-archive-backup-effect-src-");
 		seedBackupFixture();
-		const repoPath = makeTempDir("birdclaw-backup-effect-store-");
+		const repoPath = makeTempDir("neo-archive-backup-effect-store-");
 
 		const exported = await Effect.runPromise(exportBackupEffect({ repoPath }));
 		const validation = await Effect.runPromise(validateBackupEffect(repoPath));
 
-		switchHome("birdclaw-backup-effect-dst-");
+		switchHome("neo-archive-backup-effect-dst-");
 		const imported = await Effect.runPromise(
 			importBackupEffect({ repoPath, mode: "replace" }),
 		);
@@ -462,10 +462,10 @@ describe("text backup", () => {
 	}, 20000);
 
 	it("rejects backup export paths that traverse symlinked managed directories", async () => {
-		switchHome("birdclaw-backup-symlink-src-");
+		switchHome("neo-archive-backup-symlink-src-");
 		seedBackupFixture();
-		const repoPath = makeTempDir("birdclaw-backup-symlink-store-");
-		const targetPath = makeTempDir("birdclaw-backup-symlink-target-");
+		const repoPath = makeTempDir("neo-archive-backup-symlink-store-");
+		const targetPath = makeTempDir("neo-archive-backup-symlink-target-");
 		symlinkSync(targetPath, path.join(repoPath, "data"), "dir");
 
 		await expect(
@@ -475,15 +475,15 @@ describe("text backup", () => {
 	}, 20000);
 
 	it("rejects backup validation paths that traverse symlinked directories", async () => {
-		const repoPath = makeTempDir("birdclaw-backup-read-symlink-store-");
-		const targetPath = makeTempDir("birdclaw-backup-read-symlink-target-");
+		const repoPath = makeTempDir("neo-archive-backup-read-symlink-store-");
+		const targetPath = makeTempDir("neo-archive-backup-read-symlink-target-");
 		mkdirSync(path.join(targetPath, "tweets"), { recursive: true });
 		writeFileSync(path.join(targetPath, "tweets", "2026.jsonl"), "{}\n");
 		symlinkSync(targetPath, path.join(repoPath, "data"), "dir");
 		writeFileSync(
 			path.join(repoPath, "manifest.json"),
 			JSON.stringify({
-				app: "birdclaw",
+				app: "neo-archive",
 				schemaVersion: 1,
 				generatedAt: "2026-05-17T00:00:00.000Z",
 				counts: {},
@@ -508,9 +508,9 @@ describe("text backup", () => {
 	});
 
 	it("rejects ignored, non-Git, and dangling-symlink data extras before publication", async () => {
-		switchHome("birdclaw-backup-extra-home-");
+		switchHome("neo-archive-backup-extra-home-");
 		seedBackupFixture();
-		const repoPath = makeTempDir("birdclaw-backup-extra-repo-");
+		const repoPath = makeTempDir("neo-archive-backup-extra-repo-");
 		await exportBackup({ repoPath });
 		const privatePath = path.join(repoPath, "data", "private.json");
 		writeFileSync(privatePath, "private\n");
@@ -555,16 +555,16 @@ describe("text backup", () => {
 	}, 20000);
 
 	it("builds backup import effects lazily", async () => {
-		switchHome("birdclaw-backup-import-src-");
+		switchHome("neo-archive-backup-import-src-");
 		seedBackupFixture();
-		const repoPath = makeTempDir("birdclaw-backup-import-store-");
+		const repoPath = makeTempDir("neo-archive-backup-import-store-");
 
 		const effect = importBackupEffect({ repoPath, mode: "replace" });
 
 		expect(existsSync(path.join(repoPath, "manifest.json"))).toBe(false);
 		await exportBackup({ repoPath });
 
-		switchHome("birdclaw-backup-import-dst-");
+		switchHome("neo-archive-backup-import-dst-");
 		const imported = await Effect.runPromise(effect);
 
 		expect(imported.ok).toBe(true);
@@ -577,7 +577,7 @@ describe("text backup", () => {
 	}, 20000);
 
 	it("exports JSONL shards and imports them without changing the portable fingerprint", async () => {
-		switchHome("birdclaw-backup-src-");
+		switchHome("neo-archive-backup-src-");
 		seedBackupFixture();
 		const collectionRawJson = JSON.stringify({
 			id: "tweet_2025",
@@ -595,7 +595,7 @@ describe("text backup", () => {
 			)
 			.run(collectionRawJson);
 		const before = getBackupDatabaseFingerprint();
-		const repoPath = makeTempDir("birdclaw-store-");
+		const repoPath = makeTempDir("neo-archive-store-");
 
 		const exported = await exportBackup({ repoPath });
 
@@ -691,7 +691,7 @@ describe("text backup", () => {
 			true,
 		);
 
-		switchHome("birdclaw-backup-dst-");
+		switchHome("neo-archive-backup-dst-");
 		const staleDb = getNativeDb();
 		staleDb.exec(`
       insert into url_expansions (
@@ -832,18 +832,18 @@ describe("text backup", () => {
 
 	it("exports and syncs a fresh empty store with a staged data directory", async () => {
 		const remotePath = path.join(
-			makeTempDir("birdclaw-empty-remote-"),
+			makeTempDir("neo-archive-empty-remote-"),
 			"remote.git",
 		);
 		execFileSync("git", ["init", "--bare", remotePath]);
-		switchHome("birdclaw-empty-store-home-");
+		switchHome("neo-archive-empty-store-home-");
 		const db = getNativeDb({ seedDemoData: false });
-		const exportPath = makeTempDir("birdclaw-empty-export-");
+		const exportPath = makeTempDir("neo-archive-empty-export-");
 		const exported = await exportBackup({ repoPath: exportPath, db });
 		expect(exported.validation.ok).toBe(true);
 		expect(statSync(path.join(exportPath, "data")).isDirectory()).toBe(true);
 
-		const syncPath = makeTempDir("birdclaw-empty-sync-");
+		const syncPath = makeTempDir("neo-archive-empty-sync-");
 		const synced = await syncBackup({
 			repoPath: syncPath,
 			remote: remotePath,
@@ -878,7 +878,7 @@ describe("text backup", () => {
 	});
 
 	it("skips topology normalization for canonical singleton revisions", async () => {
-		switchHome("birdclaw-backup-singleton-src-");
+		switchHome("neo-archive-backup-singleton-src-");
 		seedBackupFixture();
 		const sourceDb = getNativeDb({ seedDemoData: false });
 		sourceDb.exec(`
@@ -888,10 +888,10 @@ describe("text backup", () => {
 				'singleton', 'singleton', 0, null, 'xurl', '2026-08-01T00:00:00.000Z'
 			)
 		`);
-		const repoPath = makeTempDir("birdclaw-singleton-store-");
+		const repoPath = makeTempDir("neo-archive-singleton-store-");
 		await exportBackup({ repoPath });
 
-		switchHome("birdclaw-backup-singleton-dst-");
+		switchHome("neo-archive-backup-singleton-dst-");
 		const db = getNativeDb({ seedDemoData: false });
 		let topologyQueries = 0;
 		const instrumentedDb = new Proxy(db, {
@@ -913,10 +913,10 @@ describe("text backup", () => {
 	});
 
 	it("emits byte-identical schema-v8 data and hashes for the same database", async () => {
-		switchHome("birdclaw-backup-stable-src-");
+		switchHome("neo-archive-backup-stable-src-");
 		seedBackupFixture();
-		const firstRepoPath = makeTempDir("birdclaw-backup-stable-first-");
-		const secondRepoPath = makeTempDir("birdclaw-backup-stable-second-");
+		const firstRepoPath = makeTempDir("neo-archive-backup-stable-first-");
+		const secondRepoPath = makeTempDir("neo-archive-backup-stable-second-");
 
 		const first = await exportBackup({ repoPath: firstRepoPath });
 		const second = await exportBackup({ repoPath: secondRepoPath });
@@ -933,13 +933,13 @@ describe("text backup", () => {
 	}, 20000);
 
 	it("splits oversized logical shards into deterministic bounded part files", async () => {
-		switchHome("birdclaw-backup-parts-src-");
+		switchHome("neo-archive-backup-parts-src-");
 		seedBackupFixture();
 		const db = getNativeDb();
 		const largeRawJson = JSON.stringify({ blob: "x".repeat(700_000) });
 		db.prepare("update profiles set raw_json = ?").run(largeRawJson);
 		const before = getBackupDatabaseFingerprint();
-		const repoPath = makeTempDir("birdclaw-backup-parts-store-");
+		const repoPath = makeTempDir("neo-archive-backup-parts-store-");
 
 		const exported = await exportBackup({
 			repoPath,
@@ -958,15 +958,15 @@ describe("text backup", () => {
 		expect(existsSync(path.join(repoPath, "data/profiles.jsonl"))).toBe(false);
 		expect(exported.validation.ok).toBe(true);
 
-		switchHome("birdclaw-backup-parts-dst-");
+		switchHome("neo-archive-backup-parts-dst-");
 		const imported = await importBackup({ repoPath, mode: "replace" });
 		expect(imported.fingerprint).toEqual(before);
 	}, 20000);
 
 	it("does not downgrade a fresh DM request when merging a stale backup", async () => {
-		switchHome("birdclaw-backup-dm-merge-");
+		switchHome("neo-archive-backup-dm-merge-");
 		seedBackupFixture();
-		const repoPath = makeTempDir("birdclaw-backup-dm-merge-repo-");
+		const repoPath = makeTempDir("neo-archive-backup-dm-merge-repo-");
 		getNativeDb({ seedDemoData: false })
 			.prepare(
 				"update dm_conversations set inbox_kind = 'accepted' where id = 'dm:friend'",
@@ -991,12 +991,12 @@ describe("text backup", () => {
 	});
 
 	it("merges backup rows without deleting local-only tweets", async () => {
-		switchHome("birdclaw-backup-src-");
+		switchHome("neo-archive-backup-src-");
 		seedBackupFixture();
-		const repoPath = makeTempDir("birdclaw-store-");
+		const repoPath = makeTempDir("neo-archive-store-");
 		await exportBackup({ repoPath });
 
-		switchHome("birdclaw-backup-merge-");
+		switchHome("neo-archive-backup-merge-");
 		const db = getNativeDb();
 		clearData();
 		insertTestAccount(db, {
@@ -1037,7 +1037,7 @@ describe("text backup", () => {
 	}, 20000);
 
 	it("adopts a proven legacy selected-account backup after importing all references", async () => {
-		switchHome("birdclaw-backup-legacy-account-source-");
+		switchHome("neo-archive-backup-legacy-account-source-");
 		const sourceDb = getNativeDb({ seedDemoData: false });
 		clearData();
 		insertTestAccount(sourceDb, {
@@ -1059,7 +1059,7 @@ describe("text backup", () => {
 		});
 		insertTestProfile(sourceDb, {
 			id: "profile_user_25401953",
-			handle: "birdclaw_stub_25401953",
+			handle: "neo_archive_stub_25401953",
 			displayName: "Numeric Stub",
 			bio: "",
 			followersCount: 0,
@@ -1086,7 +1086,7 @@ describe("text backup", () => {
 				 '[{"organizationHandle":"legacyco"}]', '{"id":"profile_me"}'),
 				('profile_user_25401953', 'legacy-numeric-stub',
 				 '2026-08-18T06:18:12.256Z', '2026-08-18T06:18:12.256Z',
-				 'backup-test', 'birdclaw_stub_25401953', 'Numeric Stub', '',
+				 'backup-test', 'neo_archive_stub_25401953', 'Numeric Stub', '',
 				 0, 0, '[]', '{"id":"25401953"}');
 
 			insert into profile_bio_entities (
@@ -1182,11 +1182,11 @@ describe("text backup", () => {
 			insert into mutes (account_id, profile_id, source, created_at)
 			values ('acct_primary', 'profile_me', 'backup-test', '2026-08-18T06:18:12.256Z');
 		`);
-		const repoPath = makeTempDir("birdclaw-legacy-account-store-");
+		const repoPath = makeTempDir("neo-archive-legacy-account-store-");
 		const prior = await exportBackup({ repoPath, db: sourceDb });
 		expect(prior.validation.ok).toBe(true);
 
-		switchHome("birdclaw-backup-legacy-account-destination-");
+		switchHome("neo-archive-backup-legacy-account-destination-");
 		const destinationDb = getNativeDb({ seedDemoData: false });
 		clearData();
 		insertTestAccount(destinationDb, {
@@ -1349,7 +1349,7 @@ describe("text backup", () => {
 		expect(
 			destinationDb
 				.prepare(
-					"select count(*) as count from identity_search_index where value like 'birdclaw_stale_%'",
+					"select count(*) as count from identity_search_index where value like 'neo_archive_stale_%'",
 				)
 				.get(),
 		).toEqual({ count: 0 });
@@ -1369,7 +1369,7 @@ describe("text backup", () => {
 	])(
 		"keeps unproven legacy profile_me separate for $name",
 		async ({ accountHandle, rawJson }) => {
-			switchHome("birdclaw-backup-unproven-legacy-source-");
+			switchHome("neo-archive-backup-unproven-legacy-source-");
 			const sourceDb = getNativeDb({ seedDemoData: false });
 			clearData();
 			insertTestAccount(sourceDb, {
@@ -1383,10 +1383,10 @@ describe("text backup", () => {
 				displayName: "Unproven Legacy",
 				rawJson,
 			});
-			const repoPath = makeTempDir("birdclaw-unproven-legacy-store-");
+			const repoPath = makeTempDir("neo-archive-unproven-legacy-store-");
 			await exportBackup({ repoPath, db: sourceDb });
 
-			switchHome("birdclaw-backup-unproven-legacy-destination-");
+			switchHome("neo-archive-backup-unproven-legacy-destination-");
 			const destinationDb = getNativeDb({ seedDemoData: false });
 			clearData();
 			insertTestAccount(destinationDb, {
@@ -1413,7 +1413,7 @@ describe("text backup", () => {
 			).toEqual([
 				expect.objectContaining({
 					id: "profile_me",
-					handle: expect.stringMatching(/^birdclaw_stale_/u),
+					handle: expect.stringMatching(/^neo_archive_stale_/u),
 				}),
 				{
 					id: "profile_user_25401953",
@@ -1425,7 +1425,7 @@ describe("text backup", () => {
 	);
 
 	it("keeps newer numeric profile identities when syncing a prior handle generation", async () => {
-		switchHome("birdclaw-backup-profile-handoff-");
+		switchHome("neo-archive-backup-profile-handoff-");
 		const db = getNativeDb({ seedDemoData: false });
 		clearData();
 		insertTestAccount(db, {
@@ -1433,9 +1433,9 @@ describe("text backup", () => {
 			handle: "@owner",
 			externalUserId: "9000",
 		});
-		const repoPath = makeTempDir("birdclaw-profile-handoff-store-");
+		const repoPath = makeTempDir("neo-archive-profile-handoff-store-");
 		const remotePath = path.join(
-			makeTempDir("birdclaw-profile-handoff-remote-"),
+			makeTempDir("neo-archive-profile-handoff-remote-"),
 			"remote.git",
 		);
 		execFileSync("git", ["init", "--bare", remotePath]);
@@ -1576,7 +1576,7 @@ describe("text backup", () => {
 	}, 20000);
 
 	it("adopts a newer backup profile generation into an older live database", async () => {
-		switchHome("birdclaw-backup-newer-profile-source-");
+		switchHome("neo-archive-backup-newer-profile-source-");
 		const sourceDb = getNativeDb({ seedDemoData: false });
 		clearData();
 		insertTestAccount(sourceDb, {
@@ -1584,7 +1584,7 @@ describe("text backup", () => {
 			handle: "@owner",
 			externalUserId: "9000",
 		});
-		const repoPath = makeTempDir("birdclaw-newer-profile-store-");
+		const repoPath = makeTempDir("neo-archive-newer-profile-store-");
 		vi.useFakeTimers({ toFake: ["Date"] });
 		try {
 			vi.setSystemTime(new Date("2026-08-18T10:00:00.000Z"));
@@ -1621,7 +1621,7 @@ describe("text backup", () => {
 			})();
 			const newer = await exportBackup({ repoPath, db: sourceDb });
 
-			switchHome("birdclaw-backup-older-profile-destination-");
+			switchHome("neo-archive-backup-older-profile-destination-");
 			const destinationDb = getNativeDb({ seedDemoData: false });
 			clearData();
 			insertTestAccount(destinationDb, {
@@ -1714,7 +1714,7 @@ describe("text backup", () => {
 	}, 20000);
 
 	it("round-trips tweet tombstones, subordinate deletions, and edit revisions", async () => {
-		switchHome("birdclaw-backup-tombstone-src-");
+		switchHome("neo-archive-backup-tombstone-src-");
 		seedBackupFixture();
 		const sourceDb = getNativeDb({ seedDemoData: false });
 		sourceDb.exec(`
@@ -1762,10 +1762,10 @@ describe("text backup", () => {
 				('tweet_2025', 'media', 'media-1', '2026-07-18T12:00:00.000Z', 'twitter_archive', 'parent_tweet_deleted'),
 				('tweet_2025', 'quote', 'tweet_quote', '2026-07-18T12:00:00.000Z', 'twitter_archive', 'parent_tweet_deleted');
 		`);
-		const repoPath = makeTempDir("birdclaw-tombstone-store-");
+		const repoPath = makeTempDir("neo-archive-tombstone-store-");
 		await exportBackup({ repoPath });
 
-		switchHome("birdclaw-backup-tombstone-dst-");
+		switchHome("neo-archive-backup-tombstone-dst-");
 		const db = getNativeDb({ seedDemoData: false });
 		insertTestTweet(db, {
 			id: "tweet_2025",
@@ -1884,12 +1884,15 @@ describe("text backup", () => {
 	}, 20000);
 
 	it("syncs through git by pulling, merging, exporting, committing, and pushing", async () => {
-		const remotePath = path.join(makeTempDir("birdclaw-remote-"), "remote.git");
+		const remotePath = path.join(
+			makeTempDir("neo-archive-remote-"),
+			"remote.git",
+		);
 		execFileSync("git", ["init", "--bare", remotePath]);
 
-		switchHome("birdclaw-sync-src-");
+		switchHome("neo-archive-sync-src-");
 		seedBackupFixture();
-		const repoPath = makeTempDir("birdclaw-sync-work-");
+		const repoPath = makeTempDir("neo-archive-sync-work-");
 
 		const first = await syncBackup({
 			repoPath,
@@ -1906,8 +1909,8 @@ describe("text backup", () => {
 			),
 		).toBe(false);
 
-		switchHome("birdclaw-sync-dst-");
-		const secondRepoPath = makeTempDir("birdclaw-sync-other-");
+		switchHome("neo-archive-sync-dst-");
+		const secondRepoPath = makeTempDir("neo-archive-sync-other-");
 		const second = await syncBackup({
 			repoPath: secondRepoPath,
 			remote: remotePath,
@@ -1972,13 +1975,13 @@ describe("text backup", () => {
 
 	it("adopts a validated non-Git export when syncing to an empty remote", async () => {
 		const remotePath = path.join(
-			makeTempDir("birdclaw-adopt-export-remote-"),
+			makeTempDir("neo-archive-adopt-export-remote-"),
 			"remote.git",
 		);
 		execFileSync("git", ["init", "--bare", remotePath]);
-		switchHome("birdclaw-adopt-export-home-");
+		switchHome("neo-archive-adopt-export-home-");
 		seedBackupFixture();
-		const repoPath = makeTempDir("birdclaw-adopt-export-repo-");
+		const repoPath = makeTempDir("neo-archive-adopt-export-repo-");
 		const exported = await exportBackup({ repoPath });
 		expect(exported.validation.ok).toBe(true);
 		expect(existsSync(path.join(repoPath, ".git"))).toBe(false);
@@ -2006,13 +2009,13 @@ describe("text backup", () => {
 
 	it("retries non-Git promotion after staged validation fails", async () => {
 		const remotePath = path.join(
-			makeTempDir("birdclaw-adopt-retry-remote-"),
+			makeTempDir("neo-archive-adopt-retry-remote-"),
 			"remote.git",
 		);
 		execFileSync("git", ["init", "--bare", remotePath]);
-		switchHome("birdclaw-adopt-retry-home-");
+		switchHome("neo-archive-adopt-retry-home-");
 		seedBackupFixture();
-		const repoPath = makeTempDir("birdclaw-adopt-retry-repo-");
+		const repoPath = makeTempDir("neo-archive-adopt-retry-repo-");
 		await exportBackup({ repoPath });
 		const before = snapshotTree(repoPath);
 		getNativeDb({ seedDemoData: false })
@@ -2067,13 +2070,13 @@ describe("text backup", () => {
 
 	it("retains promoted Git when its initial push has a retry receipt", async () => {
 		const remotePath = path.join(
-			makeTempDir("birdclaw-adopt-push-retry-remote-"),
+			makeTempDir("neo-archive-adopt-push-retry-remote-"),
 			"remote.git",
 		);
 		execFileSync("git", ["init", "--bare", remotePath]);
-		switchHome("birdclaw-adopt-push-retry-home-");
+		switchHome("neo-archive-adopt-push-retry-home-");
 		seedBackupFixture();
-		const repoPath = makeTempDir("birdclaw-adopt-push-retry-repo-");
+		const repoPath = makeTempDir("neo-archive-adopt-push-retry-repo-");
 		await exportBackup({ repoPath });
 		const hookPath = path.join(remotePath, "hooks", "pre-receive");
 		writeFileSync(hookPath, "#!/bin/sh\nexit 1\n", { mode: 0o755 });
@@ -2100,10 +2103,10 @@ describe("text backup", () => {
 	}, 30000);
 
 	it("rejects unexpected non-Git backup content before adoption", async () => {
-		switchHome("birdclaw-adopt-invalid-home-");
+		switchHome("neo-archive-adopt-invalid-home-");
 		seedBackupFixture();
 		for (const variant of ["root", "data"] as const) {
-			const repoPath = makeTempDir(`birdclaw-adopt-${variant}-repo-`);
+			const repoPath = makeTempDir(`neo-archive-adopt-${variant}-repo-`);
 			await exportBackup({ repoPath });
 			if (variant === "root") {
 				writeFileSync(path.join(repoPath, "private.txt"), "unexpected\n");
@@ -2111,7 +2114,7 @@ describe("text backup", () => {
 				writeFileSync(path.join(repoPath, "data", "unmanifested.json"), "{}\n");
 			}
 			const remotePath = path.join(
-				makeTempDir(`birdclaw-adopt-${variant}-remote-`),
+				makeTempDir(`neo-archive-adopt-${variant}-remote-`),
 				"remote.git",
 			);
 			execFileSync("git", ["init", "--bare", remotePath]);
@@ -2141,9 +2144,9 @@ describe("text backup", () => {
 	}, 30000);
 
 	it("rejects an independent process while it holds the repository lock", async () => {
-		switchHome("birdclaw-backup-lock-home-");
+		switchHome("neo-archive-backup-lock-home-");
 		seedBackupFixture();
-		const repoPath = makeTempDir("birdclaw-backup-lock-repo-");
+		const repoPath = makeTempDir("neo-archive-backup-lock-repo-");
 		const lockPath = __test__.backupLockPath(
 			await __test__.canonicalizeBackupRepoPath(repoPath),
 		);
@@ -2176,9 +2179,9 @@ describe("text backup", () => {
 	}, 20000);
 
 	it("uses one canonical lock identity through symlinked parent aliases", async () => {
-		switchHome("birdclaw-backup-alias-home-");
+		switchHome("neo-archive-backup-alias-home-");
 		seedBackupFixture();
-		const realParent = makeTempDir("birdclaw-backup-alias-parent-");
+		const realParent = makeTempDir("neo-archive-backup-alias-parent-");
 		const aliasParent = path.join(
 			path.dirname(realParent),
 			`${path.basename(realParent)}-alias`,
@@ -2212,9 +2215,9 @@ describe("text backup", () => {
 	}, 20000);
 
 	it("fails closed on dirty, index-locked, and manifest-mismatched checkouts", async () => {
-		switchHome("birdclaw-backup-preflight-home-");
+		switchHome("neo-archive-backup-preflight-home-");
 		seedBackupFixture();
-		const repoPath = makeTempDir("birdclaw-backup-preflight-repo-");
+		const repoPath = makeTempDir("neo-archive-backup-preflight-repo-");
 		await exportBackup({ repoPath, commit: true });
 		const before = snapshotTree(repoPath);
 		let databaseOpens = 0;
@@ -2257,7 +2260,7 @@ describe("text backup", () => {
 		await expect(exportBackup({ repoPath })).rejects.toThrow(
 			"Current backup manifest is invalid",
 		);
-		switchHome("birdclaw-backup-preflight-import-dst-");
+		switchHome("neo-archive-backup-preflight-import-dst-");
 		const destination = getNativeDb({ seedDemoData: false });
 		const beforeAccounts = destination
 			.prepare("select count(*) as count from accounts")
@@ -2272,16 +2275,16 @@ describe("text backup", () => {
 	}, 20000);
 
 	it("automatic dirty-check failures do not open or create a database", async () => {
-		const previousAutoSyncEnv = process.env.BIRDCLAW_BACKUP_AUTO_SYNC;
-		process.env.BIRDCLAW_BACKUP_AUTO_SYNC = "1";
+		const previousAutoSyncEnv = process.env.NEO_ARCHIVE_BACKUP_AUTO_SYNC;
+		process.env.NEO_ARCHIVE_BACKUP_AUTO_SYNC = "1";
 		try {
-			switchHome("birdclaw-backup-auto-preflight-source-");
+			switchHome("neo-archive-backup-auto-preflight-source-");
 			seedBackupFixture();
-			const repoPath = makeTempDir("birdclaw-backup-auto-preflight-repo-");
+			const repoPath = makeTempDir("neo-archive-backup-auto-preflight-repo-");
 			await exportBackup({ repoPath, commit: true });
 			writeFileSync(path.join(repoPath, "dirty.txt"), "dirty\n");
 
-			const cleanHome = switchHome("birdclaw-backup-auto-preflight-home-");
+			const cleanHome = switchHome("neo-archive-backup-auto-preflight-home-");
 			writeBackupConfig(cleanHome, {
 				repoPath,
 				autoSync: true,
@@ -2297,23 +2300,25 @@ describe("text backup", () => {
 				ok: false,
 			});
 			expect(databaseOpens).toBe(0);
-			expect(existsSync(path.join(cleanHome, "birdclaw.sqlite"))).toBe(false);
+			expect(existsSync(path.join(cleanHome, "neo-archive.sqlite"))).toBe(
+				false,
+			);
 		} finally {
 			if (previousAutoSyncEnv === undefined) {
-				delete process.env.BIRDCLAW_BACKUP_AUTO_SYNC;
+				delete process.env.NEO_ARCHIVE_BACKUP_AUTO_SYNC;
 			} else {
-				process.env.BIRDCLAW_BACKUP_AUTO_SYNC = previousAutoSyncEnv;
+				process.env.NEO_ARCHIVE_BACKUP_AUTO_SYNC = previousAutoSyncEnv;
 			}
 		}
 	}, 20000);
 
 	it("reads auto-update freshness without opening or migrating the database", async () => {
-		const previousAutoSyncEnv = process.env.BIRDCLAW_BACKUP_AUTO_SYNC;
-		process.env.BIRDCLAW_BACKUP_AUTO_SYNC = "1";
+		const previousAutoSyncEnv = process.env.NEO_ARCHIVE_BACKUP_AUTO_SYNC;
+		process.env.NEO_ARCHIVE_BACKUP_AUTO_SYNC = "1";
 		try {
-			const home = switchHome("birdclaw-backup-fresh-readonly-home-");
+			const home = switchHome("neo-archive-backup-fresh-readonly-home-");
 			seedBackupFixture();
-			const repoPath = makeTempDir("birdclaw-backup-fresh-readonly-repo-");
+			const repoPath = makeTempDir("neo-archive-backup-fresh-readonly-repo-");
 			await exportBackup({ repoPath, commit: true });
 			writeBackupConfig(home, {
 				repoPath,
@@ -2351,20 +2356,20 @@ describe("text backup", () => {
 			);
 		} finally {
 			if (previousAutoSyncEnv === undefined) {
-				delete process.env.BIRDCLAW_BACKUP_AUTO_SYNC;
+				delete process.env.NEO_ARCHIVE_BACKUP_AUTO_SYNC;
 			} else {
-				process.env.BIRDCLAW_BACKUP_AUTO_SYNC = previousAutoSyncEnv;
+				process.env.NEO_ARCHIVE_BACKUP_AUTO_SYNC = previousAutoSyncEnv;
 			}
 		}
 	}, 20000);
 
 	it("exports all tables from one SQLite read transaction", async () => {
-		switchHome("birdclaw-backup-snapshot-home-");
+		switchHome("neo-archive-backup-snapshot-home-");
 		seedBackupFixture();
-		const repoPath = makeTempDir("birdclaw-backup-snapshot-repo-");
-		const contender = new NativeSqliteDatabase(getBirdclawPaths().dbPath);
+		const repoPath = makeTempDir("neo-archive-backup-snapshot-repo-");
+		const contender = new NativeSqliteDatabase(getNeoArchivePaths().dbPath);
 		let mutated = false;
-		const reader = new NativeSqliteDatabase(getBirdclawPaths().dbPath, {
+		const reader = new NativeSqliteDatabase(getNeoArchivePaths().dbPath, {
 			onStatement(sql) {
 				if (mutated || !/from\s+accounts/i.test(sql)) return;
 				mutated = true;
@@ -2399,9 +2404,9 @@ describe("text backup", () => {
 	}, 20000);
 
 	it("leaves the live generation byte-identical when staged validation fails", async () => {
-		switchHome("birdclaw-backup-stage-home-");
+		switchHome("neo-archive-backup-stage-home-");
 		seedBackupFixture();
-		const repoPath = makeTempDir("birdclaw-backup-stage-repo-");
+		const repoPath = makeTempDir("neo-archive-backup-stage-repo-");
 		await exportBackup({ repoPath });
 		const before = snapshotTree(repoPath);
 		getNativeDb({ seedDemoData: false })
@@ -2420,9 +2425,9 @@ describe("text backup", () => {
 	}, 20000);
 
 	it("recovers one complete generation at every publication rename boundary", async () => {
-		switchHome("birdclaw-backup-journal-home-");
+		switchHome("neo-archive-backup-journal-home-");
 		seedBackupFixture();
-		const repoPath = makeTempDir("birdclaw-backup-journal-repo-");
+		const repoPath = makeTempDir("neo-archive-backup-journal-repo-");
 		await exportBackup({ repoPath, commit: true });
 		const before = snapshotTree(repoPath);
 		const cases = [
@@ -2468,9 +2473,9 @@ describe("text backup", () => {
 	}, 120000);
 
 	it("falls back when the preferred transaction root is not writable", async () => {
-		switchHome("birdclaw-backup-root-fallback-home-");
+		switchHome("neo-archive-backup-root-fallback-home-");
 		seedBackupFixture();
-		const repoPath = makeTempDir("birdclaw-backup-root-fallback-repo-");
+		const repoPath = makeTempDir("neo-archive-backup-root-fallback-repo-");
 		await exportBackup({ repoPath, commit: true });
 		const roots = await __test__.transactionRootPaths(repoPath);
 		const preferredRoot = roots[0]!;
@@ -2504,19 +2509,19 @@ describe("text backup", () => {
 	}, 30000);
 
 	it("recovers an interrupted publication journal on the next process", async () => {
-		const home = switchHome("birdclaw-backup-restart-home-");
+		const home = switchHome("neo-archive-backup-restart-home-");
 		seedBackupFixture();
-		const repoPath = makeTempDir("birdclaw-backup-restart-repo-");
+		const repoPath = makeTempDir("neo-archive-backup-restart-repo-");
 		await exportBackup({ repoPath, commit: true });
 		const before = snapshotTree(repoPath);
 		const scriptPath = path.join(
-			makeTempDir("birdclaw-backup-restart-script-"),
+			makeTempDir("neo-archive-backup-restart-script-"),
 			"crash.mjs",
 		);
 		const backupModuleUrl = new URL("./backup.ts", import.meta.url).href;
 		writeFileSync(
 			scriptPath,
-			`process.env.BIRDCLAW_HOME = process.argv[2];
+			`process.env.NEO_ARCHIVE_HOME = process.argv[2];
 			 const { __test__, exportBackup } = await import(${JSON.stringify(backupModuleUrl)});
 			 __test__.setAfterPublicationRename((relativePath, phase) => {
 			   if (relativePath === "data" && phase === "rollback") process.exit(86);
@@ -2548,9 +2553,9 @@ describe("text backup", () => {
 	}, 30000);
 
 	it("refuses recovery after the repository directory is recreated", async () => {
-		const home = switchHome("birdclaw-backup-recreated-repo-home-");
+		const home = switchHome("neo-archive-backup-recreated-repo-home-");
 		seedBackupFixture();
-		const repoPath = makeTempDir("birdclaw-backup-recreated-repo-");
+		const repoPath = makeTempDir("neo-archive-backup-recreated-repo-");
 		await exportBackup({ repoPath });
 		getNativeDb({ seedDemoData: false })
 			.prepare(
@@ -2559,13 +2564,13 @@ describe("text backup", () => {
 			.run();
 		const transactionRoots = await __test__.transactionRootPaths(repoPath);
 		const scriptPath = path.join(
-			makeTempDir("birdclaw-backup-recreated-script-"),
+			makeTempDir("neo-archive-backup-recreated-script-"),
 			"crash.mjs",
 		);
 		const backupModuleUrl = new URL("./backup.ts", import.meta.url).href;
 		writeFileSync(
 			scriptPath,
-			`process.env.BIRDCLAW_HOME = process.argv[2];
+			`process.env.NEO_ARCHIVE_HOME = process.argv[2];
 			 const { __test__, exportBackup } = await import(${JSON.stringify(backupModuleUrl)});
 			 __test__.setAfterPublication(() => process.exit(90));
 			 await exportBackup({ repoPath: process.argv[3] });`,
@@ -2616,13 +2621,13 @@ describe("text backup", () => {
 	}, 30000);
 
 	it("rejects journal stage and rollback escapes without touching victims", async () => {
-		switchHome("birdclaw-journal-escape-home-");
+		switchHome("neo-archive-journal-escape-home-");
 		seedBackupFixture();
 		for (const field of ["stagePath", "rollbackPath"] as const) {
-			const repoPath = makeTempDir(`birdclaw-journal-${field}-repo-`);
+			const repoPath = makeTempDir(`neo-archive-journal-${field}-repo-`);
 			await exportBackup({ repoPath, commit: true });
 			const fixture = await makeRecoveryJournalFixture(repoPath);
-			const victim = makeTempDir(`birdclaw-journal-${field}-victim-`);
+			const victim = makeTempDir(`neo-archive-journal-${field}-victim-`);
 			const sentinel = path.join(victim, "sentinel.txt");
 			writeFileSync(sentinel, "untouched\n");
 			writeFileSync(
@@ -2639,12 +2644,12 @@ describe("text backup", () => {
 	}, 30000);
 
 	it("falls back from a symlinked preferred transaction root without touching its target", async () => {
-		switchHome("birdclaw-journal-root-symlink-home-");
+		switchHome("neo-archive-journal-root-symlink-home-");
 		seedBackupFixture();
-		const repoPath = makeTempDir("birdclaw-journal-root-symlink-repo-");
+		const repoPath = makeTempDir("neo-archive-journal-root-symlink-repo-");
 		await exportBackup({ repoPath, commit: true });
 		const transactionRoot = (await __test__.transactionRootPaths(repoPath))[0]!;
-		const victim = makeTempDir("birdclaw-journal-root-symlink-victim-");
+		const victim = makeTempDir("neo-archive-journal-root-symlink-victim-");
 		const sentinel = path.join(victim, "stage-keep");
 		mkdirSync(sentinel);
 		writeFileSync(path.join(sentinel, "sentinel.txt"), "untouched\n");
@@ -2659,13 +2664,13 @@ describe("text backup", () => {
 	}, 30000);
 
 	it("rejects a forged recovery index path before copying or removing files", async () => {
-		switchHome("birdclaw-journal-index-home-");
+		switchHome("neo-archive-journal-index-home-");
 		seedBackupFixture();
-		const repoPath = makeTempDir("birdclaw-journal-index-repo-");
+		const repoPath = makeTempDir("neo-archive-journal-index-repo-");
 		await exportBackup({ repoPath, commit: true });
 		const fixture = await makeRecoveryJournalFixture(repoPath);
 		const victim = path.join(
-			makeTempDir("birdclaw-journal-index-victim-"),
+			makeTempDir("neo-archive-journal-index-victim-"),
 			"victim-index",
 		);
 		writeFileSync(victim, "untouched index\n");
@@ -2682,9 +2687,9 @@ describe("text backup", () => {
 	}, 30000);
 
 	it("does not mistake an unrelated HEAD advance for the published backup", async () => {
-		const home = switchHome("birdclaw-backup-unrelated-head-home-");
+		const home = switchHome("neo-archive-backup-unrelated-head-home-");
 		seedBackupFixture();
-		const repoPath = makeTempDir("birdclaw-backup-unrelated-head-repo-");
+		const repoPath = makeTempDir("neo-archive-backup-unrelated-head-repo-");
 		await exportBackup({ repoPath, commit: true });
 		const managedSnapshot = () =>
 			new Map(
@@ -2705,13 +2710,13 @@ describe("text backup", () => {
 			)
 			.run();
 		const scriptPath = path.join(
-			makeTempDir("birdclaw-backup-unrelated-head-script-"),
+			makeTempDir("neo-archive-backup-unrelated-head-script-"),
 			"crash.mjs",
 		);
 		const backupModuleUrl = new URL("./backup.ts", import.meta.url).href;
 		writeFileSync(
 			scriptPath,
-			`process.env.BIRDCLAW_HOME = process.argv[2];
+			`process.env.NEO_ARCHIVE_HOME = process.argv[2];
 			 const { __test__, exportBackup } = await import(${JSON.stringify(backupModuleUrl)});
 			 __test__.setAfterPublication(() => process.exit(88));
 			 await exportBackup({ repoPath: process.argv[3], commit: true });`,
@@ -2776,9 +2781,9 @@ describe("text backup", () => {
 	}, 30000);
 
 	it("preserves unrelated staged index state while rolling back publication", async () => {
-		const home = switchHome("birdclaw-backup-staged-recovery-home-");
+		const home = switchHome("neo-archive-backup-staged-recovery-home-");
 		seedBackupFixture();
-		const repoPath = makeTempDir("birdclaw-backup-staged-recovery-repo-");
+		const repoPath = makeTempDir("neo-archive-backup-staged-recovery-repo-");
 		await exportBackup({ repoPath, commit: true });
 		const unrelatedPath = path.join(repoPath, "unrelated-note.txt");
 		writeFileSync(unrelatedPath, "base\n");
@@ -2809,13 +2814,13 @@ describe("text backup", () => {
 			)
 			.run();
 		const scriptPath = path.join(
-			makeTempDir("birdclaw-backup-staged-recovery-script-"),
+			makeTempDir("neo-archive-backup-staged-recovery-script-"),
 			"crash.mjs",
 		);
 		const backupModuleUrl = new URL("./backup.ts", import.meta.url).href;
 		writeFileSync(
 			scriptPath,
-			`process.env.BIRDCLAW_HOME = process.argv[2];
+			`process.env.NEO_ARCHIVE_HOME = process.argv[2];
 			 const { __test__, exportBackup } = await import(${JSON.stringify(backupModuleUrl)});
 			 __test__.setAfterPublication(() => process.exit(89));
 			 await exportBackup({ repoPath: process.argv[3], commit: true });`,
@@ -2870,21 +2875,21 @@ describe("text backup", () => {
 	}, 30000);
 
 	it("finds a pre-Git crash journal after external Git initialization", async () => {
-		const home = switchHome("birdclaw-backup-pre-git-restart-home-");
+		const home = switchHome("neo-archive-backup-pre-git-restart-home-");
 		seedBackupFixture();
-		const repoPath = makeTempDir("birdclaw-backup-pre-git-restart-repo-");
+		const repoPath = makeTempDir("neo-archive-backup-pre-git-restart-repo-");
 		const [preGitTransactionRoot] =
 			await __test__.transactionRootPaths(repoPath);
 		await exportBackup({ repoPath });
 		const before = snapshotTree(repoPath);
 		const scriptPath = path.join(
-			makeTempDir("birdclaw-backup-pre-git-script-"),
+			makeTempDir("neo-archive-backup-pre-git-script-"),
 			"crash.mjs",
 		);
 		const backupModuleUrl = new URL("./backup.ts", import.meta.url).href;
 		writeFileSync(
 			scriptPath,
-			`process.env.BIRDCLAW_HOME = process.argv[2];
+			`process.env.NEO_ARCHIVE_HOME = process.argv[2];
 			 const { __test__, exportBackup } = await import(${JSON.stringify(backupModuleUrl)});
 			 __test__.setAfterPublicationRename((relativePath, phase) => {
 			   if (relativePath === "data" && phase === "rollback") process.exit(87);
@@ -2929,9 +2934,9 @@ describe("text backup", () => {
 	}, 30000);
 
 	it("does not report failure when committed-journal cleanup is deferred", async () => {
-		switchHome("birdclaw-backup-cleanup-home-");
+		switchHome("neo-archive-backup-cleanup-home-");
 		seedBackupFixture();
-		const repoPath = makeTempDir("birdclaw-backup-cleanup-repo-");
+		const repoPath = makeTempDir("neo-archive-backup-cleanup-repo-");
 		__test__.setBeforeCommittedCleanup(() => {
 			throw new Error("synthetic cleanup failure");
 		});
@@ -2956,9 +2961,9 @@ describe("text backup", () => {
 	}, 20000);
 
 	it("recovers when rollback cleanup stops after deleting the journal", async () => {
-		switchHome("birdclaw-backup-rollback-cleanup-home-");
+		switchHome("neo-archive-backup-rollback-cleanup-home-");
 		seedBackupFixture();
-		const repoPath = makeTempDir("birdclaw-backup-rollback-cleanup-repo-");
+		const repoPath = makeTempDir("neo-archive-backup-rollback-cleanup-repo-");
 		await exportBackup({ repoPath, commit: true });
 		const before = snapshotTree(repoPath);
 		__test__.setAfterPublicationRename((relativePath, phase) => {
@@ -2991,13 +2996,13 @@ describe("text backup", () => {
 
 	it("exports current database changes when a local commit has no push receipt", async () => {
 		const remotePath = path.join(
-			makeTempDir("birdclaw-no-receipt-remote-"),
+			makeTempDir("neo-archive-no-receipt-remote-"),
 			"remote.git",
 		);
 		execFileSync("git", ["init", "--bare", remotePath]);
-		switchHome("birdclaw-no-receipt-home-");
+		switchHome("neo-archive-no-receipt-home-");
 		seedBackupFixture();
-		const repoPath = makeTempDir("birdclaw-no-receipt-repo-");
+		const repoPath = makeTempDir("neo-archive-no-receipt-repo-");
 		await syncBackup({ repoPath, remote: remotePath });
 		const db = getNativeDb({ seedDemoData: false });
 		db.prepare(
@@ -3050,15 +3055,15 @@ describe("text backup", () => {
 
 	it("retries a receipt-owned first push when origin main remains absent", async () => {
 		const remotePath = path.join(
-			makeTempDir("birdclaw-empty-push-retry-remote-"),
+			makeTempDir("neo-archive-empty-push-retry-remote-"),
 			"remote.git",
 		);
 		execFileSync("git", ["init", "--bare", remotePath]);
 		const hookPath = path.join(remotePath, "hooks", "pre-receive");
 		writeFileSync(hookPath, "#!/bin/sh\nexit 1\n", { mode: 0o755 });
-		switchHome("birdclaw-empty-push-retry-home-");
+		switchHome("neo-archive-empty-push-retry-home-");
 		seedBackupFixture();
-		const repoPath = makeTempDir("birdclaw-empty-push-retry-repo-");
+		const repoPath = makeTempDir("neo-archive-empty-push-retry-repo-");
 
 		await expect(syncBackup({ repoPath, remote: remotePath })).rejects.toThrow(
 			"Command failed",
@@ -3129,13 +3134,13 @@ describe("text backup", () => {
 
 	it("retries only the push after a committed generation failed to push", async () => {
 		const remotePath = path.join(
-			makeTempDir("birdclaw-push-retry-remote-"),
+			makeTempDir("neo-archive-push-retry-remote-"),
 			"remote.git",
 		);
 		execFileSync("git", ["init", "--bare", remotePath]);
-		switchHome("birdclaw-push-retry-home-");
+		switchHome("neo-archive-push-retry-home-");
 		seedBackupFixture();
-		const repoPath = makeTempDir("birdclaw-push-retry-repo-");
+		const repoPath = makeTempDir("neo-archive-push-retry-repo-");
 		await syncBackup({ repoPath, remote: remotePath });
 		getNativeDb({ seedDemoData: false })
 			.prepare(
@@ -3246,7 +3251,7 @@ describe("text backup", () => {
 	}, 30000);
 
 	it("matches pending-push remote identity across credential rotation", async () => {
-		const repoPath = makeTempDir("birdclaw-remote-identity-repo-");
+		const repoPath = makeTempDir("neo-archive-remote-identity-repo-");
 		const oldCredential = await __test__.canonicalBackupRemoteIdentity(
 			repoPath,
 			"https://oldtoken@example.com:443/team/archive.git?access_token=old",
@@ -3296,13 +3301,15 @@ describe("text backup", () => {
 	it("ignores symlinked receipt roots and files while using a safe fallback", async () => {
 		const createPendingPush = async (label: string) => {
 			const remotePath = path.join(
-				makeTempDir(`birdclaw-receipt-symlink-${label}-remote-`),
+				makeTempDir(`neo-archive-receipt-symlink-${label}-remote-`),
 				"remote.git",
 			);
 			execFileSync("git", ["init", "--bare", remotePath]);
-			switchHome(`birdclaw-receipt-symlink-${label}-home-`);
+			switchHome(`neo-archive-receipt-symlink-${label}-home-`);
 			seedBackupFixture();
-			const repoPath = makeTempDir(`birdclaw-receipt-symlink-${label}-repo-`);
+			const repoPath = makeTempDir(
+				`neo-archive-receipt-symlink-${label}-repo-`,
+			);
 			await syncBackup({ repoPath, remote: remotePath });
 			getNativeDb({ seedDemoData: false })
 				.prepare(
@@ -3334,7 +3341,7 @@ describe("text backup", () => {
 			(root) => root !== preferredRoot && !existsSync(root),
 		)!;
 		renameSync(preferredRoot, fallbackRoot);
-		const rootVictim = makeTempDir("birdclaw-receipt-root-victim-");
+		const rootVictim = makeTempDir("neo-archive-receipt-root-victim-");
 		const rootVictimReceipt = path.join(rootVictim, "pending-push.json");
 		writeFileSync(rootVictimReceipt, rootCase.receiptBytes);
 		symlinkSync(rootVictim, preferredRoot, "dir");
@@ -3359,7 +3366,7 @@ describe("text backup", () => {
 		);
 		rmSync(fileCase.receiptPath);
 		const fileVictim = path.join(
-			makeTempDir("birdclaw-receipt-file-victim-"),
+			makeTempDir("neo-archive-receipt-file-victim-"),
 			"victim-receipt.json",
 		);
 		writeFileSync(fileVictim, fileCase.receiptBytes);
@@ -3376,13 +3383,13 @@ describe("text backup", () => {
 	it("refuses push-only recovery for mismatched receipts and divergence", async () => {
 		const createFailedPushState = async (label: string) => {
 			const remotePath = path.join(
-				makeTempDir(`birdclaw-receipt-${label}-remote-`),
+				makeTempDir(`neo-archive-receipt-${label}-remote-`),
 				"remote.git",
 			);
 			execFileSync("git", ["init", "--bare", remotePath]);
-			switchHome(`birdclaw-receipt-${label}-home-`);
+			switchHome(`neo-archive-receipt-${label}-home-`);
 			seedBackupFixture();
-			const repoPath = makeTempDir(`birdclaw-receipt-${label}-repo-`);
+			const repoPath = makeTempDir(`neo-archive-receipt-${label}-repo-`);
 			await syncBackup({ repoPath, remote: remotePath });
 			getNativeDb({ seedDemoData: false })
 				.prepare(
@@ -3437,7 +3444,7 @@ describe("text backup", () => {
 		__test__.setBeforeDatabaseOpen(undefined);
 		const mismatchedRemote = await createFailedPushState("remote_mismatch");
 		const otherRemotePath = path.join(
-			makeTempDir("birdclaw-receipt-other-remote-"),
+			makeTempDir("neo-archive-receipt-other-remote-"),
 			"remote.git",
 		);
 		execFileSync("git", ["init", "--bare", otherRemotePath]);
@@ -3461,7 +3468,7 @@ describe("text backup", () => {
 
 		__test__.setBeforeDatabaseOpen(undefined);
 		const diverged = await createFailedPushState("diverged");
-		const otherPath = makeTempDir("birdclaw-receipt-diverged-other-");
+		const otherPath = makeTempDir("neo-archive-receipt-diverged-other-");
 		rmSync(otherPath, { recursive: true, force: true });
 		execFileSync("git", [
 			"clone",
@@ -3507,19 +3514,19 @@ describe("text backup", () => {
 
 	it("fails closed when local and remote backup histories diverge", async () => {
 		const remotePath = path.join(
-			makeTempDir("birdclaw-diverged-remote-"),
+			makeTempDir("neo-archive-diverged-remote-"),
 			"remote.git",
 		);
 		execFileSync("git", ["init", "--bare", remotePath]);
-		switchHome("birdclaw-diverged-home-");
+		switchHome("neo-archive-diverged-home-");
 		seedBackupFixture();
-		const repoPath = makeTempDir("birdclaw-diverged-repo-");
+		const repoPath = makeTempDir("neo-archive-diverged-repo-");
 		await syncBackup({ repoPath, remote: remotePath });
 		writeFileSync(path.join(repoPath, "local-note.txt"), "local\n");
 		execFileSync("git", ["-C", repoPath, "add", "local-note.txt"]);
 		execFileSync("git", ["-C", repoPath, "commit", "-m", "test: local side"]);
 
-		const otherPath = makeTempDir("birdclaw-diverged-other-");
+		const otherPath = makeTempDir("neo-archive-diverged-other-");
 		rmSync(otherPath, { recursive: true, force: true });
 		execFileSync("git", ["clone", "-b", "main", remotePath, otherPath]);
 		execFileSync("git", [
@@ -3553,13 +3560,13 @@ describe("text backup", () => {
 
 	it("validates a fetched fast-forward before changing the live checkout", async () => {
 		const remotePath = path.join(
-			makeTempDir("birdclaw-corrupt-remote-"),
+			makeTempDir("neo-archive-corrupt-remote-"),
 			"remote.git",
 		);
 		execFileSync("git", ["init", "--bare", remotePath]);
-		switchHome("birdclaw-corrupt-home-");
+		switchHome("neo-archive-corrupt-home-");
 		seedBackupFixture();
-		const repoPath = makeTempDir("birdclaw-corrupt-repo-");
+		const repoPath = makeTempDir("neo-archive-corrupt-repo-");
 		await syncBackup({ repoPath, remote: remotePath });
 		const originalHead = execFileSync(
 			"git",
@@ -3570,7 +3577,7 @@ describe("text backup", () => {
 		).trim();
 		const originalTree = snapshotTree(repoPath);
 
-		const otherPath = makeTempDir("birdclaw-corrupt-other-");
+		const otherPath = makeTempDir("neo-archive-corrupt-other-");
 		rmSync(otherPath, { recursive: true, force: true });
 		execFileSync("git", ["clone", "-b", "main", remotePath, otherPath]);
 		execFileSync("git", [
@@ -3625,13 +3632,13 @@ describe("text backup", () => {
 
 	it("validates a fresh main-default remote before creating the checkout", async () => {
 		const remotePath = path.join(
-			makeTempDir("birdclaw-fresh-corrupt-remote-"),
+			makeTempDir("neo-archive-fresh-corrupt-remote-"),
 			"remote.git",
 		);
 		execFileSync("git", ["init", "--bare", remotePath]);
-		switchHome("birdclaw-fresh-corrupt-source-home-");
+		switchHome("neo-archive-fresh-corrupt-source-home-");
 		seedBackupFixture();
-		const sourcePath = makeTempDir("birdclaw-fresh-corrupt-source-");
+		const sourcePath = makeTempDir("neo-archive-fresh-corrupt-source-");
 		await syncBackup({ repoPath: sourcePath, remote: remotePath });
 		const validHead = execFileSync(
 			"git",
@@ -3639,7 +3646,7 @@ describe("text backup", () => {
 			{ encoding: "utf8" },
 		).trim();
 
-		const otherPath = makeTempDir("birdclaw-fresh-corrupt-other-");
+		const otherPath = makeTempDir("neo-archive-fresh-corrupt-other-");
 		rmSync(otherPath, { recursive: true, force: true });
 		execFileSync("git", ["clone", "-b", "main", remotePath, otherPath]);
 		execFileSync("git", [
@@ -3676,9 +3683,9 @@ describe("text backup", () => {
 			"refs/heads/main",
 		]);
 
-		const freshPath = makeTempDir("birdclaw-fresh-corrupt-checkout-");
+		const freshPath = makeTempDir("neo-archive-fresh-corrupt-checkout-");
 		rmSync(freshPath, { recursive: true, force: true });
-		switchHome("birdclaw-fresh-corrupt-destination-home-");
+		switchHome("neo-archive-fresh-corrupt-destination-home-");
 		await expect(
 			syncBackup({ repoPath: freshPath, remote: remotePath }),
 		).rejects.toThrow("Fetched backup commit contains an invalid managed path");
@@ -3708,11 +3715,11 @@ describe("text backup", () => {
 
 	it("streams fetched backup shards larger than the former restoration ceiling", async () => {
 		const remotePath = path.join(
-			makeTempDir("birdclaw-large-remote-"),
+			makeTempDir("neo-archive-large-remote-"),
 			"remote.git",
 		);
 		execFileSync("git", ["init", "--bare", remotePath]);
-		switchHome("birdclaw-large-source-home-");
+		switchHome("neo-archive-large-source-home-");
 		seedBackupFixture();
 		const sourceDb = getNativeDb({ seedDemoData: false });
 		sourceDb
@@ -3723,7 +3730,7 @@ describe("text backup", () => {
 					padding: "x".repeat(50 * 1024 * 1024),
 				}),
 			);
-		const sourcePath = makeTempDir("birdclaw-large-source-");
+		const sourcePath = makeTempDir("neo-archive-large-source-");
 		execFileSync("git", ["-C", sourcePath, "init"]);
 		execFileSync("git", [
 			"-C",
@@ -3744,8 +3751,8 @@ describe("text backup", () => {
 			statSync(path.join(sourcePath, "data", "profiles.jsonl")).size,
 		).toBeGreaterThan(49 * 1024 * 1024);
 
-		switchHome("birdclaw-large-destination-home-");
-		const destinationPath = makeTempDir("birdclaw-large-destination-");
+		switchHome("neo-archive-large-destination-home-");
+		const destinationPath = makeTempDir("neo-archive-large-destination-");
 		const result = await Effect.runPromise(
 			updateBackupFromGitEffect({
 				repoPath: destinationPath,
@@ -3758,13 +3765,13 @@ describe("text backup", () => {
 
 	it("rejects NUL-safe fetched inventory with a newline managed path", async () => {
 		const remotePath = path.join(
-			makeTempDir("birdclaw-newline-remote-"),
+			makeTempDir("neo-archive-newline-remote-"),
 			"remote.git",
 		);
 		execFileSync("git", ["init", "--bare", remotePath]);
-		switchHome("birdclaw-newline-home-");
+		switchHome("neo-archive-newline-home-");
 		seedBackupFixture();
-		const repoPath = makeTempDir("birdclaw-newline-repo-");
+		const repoPath = makeTempDir("neo-archive-newline-repo-");
 		await syncBackup({ repoPath, remote: remotePath });
 		const originalHead = execFileSync(
 			"git",
@@ -3774,7 +3781,7 @@ describe("text backup", () => {
 			},
 		).trim();
 		const originalTree = snapshotTree(repoPath);
-		const otherPath = makeTempDir("birdclaw-newline-other-");
+		const otherPath = makeTempDir("neo-archive-newline-other-");
 		rmSync(otherPath, { recursive: true, force: true });
 		execFileSync("git", ["clone", "-b", "main", remotePath, otherPath]);
 		execFileSync("git", [
@@ -3819,16 +3826,19 @@ describe("text backup", () => {
 	}, 30000);
 
 	it("pushes backup commits to origin main despite upstream misdirection", async () => {
-		const originPath = path.join(makeTempDir("birdclaw-origin-"), "origin.git");
+		const originPath = path.join(
+			makeTempDir("neo-archive-origin-"),
+			"origin.git",
+		);
 		const upstreamPath = path.join(
-			makeTempDir("birdclaw-upstream-"),
+			makeTempDir("neo-archive-upstream-"),
 			"upstream.git",
 		);
 		execFileSync("git", ["init", "--bare", originPath]);
 		execFileSync("git", ["init", "--bare", upstreamPath]);
-		switchHome("birdclaw-push-origin-home-");
+		switchHome("neo-archive-push-origin-home-");
 		seedBackupFixture();
-		const repoPath = makeTempDir("birdclaw-push-origin-repo-");
+		const repoPath = makeTempDir("neo-archive-push-origin-repo-");
 		await syncBackup({ repoPath, remote: originPath });
 		const firstHead = execFileSync(
 			"git",
@@ -3894,7 +3904,7 @@ describe("text backup", () => {
 	}, 30000);
 
 	it("isolates backup commits from an enclosing Git worktree", async () => {
-		const parentPath = makeTempDir("birdclaw-parent-worktree-");
+		const parentPath = makeTempDir("neo-archive-parent-worktree-");
 		execFileSync("git", ["-C", parentPath, "init"]);
 		const repoPath = path.join(parentPath, "backup");
 		mkdirSync(repoPath);
@@ -3902,7 +3912,7 @@ describe("text backup", () => {
 			path.join(repoPath, ".gitattributes"),
 			"*.md text eol=lf\ndata/**/*.jsonl text eol=crlf\n",
 		);
-		switchHome("birdclaw-nested-backup-");
+		switchHome("neo-archive-nested-backup-");
 		seedBackupFixture();
 
 		const result = await exportBackup({ repoPath, commit: true });
@@ -3927,11 +3937,11 @@ describe("text backup", () => {
 				"*.md text eol=lf",
 				"data/**/*.jsonl text eol=crlf",
 				"",
-				"# BEGIN birdclaw backup attributes",
-				"# Backup hashes use the raw LF-delimited bytes written by Birdclaw.",
+				"# BEGIN neo-archive backup attributes",
+				"# Backup hashes use the raw LF-delimited bytes written by Neo Archive.",
 				"data/**/*.jsonl text eol=lf",
 				"manifest.json text eol=lf",
-				"# END birdclaw backup attributes",
+				"# END neo-archive backup attributes",
 				"",
 			].join("\n"),
 		);
@@ -3958,9 +3968,9 @@ describe("text backup", () => {
 	}, 20000);
 
 	it("does not inherit commit signing for generated backup commits", async () => {
-		switchHome("birdclaw-sync-signing-src-");
+		switchHome("neo-archive-sync-signing-src-");
 		seedBackupFixture();
-		const repoPath = makeTempDir("birdclaw-sync-signing-work-");
+		const repoPath = makeTempDir("neo-archive-sync-signing-work-");
 		execFileSync("git", ["init", repoPath]);
 		execFileSync("git", ["-C", repoPath, "config", "commit.gpgsign", "true"]);
 		execFileSync("git", ["-C", repoPath, "config", "gpg.program", "false"]);
@@ -3981,15 +3991,15 @@ describe("text backup", () => {
 
 	it("reports validation errors for missing or corrupt backup files", async () => {
 		const missingManifest = await validateBackup(
-			makeTempDir("birdclaw-empty-"),
+			makeTempDir("neo-archive-empty-"),
 		);
 
 		expect(missingManifest.ok).toBe(false);
 		expect(missingManifest.errors[0]).toContain("manifest.json");
 
-		switchHome("birdclaw-corrupt-src-");
+		switchHome("neo-archive-corrupt-src-");
 		seedBackupFixture();
-		const repoPath = makeTempDir("birdclaw-corrupt-store-");
+		const repoPath = makeTempDir("neo-archive-corrupt-store-");
 		await exportBackup({ repoPath });
 
 		const manifestPath = path.join(repoPath, "manifest.json");
@@ -4013,9 +4023,9 @@ describe("text backup", () => {
 	}, 20000);
 
 	it("reports unowned data paths as validation errors", async () => {
-		switchHome("birdclaw-unowned-src-");
+		switchHome("neo-archive-unowned-src-");
 		seedBackupFixture();
-		const repoPath = makeTempDir("birdclaw-unowned-store-");
+		const repoPath = makeTempDir("neo-archive-unowned-store-");
 		await exportBackup({ repoPath });
 
 		const manifestPath = path.join(repoPath, "manifest.json");
@@ -4047,22 +4057,25 @@ describe("text backup", () => {
 	}, 20000);
 
 	it("imports a changed automatic backup once and skips an unchanged manifest", async () => {
-		const previousAutoSyncEnv = process.env.BIRDCLAW_BACKUP_AUTO_SYNC;
-		process.env.BIRDCLAW_BACKUP_AUTO_SYNC = "1";
-		const remotePath = path.join(makeTempDir("birdclaw-remote-"), "remote.git");
+		const previousAutoSyncEnv = process.env.NEO_ARCHIVE_BACKUP_AUTO_SYNC;
+		process.env.NEO_ARCHIVE_BACKUP_AUTO_SYNC = "1";
+		const remotePath = path.join(
+			makeTempDir("neo-archive-remote-"),
+			"remote.git",
+		);
 		execFileSync("git", ["init", "--bare", remotePath]);
 
 		try {
-			switchHome("birdclaw-auto-src-");
+			switchHome("neo-archive-auto-src-");
 			seedBackupFixture();
 			await syncBackup({
-				repoPath: makeTempDir("birdclaw-auto-push-"),
+				repoPath: makeTempDir("neo-archive-auto-push-"),
 				remote: remotePath,
 				message: "archive: auto sync seed",
 			});
 
-			switchHome("birdclaw-auto-dst-");
-			const repoPath = makeTempDir("birdclaw-auto-work-");
+			switchHome("neo-archive-auto-dst-");
+			const repoPath = makeTempDir("neo-archive-auto-work-");
 			writeFileSync(
 				path.join(testHome().root, "config.json"),
 				JSON.stringify({
@@ -4104,22 +4117,22 @@ describe("text backup", () => {
 			});
 		} finally {
 			if (previousAutoSyncEnv === undefined) {
-				delete process.env.BIRDCLAW_BACKUP_AUTO_SYNC;
+				delete process.env.NEO_ARCHIVE_BACKUP_AUTO_SYNC;
 			} else {
-				process.env.BIRDCLAW_BACKUP_AUTO_SYNC = previousAutoSyncEnv;
+				process.env.NEO_ARCHIVE_BACKUP_AUTO_SYNC = previousAutoSyncEnv;
 			}
 		}
 	}, 20000);
 
 	it("requests web backup updates without blocking or rejecting the caller", async () => {
-		const previousAutoSyncEnv = process.env.BIRDCLAW_BACKUP_AUTO_SYNC;
+		const previousAutoSyncEnv = process.env.NEO_ARCHIVE_BACKUP_AUTO_SYNC;
 		const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 		vi.useFakeTimers();
 		try {
-			process.env.BIRDCLAW_BACKUP_AUTO_SYNC = "1";
-			switchHome("birdclaw-auto-background-");
+			process.env.NEO_ARCHIVE_BACKUP_AUTO_SYNC = "1";
+			switchHome("neo-archive-auto-background-");
 			writeFileSync(path.join(testHome().root, "config.json"), "{bad");
-			resetBirdclawPathsForTests();
+			resetNeoArchivePathsForTests();
 
 			expect(requestBackupAutoUpdate()).toBeUndefined();
 			expect(requestBackupAutoUpdate()).toBeUndefined();
@@ -4128,23 +4141,23 @@ describe("text backup", () => {
 			await Promise.resolve();
 			expect(errorSpy).toHaveBeenCalledTimes(1);
 			expect(errorSpy).toHaveBeenCalledWith(
-				expect.stringContaining("birdclaw backup auto-sync failed"),
+				expect.stringContaining("neo-archive backup auto-sync failed"),
 			);
 		} finally {
 			vi.useRealTimers();
 			errorSpy.mockRestore();
 			if (previousAutoSyncEnv === undefined) {
-				delete process.env.BIRDCLAW_BACKUP_AUTO_SYNC;
+				delete process.env.NEO_ARCHIVE_BACKUP_AUTO_SYNC;
 			} else {
-				process.env.BIRDCLAW_BACKUP_AUTO_SYNC = previousAutoSyncEnv;
+				process.env.NEO_ARCHIVE_BACKUP_AUTO_SYNC = previousAutoSyncEnv;
 			}
 		}
 	});
 
 	it("skips automatic backup work when disabled or unconfigured", async () => {
-		const previousAutoSyncEnv = process.env.BIRDCLAW_BACKUP_AUTO_SYNC;
+		const previousAutoSyncEnv = process.env.NEO_ARCHIVE_BACKUP_AUTO_SYNC;
 		try {
-			process.env.BIRDCLAW_BACKUP_AUTO_SYNC = "0";
+			process.env.NEO_ARCHIVE_BACKUP_AUTO_SYNC = "0";
 			await expect(maybeAutoUpdateBackup()).resolves.toMatchObject({
 				ok: true,
 				enabled: false,
@@ -4156,8 +4169,8 @@ describe("text backup", () => {
 				skipped: true,
 			});
 
-			process.env.BIRDCLAW_BACKUP_AUTO_SYNC = "1";
-			switchHome("birdclaw-auto-unconfigured-");
+			process.env.NEO_ARCHIVE_BACKUP_AUTO_SYNC = "1";
+			switchHome("neo-archive-auto-unconfigured-");
 
 			await expect(maybeAutoUpdateBackup()).resolves.toMatchObject({
 				ok: true,
@@ -4173,20 +4186,20 @@ describe("text backup", () => {
 			});
 		} finally {
 			if (previousAutoSyncEnv === undefined) {
-				delete process.env.BIRDCLAW_BACKUP_AUTO_SYNC;
+				delete process.env.NEO_ARCHIVE_BACKUP_AUTO_SYNC;
 			} else {
-				process.env.BIRDCLAW_BACKUP_AUTO_SYNC = previousAutoSyncEnv;
+				process.env.NEO_ARCHIVE_BACKUP_AUTO_SYNC = previousAutoSyncEnv;
 			}
 		}
 	});
 
 	it("handles backup auto-sync config variants and failures", async () => {
-		const previousAutoSyncEnv = process.env.BIRDCLAW_BACKUP_AUTO_SYNC;
-		process.env.BIRDCLAW_BACKUP_AUTO_SYNC = "1";
+		const previousAutoSyncEnv = process.env.NEO_ARCHIVE_BACKUP_AUTO_SYNC;
+		process.env.NEO_ARCHIVE_BACKUP_AUTO_SYNC = "1";
 		try {
-			switchHome("birdclaw-auto-off-");
+			switchHome("neo-archive-auto-off-");
 			writeBackupConfig(testHome().root, {
-				repoPath: makeTempDir("birdclaw-auto-off-repo-"),
+				repoPath: makeTempDir("neo-archive-auto-off-repo-"),
 				autoSync: false,
 			});
 
@@ -4196,7 +4209,7 @@ describe("text backup", () => {
 				skipped: true,
 			});
 
-			switchHome("birdclaw-auto-empty-config-");
+			switchHome("neo-archive-auto-empty-config-");
 			writeBackupConfig(testHome().root, {});
 
 			await expect(maybeAutoSyncBackup()).resolves.toMatchObject({
@@ -4205,9 +4218,9 @@ describe("text backup", () => {
 				skipped: true,
 			});
 
-			switchHome("birdclaw-auto-bad-config-");
+			switchHome("neo-archive-auto-bad-config-");
 			writeFileSync(path.join(testHome().root, "config.json"), "{bad");
-			resetBirdclawPathsForTests();
+			resetNeoArchivePathsForTests();
 
 			await expect(maybeAutoUpdateBackup()).resolves.toMatchObject({
 				ok: false,
@@ -4220,8 +4233,8 @@ describe("text backup", () => {
 				skipped: false,
 			});
 
-			switchHome("birdclaw-auto-repo-only-");
-			const repoOnlyPath = makeTempDir("birdclaw-auto-repo-only-work-");
+			switchHome("neo-archive-auto-repo-only-");
+			const repoOnlyPath = makeTempDir("neo-archive-auto-repo-only-work-");
 			writeBackupConfig(testHome().root, {
 				repoPath: repoOnlyPath,
 				staleAfterSeconds: -1,
@@ -4263,7 +4276,7 @@ describe("text backup", () => {
 				skipped: false,
 			});
 
-			switchHome("birdclaw-auto-fail-update-");
+			switchHome("neo-archive-auto-fail-update-");
 			const fileRepoPath = path.join(testHome().root, "not-a-dir");
 			writeFileSync(fileRepoPath, "");
 			writeBackupConfig(testHome().root, { repoPath: fileRepoPath });
@@ -4282,23 +4295,26 @@ describe("text backup", () => {
 			});
 		} finally {
 			if (previousAutoSyncEnv === undefined) {
-				delete process.env.BIRDCLAW_BACKUP_AUTO_SYNC;
+				delete process.env.NEO_ARCHIVE_BACKUP_AUTO_SYNC;
 			} else {
-				process.env.BIRDCLAW_BACKUP_AUTO_SYNC = previousAutoSyncEnv;
+				process.env.NEO_ARCHIVE_BACKUP_AUTO_SYNC = previousAutoSyncEnv;
 			}
 		}
 	});
 
 	it("auto-syncs local changes back to the configured backup repo", async () => {
-		const previousAutoSyncEnv = process.env.BIRDCLAW_BACKUP_AUTO_SYNC;
-		process.env.BIRDCLAW_BACKUP_AUTO_SYNC = "1";
-		const remotePath = path.join(makeTempDir("birdclaw-remote-"), "remote.git");
+		const previousAutoSyncEnv = process.env.NEO_ARCHIVE_BACKUP_AUTO_SYNC;
+		process.env.NEO_ARCHIVE_BACKUP_AUTO_SYNC = "1";
+		const remotePath = path.join(
+			makeTempDir("neo-archive-remote-"),
+			"remote.git",
+		);
 		execFileSync("git", ["init", "--bare", remotePath]);
 
 		try {
-			switchHome("birdclaw-auto-write-");
+			switchHome("neo-archive-auto-write-");
 			seedBackupFixture();
-			const repoPath = makeTempDir("birdclaw-auto-write-work-");
+			const repoPath = makeTempDir("neo-archive-auto-write-work-");
 			writeFileSync(
 				path.join(testHome().root, "config.json"),
 				JSON.stringify({
@@ -4310,7 +4326,7 @@ describe("text backup", () => {
 					},
 				}),
 			);
-			resetBirdclawPathsForTests();
+			resetNeoArchivePathsForTests();
 
 			const result = await maybeAutoSyncBackup();
 
@@ -4332,9 +4348,9 @@ describe("text backup", () => {
 			).toBe("1");
 		} finally {
 			if (previousAutoSyncEnv === undefined) {
-				delete process.env.BIRDCLAW_BACKUP_AUTO_SYNC;
+				delete process.env.NEO_ARCHIVE_BACKUP_AUTO_SYNC;
 			} else {
-				process.env.BIRDCLAW_BACKUP_AUTO_SYNC = previousAutoSyncEnv;
+				process.env.NEO_ARCHIVE_BACKUP_AUTO_SYNC = previousAutoSyncEnv;
 			}
 		}
 	}, 20000);

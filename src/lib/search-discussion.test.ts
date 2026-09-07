@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { Effect } from "effect";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { resetBirdclawPathsForTests } from "./config";
+import { resetNeoArchivePathsForTests } from "./config";
 import { getNativeDb, resetDatabaseForTests } from "./db";
 import {
 	__test__,
@@ -16,10 +16,10 @@ import {
 const tempRoots: string[] = [];
 
 function setupTempHome() {
-	const tempRoot = mkdtempSync(path.join(os.tmpdir(), "birdclaw-discuss-"));
+	const tempRoot = mkdtempSync(path.join(os.tmpdir(), "neo-archive-discuss-"));
 	tempRoots.push(tempRoot);
-	process.env.BIRDCLAW_HOME = tempRoot;
-	resetBirdclawPathsForTests();
+	process.env.NEO_ARCHIVE_HOME = tempRoot;
+	resetNeoArchivePathsForTests();
 	resetDatabaseForTests();
 }
 
@@ -45,12 +45,12 @@ beforeEach(() => {
 
 afterEach(() => {
 	resetDatabaseForTests();
-	resetBirdclawPathsForTests();
-	delete process.env.BIRDCLAW_HOME;
+	resetNeoArchivePathsForTests();
+	delete process.env.NEO_ARCHIVE_HOME;
 	delete process.env.OPENAI_API_KEY;
-	delete process.env.BIRDCLAW_AI_MODEL;
-	delete process.env.BIRDCLAW_OPENAI_REASONING_EFFORT;
-	delete process.env.BIRDCLAW_OPENAI_SERVICE_TIER;
+	delete process.env.NEO_ARCHIVE_AI_MODEL;
+	delete process.env.NEO_ARCHIVE_OPENAI_REASONING_EFFORT;
+	delete process.env.NEO_ARCHIVE_OPENAI_SERVICE_TIER;
 	vi.unstubAllGlobals();
 	for (const tempRoot of tempRoots.splice(0)) {
 		rmSync(tempRoot, { recursive: true, force: true });
@@ -332,9 +332,9 @@ describe("search discussion", () => {
 	});
 
 	it("uses environment AI defaults and renders optional prompt context", async () => {
-		process.env.BIRDCLAW_AI_MODEL = "gpt-env";
-		process.env.BIRDCLAW_OPENAI_REASONING_EFFORT = "low";
-		process.env.BIRDCLAW_OPENAI_SERVICE_TIER = "flex";
+		process.env.NEO_ARCHIVE_AI_MODEL = "gpt-env";
+		process.env.NEO_ARCHIVE_OPENAI_REASONING_EFFORT = "low";
+		process.env.NEO_ARCHIVE_OPENAI_SERVICE_TIER = "flex";
 		const streamed = [
 			sseFrame({
 				type: "response.output_text.delta",

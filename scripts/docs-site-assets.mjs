@@ -304,7 +304,7 @@ export function featherSvg() {
 }
 
 export function faviconSvg() {
-	return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="birdclaw">
+	return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="neo-archive">
 <rect width="64" height="64" rx="14" fill="#1d9bf0"/>
 <path fill="#ffffff" d="M50 18c-2 1-4 1.5-6 1.7 2.2-1.3 3.8-3.4 4.6-5.8-2 1.2-4.3 2-6.6 2.5a10.4 10.4 0 0 0-17.7 9.5c-8.6-.4-16.2-4.5-21.3-10.8-3 5.2-1.5 12 3.6 15.4-1.7 0-3.3-.5-4.7-1.2v.1c0 5 3.6 9.3 8.4 10.3-1 .3-1.9.4-2.9.4-.7 0-1.4-.1-2.1-.2 1.4 4.2 5.3 7.2 10 7.3a20.9 20.9 0 0 1-13 4.4c-.8 0-1.7 0-2.6-.1A29.5 29.5 0 0 0 16 56c19.2 0 29.7-15.9 29.7-29.7v-1.4C48 23.4 50 21 50 18z"/>
 </svg>`;

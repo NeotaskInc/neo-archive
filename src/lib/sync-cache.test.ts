@@ -9,7 +9,7 @@ import {
 	writeSyncCache,
 } from "./sync-cache";
 
-const testHome = useTestHome({ prefix: "birdclaw-sync-cache-" });
+const testHome = useTestHome({ prefix: "neo-archive-sync-cache-" });
 
 describe("sync cache", () => {
 	it("stores and deletes structured payloads", () => {

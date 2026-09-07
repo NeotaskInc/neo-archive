@@ -3,6 +3,7 @@ import { ArchiveImportPlan } from "./archive-import-plan";
 import { getNativeDb } from "./db";
 import { runEffectPromise } from "./effect-runtime";
 import { getImportRepository } from "./import-repository";
+import { findOperationAccount } from "./account-selection";
 import { applyArchiveImportPlanEffect } from "./archive/apply";
 import { parseCollectionSliceEffect } from "./archive/collection-slice";
 import { parseDirectMessagesEffect } from "./archive/dm-slice";
@@ -108,6 +109,28 @@ function importArchiveInternalEffect(
 		);
 		const db = getNativeDb({ seedDemoData: false });
 		const repository = getImportRepository(db);
+		let accountId = "acct_primary";
+		if (options.account !== undefined) {
+			const selector = options.account.trim().replace(/^@/, "");
+			const existing = findOperationAccount(db, selector);
+			const matchesArchive = existing?.externalUserId
+				? existing.externalUserId === accountPayload.accountId
+				: selector.toLowerCase() === accountPayload.username.toLowerCase() ||
+					selector === accountPayload.accountId;
+			if (!selector || !matchesArchive) {
+				return yield* Effect.fail(
+					new Error("Selected account does not match the archive owner"),
+				);
+			}
+			const byExternalId = repository.readRow<{ id: string }>(
+				"select id from accounts where external_user_id = ?",
+				accountPayload.accountId,
+			);
+			accountId =
+				existing?.id ??
+				byExternalId?.id ??
+				`acct_x_${accountPayload.accountId}`;
+		}
 		const plan = new ArchiveImportPlan();
 		const {
 			tweets: tweetRows,
@@ -140,13 +163,15 @@ function importArchiveInternalEffect(
 		const authoredTweetCount = tweetRows.length;
 
 		const profileReconciler = createArchiveProfileReconciler({
+			accountId,
 			repository,
 			selection,
 			preserveExisting: !(
 				options.restore === true &&
 				(!selection || selection.has("profiles"))
 			),
-			allowAccountReplacement: options.restore === true && !selection,
+			allowAccountReplacement:
+				options.account === undefined && options.restore === true && !selection,
 			accountPayload,
 			profiles,
 		});
@@ -154,6 +179,7 @@ function importArchiveInternalEffect(
 		const localProfile =
 			profileReconciler.initializeLocalProfile(includeProfiles);
 		yield* parseDirectMessagesEffect({
+			accountId,
 			archivePath,
 			entries: dmEntries,
 			db,
@@ -223,6 +249,7 @@ function importArchiveInternalEffect(
 		}
 
 		yield* applyArchiveImportPlanEffect({
+			accountId,
 			archivePath,
 			db,
 			repository,

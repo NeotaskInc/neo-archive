@@ -92,7 +92,7 @@ export function resolveProfileEffect(
 		const local = yield* trySync(() =>
 			resolveLocalProfile(db, normalizedQuery),
 		);
-		if (process.env.BIRDCLAW_DISABLE_LIVE_PROFILE_LOOKUP === "1") {
+		if (process.env.NEO_ARCHIVE_DISABLE_LIVE_PROFILE_LOOKUP === "1") {
 			if (local) {
 				return local;
 			}

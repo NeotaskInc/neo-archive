@@ -24,15 +24,15 @@ describe("bird command Effect boundary", () => {
 		vi.resetModules();
 		execFileAsyncMock.mockReset();
 		accessMock.mockReset();
-		delete process.env.BIRDCLAW_BIRD_COMMAND;
-		delete process.env.BIRDCLAW_CONFIG;
+		delete process.env.NEO_ARCHIVE_BIRD_COMMAND;
+		delete process.env.NEO_ARCHIVE_CONFIG;
 	});
 
 	it("returns a rejected promise instead of throwing synchronously on config parse failures", async () => {
-		const tempDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-command-"));
+		const tempDir = mkdtempSync(path.join(os.tmpdir(), "neo-archive-command-"));
 		const configPath = path.join(tempDir, "config.json");
 		writeFileSync(configPath, "{bad json", "utf8");
-		process.env.BIRDCLAW_CONFIG = configPath;
+		process.env.NEO_ARCHIVE_CONFIG = configPath;
 		const { runBirdCommand } = await import("./bird-command");
 		let promise: Promise<unknown> | undefined;
 

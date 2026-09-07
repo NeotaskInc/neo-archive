@@ -3,9 +3,9 @@ import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach } from "vitest";
 import {
-	getBirdclawPaths,
-	resetBirdclawPathsForTests,
-	type BirdclawPaths,
+	getNeoArchivePaths,
+	resetNeoArchivePathsForTests,
+	type NeoArchivePaths,
 } from "../lib/config";
 import { resetDatabaseWriterForTests } from "../lib/database-writer";
 import { getNativeDb, resetDatabaseForTests } from "../lib/db";
@@ -20,7 +20,7 @@ export interface TestHomeOptions {
 
 export interface TestHome {
 	readonly root: string;
-	readonly paths: BirdclawPaths;
+	readonly paths: NeoArchivePaths;
 	readonly db: Database;
 	makeTempDir(prefix?: string): string;
 	switchHome(prefix?: string): TestHome;
@@ -44,7 +44,7 @@ export function createTestHome(options: TestHomeOptions = {}): TestHome {
 	let activeRoot = "";
 	let cleaned = false;
 
-	const makeTempDir = (prefix = "birdclaw-test-") => {
+	const makeTempDir = (prefix = "neo-archive-test-") => {
 		if (cleaned) throw new Error("Test home already cleaned up");
 		const directory = mkdtempSync(path.join(os.tmpdir(), prefix));
 		directories.add(directory);
@@ -54,10 +54,10 @@ export function createTestHome(options: TestHomeOptions = {}): TestHome {
 	const activate = (root: string) => {
 		resetDatabaseWriterForTests();
 		resetDatabaseForTests();
-		resetBirdclawPathsForTests();
+		resetNeoArchivePathsForTests();
 		activeRoot = root;
-		process.env.BIRDCLAW_HOME = root;
-		delete process.env.BIRDCLAW_CONFIG;
+		process.env.NEO_ARCHIVE_HOME = root;
+		delete process.env.NEO_ARCHIVE_CONFIG;
 	};
 
 	const home: TestHome = {
@@ -65,13 +65,13 @@ export function createTestHome(options: TestHomeOptions = {}): TestHome {
 			return activeRoot;
 		},
 		get paths() {
-			return getBirdclawPaths();
+			return getNeoArchivePaths();
 		},
 		get db() {
 			return getNativeDb({ seedDemoData });
 		},
 		makeTempDir,
-		switchHome(prefix = options.prefix ?? "birdclaw-home-") {
+		switchHome(prefix = options.prefix ?? "neo-archive-home-") {
 			activate(makeTempDir(prefix));
 			return home;
 		},
@@ -80,7 +80,7 @@ export function createTestHome(options: TestHomeOptions = {}): TestHome {
 			cleaned = true;
 			resetDatabaseWriterForTests();
 			resetDatabaseForTests();
-			resetBirdclawPathsForTests();
+			resetNeoArchivePathsForTests();
 			restoreEnvironment(environment);
 			for (const directory of directories) {
 				rmSync(directory, { recursive: true, force: true });
@@ -89,7 +89,7 @@ export function createTestHome(options: TestHomeOptions = {}): TestHome {
 		},
 	};
 
-	activate(makeTempDir(options.prefix ?? "birdclaw-home-"));
+	activate(makeTempDir(options.prefix ?? "neo-archive-home-"));
 	return home;
 }
 

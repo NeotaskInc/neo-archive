@@ -7,7 +7,7 @@ const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 await build({
 	absWorkingDir: root,
 	entryPoints: ["src/cli.ts"],
-	outfile: "dist/cli/birdclaw.js",
+	outfile: "dist/cli/neo-archive.js",
 	bundle: true,
 	platform: "node",
 	format: "esm",

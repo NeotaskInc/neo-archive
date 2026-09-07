@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, expect, it } from "vitest";
-import { resetBirdclawPathsForTests } from "./config";
+import { resetNeoArchivePathsForTests } from "./config";
 import { getNativeDb, resetDatabaseForTests } from "./db";
 import { ingestTweetPayload } from "./tweet-repository";
 import {
@@ -17,8 +17,8 @@ let tempRoot: string | undefined;
 
 afterEach(() => {
 	resetDatabaseForTests();
-	resetBirdclawPathsForTests();
-	delete process.env.BIRDCLAW_HOME;
+	resetNeoArchivePathsForTests();
+	delete process.env.NEO_ARCHIVE_HOME;
 	if (tempRoot) {
 		rmSync(tempRoot, { recursive: true, force: true });
 		tempRoot = undefined;
@@ -26,9 +26,9 @@ afterEach(() => {
 });
 
 it("marks only primary replies as replied", () => {
-	tempRoot = mkdtempSync(path.join(os.tmpdir(), "birdclaw-test-"));
-	process.env.BIRDCLAW_HOME = tempRoot;
-	resetBirdclawPathsForTests();
+	tempRoot = mkdtempSync(path.join(os.tmpdir(), "neo-archive-test-"));
+	process.env.NEO_ARCHIVE_HOME = tempRoot;
+	resetNeoArchivePathsForTests();
 	resetDatabaseForTests();
 	const db = getNativeDb();
 
@@ -80,9 +80,9 @@ it("marks only primary replies as replied", () => {
 });
 
 it("records observable edit chains without re-indexing a tombstoned tweet", () => {
-	tempRoot = mkdtempSync(path.join(os.tmpdir(), "birdclaw-test-"));
-	process.env.BIRDCLAW_HOME = tempRoot;
-	resetBirdclawPathsForTests();
+	tempRoot = mkdtempSync(path.join(os.tmpdir(), "neo-archive-test-"));
+	process.env.NEO_ARCHIVE_HOME = tempRoot;
+	resetNeoArchivePathsForTests();
 	resetDatabaseForTests();
 	const db = getNativeDb({ seedDemoData: false });
 
@@ -244,9 +244,9 @@ it("records observable edit chains without re-indexing a tombstoned tweet", () =
 });
 
 it("merges an enriched edit history into one revision chain", () => {
-	tempRoot = mkdtempSync(path.join(os.tmpdir(), "birdclaw-test-"));
-	process.env.BIRDCLAW_HOME = tempRoot;
-	resetBirdclawPathsForTests();
+	tempRoot = mkdtempSync(path.join(os.tmpdir(), "neo-archive-test-"));
+	process.env.NEO_ARCHIVE_HOME = tempRoot;
+	resetNeoArchivePathsForTests();
 	resetDatabaseForTests();
 	const db = getNativeDb({ seedDemoData: false });
 	const users = [{ id: "42", username: "sam", name: "Sam" }];
@@ -397,9 +397,9 @@ it("merges an enriched edit history into one revision chain", () => {
 });
 
 it("prefers attributed deletion provenance when revision timestamps tie", () => {
-	tempRoot = mkdtempSync(path.join(os.tmpdir(), "birdclaw-test-"));
-	process.env.BIRDCLAW_HOME = tempRoot;
-	resetBirdclawPathsForTests();
+	tempRoot = mkdtempSync(path.join(os.tmpdir(), "neo-archive-test-"));
+	process.env.NEO_ARCHIVE_HOME = tempRoot;
+	resetNeoArchivePathsForTests();
 	resetDatabaseForTests();
 	const db = getNativeDb({ seedDemoData: false });
 	const users = [{ id: "42", username: "sam", name: "Sam" }];
@@ -468,9 +468,9 @@ it("prefers attributed deletion provenance when revision timestamps tie", () => 
 });
 
 it("merges edge-connected roots while preserving order outside a cycle", () => {
-	tempRoot = mkdtempSync(path.join(os.tmpdir(), "birdclaw-test-"));
-	process.env.BIRDCLAW_HOME = tempRoot;
-	resetBirdclawPathsForTests();
+	tempRoot = mkdtempSync(path.join(os.tmpdir(), "neo-archive-test-"));
+	process.env.NEO_ARCHIVE_HOME = tempRoot;
+	resetNeoArchivePathsForTests();
 	resetDatabaseForTests();
 	const db = getNativeDb({ seedDemoData: false });
 	db.exec(`
@@ -544,9 +544,9 @@ it("merges edge-connected roots while preserving order outside a cycle", () => {
 });
 
 it("merges revision components beyond SQLite's traditional variable limit", () => {
-	tempRoot = mkdtempSync(path.join(os.tmpdir(), "birdclaw-test-"));
-	process.env.BIRDCLAW_HOME = tempRoot;
-	resetBirdclawPathsForTests();
+	tempRoot = mkdtempSync(path.join(os.tmpdir(), "neo-archive-test-"));
+	process.env.NEO_ARCHIVE_HOME = tempRoot;
+	resetNeoArchivePathsForTests();
 	resetDatabaseForTests();
 	const db = getNativeDb({ seedDemoData: false });
 	const insertRevision = db.prepare(`
@@ -580,9 +580,9 @@ it("merges revision components beyond SQLite's traditional variable limit", () =
 }, 60_000);
 
 it("scopes live tombstone reconciliation to the ingested edit chains", () => {
-	tempRoot = mkdtempSync(path.join(os.tmpdir(), "birdclaw-test-"));
-	process.env.BIRDCLAW_HOME = tempRoot;
-	resetBirdclawPathsForTests();
+	tempRoot = mkdtempSync(path.join(os.tmpdir(), "neo-archive-test-"));
+	process.env.NEO_ARCHIVE_HOME = tempRoot;
+	resetNeoArchivePathsForTests();
 	resetDatabaseForTests();
 	const db = getNativeDb({ seedDemoData: false });
 	const user = [{ id: "42", username: "sam", name: "Sam" }];

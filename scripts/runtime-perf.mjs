@@ -14,8 +14,8 @@ function parseArgs(argv) {
 		label: "runtime",
 		runtime: process.execPath,
 		runtimeArgs: [],
-		entry: "bin/birdclaw.mjs",
-		home: process.env.BIRDCLAW_HOME,
+		entry: "bin/neo-archive.mjs",
+		home: process.env.NEO_ARCHIVE_HOME,
 		iterations: 30,
 		gitSha: undefined,
 	};
@@ -34,7 +34,7 @@ function parseArgs(argv) {
 	if (!Number.isInteger(options.iterations) || options.iterations < 1) {
 		throw new Error("--iterations must be a positive integer");
 	}
-	if (!options.home) throw new Error("--home or BIRDCLAW_HOME is required");
+	if (!options.home) throw new Error("--home or NEO_ARCHIVE_HOME is required");
 	options.entry = path.resolve(options.entry);
 	options.home = path.resolve(options.home);
 	return options;
@@ -130,7 +130,7 @@ async function measureCli(options) {
 		{
 			env: {
 				...process.env,
-				BIRDCLAW_HOME: options.home,
+				NEO_ARCHIVE_HOME: options.home,
 				DO_NOT_TRACK: "1",
 			},
 		},
@@ -170,10 +170,10 @@ async function measureServer(options) {
 			stdio: ["ignore", "pipe", "pipe"],
 			env: {
 				...process.env,
-				BIRDCLAW_BACKUP_AUTO_SYNC: "0",
-				BIRDCLAW_DISABLE_LIVE_PROFILE_LOOKUP: "1",
-				BIRDCLAW_DISABLE_LIVE_WRITES: "1",
-				BIRDCLAW_HOME: options.home,
+				NEO_ARCHIVE_BACKUP_AUTO_SYNC: "0",
+				NEO_ARCHIVE_DISABLE_LIVE_PROFILE_LOOKUP: "1",
+				NEO_ARCHIVE_DISABLE_LIVE_WRITES: "1",
+				NEO_ARCHIVE_HOME: options.home,
 				DO_NOT_TRACK: "1",
 			},
 		},
@@ -228,7 +228,7 @@ async function measureServer(options) {
 
 async function main() {
 	const options = parseArgs(process.argv.slice(2));
-	const databasePath = path.join(options.home, "birdclaw.sqlite");
+	const databasePath = path.join(options.home, "neo-archive.sqlite");
 	const inputDatabaseFileSha256 = await sha256(databasePath);
 	const inputDatabaseLogicalSha256 = logicalDatabaseSha256(databasePath);
 	const cliSamplesMs = [];
@@ -245,7 +245,7 @@ async function main() {
 	const packageRoot = path.dirname(path.dirname(options.entry));
 	const artifactPaths = {
 		launcher: options.entry,
-		cli: path.join(packageRoot, "dist", "cli", "birdclaw.js"),
+		cli: path.join(packageRoot, "dist", "cli", "neo-archive.js"),
 		server: path.join(packageRoot, "dist", "server", "server.js"),
 	};
 	console.log(

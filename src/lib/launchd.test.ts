@@ -27,7 +27,7 @@ describe("launchd runtime", () => {
 	it("resolves home paths and safely wraps env-file commands", () => {
 		const envFile = "~/private env/it's.env";
 		const args = buildLaunchProgramArguments({
-			program: "/opt/homebrew/bin/birdclaw",
+			program: "/opt/homebrew/bin/neo-archive",
 			args: ["--label", "value with spaces", "it's-safe"],
 			envFile,
 		});
@@ -42,16 +42,16 @@ describe("launchd runtime", () => {
 
 	it("builds an explicit runtime and source-program command vector", () => {
 		const args = buildLaunchProgramArguments({
-			runtime: "/Users/test/.local/share/birdclaw/bun/bin/bun",
+			runtime: "/Users/test/.local/share/neo-archive/bun/bin/bun",
 			runtimeArgs: ["--no-env-file"],
-			program: "/Users/test/Projects/birdclaw/bin/birdclaw.mjs",
+			program: "/Users/test/Projects/neo-archive/bin/neo-archive.mjs",
 			args: ["--json", "jobs", "sync-account"],
 		});
 
 		expect(args).toEqual([
-			"/Users/test/.local/share/birdclaw/bun/bin/bun",
+			"/Users/test/.local/share/neo-archive/bun/bin/bun",
 			"--no-env-file",
-			"/Users/test/Projects/birdclaw/bin/birdclaw.mjs",
+			"/Users/test/Projects/neo-archive/bin/neo-archive.mjs",
 			"--json",
 			"jobs",
 			"sync-account",
@@ -62,14 +62,14 @@ describe("launchd runtime", () => {
 		expect(() =>
 			buildLaunchProgramArguments({
 				runtime: "bun",
-				program: "/tmp/birdclaw.mjs",
+				program: "/tmp/neo-archive.mjs",
 				args: [],
 			}),
 		).toThrow("runtime must be an absolute path");
 		expect(() =>
 			buildLaunchProgramArguments({
 				runtime: "/tmp/bun",
-				program: "birdclaw",
+				program: "neo-archive",
 				args: [],
 			}),
 		).toThrow("program must be an absolute path");
@@ -79,14 +79,14 @@ describe("launchd runtime", () => {
 		const args = buildLaunchProgramArguments({
 			runtime: "/tmp/Bun Runtime/bin/bun",
 			runtimeArgs: ["--no-env-file"],
-			program: "/tmp/Birdclaw Source/bin/birdclaw.mjs",
+			program: "/tmp/Neo Archive Source/bin/neo-archive.mjs",
 			args: ["jobs", "sync-bookmarks"],
-			envFile: "~/private env/birdclaw.env",
+			envFile: "~/private env/neo-archive.env",
 		});
 
 		expect(args).toEqual(["/bin/bash", "-lc", expect.any(String)]);
 		expect(args[2]).toContain(
-			"exec '/tmp/Bun Runtime/bin/bun' '--no-env-file' '/tmp/Birdclaw Source/bin/birdclaw.mjs' 'jobs' 'sync-bookmarks'",
+			"exec '/tmp/Bun Runtime/bin/bun' '--no-env-file' '/tmp/Neo Archive Source/bin/neo-archive.mjs' 'jobs' 'sync-bookmarks'",
 		);
 	});
 
@@ -94,21 +94,23 @@ describe("launchd runtime", () => {
 		const agent = buildLaunchAgent({
 			label: "com.example.sync&test",
 			intervalSeconds: 60,
-			logPath: "~/birdclaw/audit.jsonl",
-			stdoutPath: "~/birdclaw/out.log",
-			stderrPath: "~/birdclaw/err.log",
-			programArguments: ["/usr/bin/env", "birdclaw", "<sync>"],
+			logPath: "~/neo-archive/audit.jsonl",
+			stdoutPath: "~/neo-archive/out.log",
+			stderrPath: "~/neo-archive/err.log",
+			programArguments: ["/usr/bin/env", "neo-archive", "<sync>"],
 		});
 
 		expect(agent.plist).toContain("com.example.sync&amp;test");
 		expect(agent.plist).toContain("&lt;sync&gt;");
 		expect(agent.plist).toContain("<integer>60</integer>");
-		expect(agent.logPath).toBe(path.join(os.homedir(), "birdclaw/audit.jsonl"));
+		expect(agent.logPath).toBe(
+			path.join(os.homedir(), "neo-archive/audit.jsonl"),
+		);
 	});
 
 	it("writes and reloads launch agents through launchctl", async () => {
 		const launchAgentsDir = mkdtempSync(
-			path.join(os.tmpdir(), "birdclaw-launchd-runtime-"),
+			path.join(os.tmpdir(), "neo-archive-launchd-runtime-"),
 		);
 		tempDirs.push(launchAgentsDir);
 		const agent = buildLaunchAgent({
@@ -117,7 +119,7 @@ describe("launchd runtime", () => {
 			logPath: path.join(launchAgentsDir, "logs", "audit.jsonl"),
 			stdoutPath: path.join(launchAgentsDir, "logs", "out.log"),
 			stderrPath: path.join(launchAgentsDir, "logs", "err.log"),
-			programArguments: ["/usr/bin/env", "birdclaw"],
+			programArguments: ["/usr/bin/env", "neo-archive"],
 		});
 		execFileMock.mockImplementation((...args: unknown[]) => {
 			const commandArgs = args[1] as string[];

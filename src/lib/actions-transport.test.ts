@@ -52,16 +52,16 @@ vi.mock("./xurl", async () => {
 });
 
 describe("actions transport", () => {
-	let birdclawHome: string | undefined;
+	let neoArchiveHome: string | undefined;
 
 	beforeEach(() => {
-		delete process.env.BIRDCLAW_ACTIONS_TRANSPORT;
-		delete process.env.BIRDCLAW_CONFIG;
-		birdclawHome = mkdtempSync(
-			path.join(os.tmpdir(), "birdclaw-actions-transport-"),
+		delete process.env.NEO_ARCHIVE_ACTIONS_TRANSPORT;
+		delete process.env.NEO_ARCHIVE_CONFIG;
+		neoArchiveHome = mkdtempSync(
+			path.join(os.tmpdir(), "neo-archive-actions-transport-"),
 		);
-		process.env.BIRDCLAW_HOME = birdclawHome;
-		delete process.env.BIRDCLAW_DISABLE_LIVE_WRITES;
+		process.env.NEO_ARCHIVE_HOME = neoArchiveHome;
+		delete process.env.NEO_ARCHIVE_DISABLE_LIVE_WRITES;
 		vi.resetModules();
 		mocks.blockUserViaBird.mockReset();
 		mocks.readBirdStatusViaBird.mockReset();
@@ -118,13 +118,13 @@ describe("actions transport", () => {
 	});
 
 	afterEach(() => {
-		delete process.env.BIRDCLAW_ACTIONS_TRANSPORT;
-		delete process.env.BIRDCLAW_CONFIG;
-		delete process.env.BIRDCLAW_HOME;
-		delete process.env.BIRDCLAW_DISABLE_LIVE_WRITES;
-		if (birdclawHome) {
-			rmSync(birdclawHome, { force: true, recursive: true });
-			birdclawHome = undefined;
+		delete process.env.NEO_ARCHIVE_ACTIONS_TRANSPORT;
+		delete process.env.NEO_ARCHIVE_CONFIG;
+		delete process.env.NEO_ARCHIVE_HOME;
+		delete process.env.NEO_ARCHIVE_DISABLE_LIVE_WRITES;
+		if (neoArchiveHome) {
+			rmSync(neoArchiveHome, { force: true, recursive: true });
+			neoArchiveHome = undefined;
 		}
 	});
 
@@ -288,7 +288,7 @@ describe("actions transport", () => {
 	});
 
 	it("reports both transport failures when live writes are disabled", async () => {
-		process.env.BIRDCLAW_DISABLE_LIVE_WRITES = "1";
+		process.env.NEO_ARCHIVE_DISABLE_LIVE_WRITES = "1";
 		mocks.blockUserViaBird.mockResolvedValue({
 			ok: false,
 			output: "live writes disabled",

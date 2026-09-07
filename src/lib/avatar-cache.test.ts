@@ -12,15 +12,15 @@ import {
 	readCachedAvatar,
 	readCachedAvatarEffect,
 } from "./avatar-cache";
-import { resetBirdclawPathsForTests } from "./config";
+import { resetNeoArchivePathsForTests } from "./config";
 import { getNativeDb, resetDatabaseForTests } from "./db";
 
 const tempDirs: string[] = [];
 
 afterEach(() => {
 	resetDatabaseForTests();
-	resetBirdclawPathsForTests();
-	delete process.env.BIRDCLAW_HOME;
+	resetNeoArchivePathsForTests();
+	delete process.env.NEO_ARCHIVE_HOME;
 	vi.unstubAllGlobals();
 
 	for (const dir of tempDirs.splice(0)) {
@@ -40,9 +40,9 @@ describe("avatar cache", () => {
 	});
 
 	it("caches data-url avatars locally", async () => {
-		const tempDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-avatar-"));
+		const tempDir = mkdtempSync(path.join(os.tmpdir(), "neo-archive-avatar-"));
 		tempDirs.push(tempDir);
-		process.env.BIRDCLAW_HOME = tempDir;
+		process.env.NEO_ARCHIVE_HOME = tempDir;
 
 		const db = getNativeDb();
 		const avatarUrl = "data:image/png;base64,aGk=";
@@ -69,9 +69,9 @@ describe("avatar cache", () => {
 	});
 
 	it("maps cached extension types", () => {
-		const tempDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-avatar-"));
+		const tempDir = mkdtempSync(path.join(os.tmpdir(), "neo-archive-avatar-"));
 		tempDirs.push(tempDir);
-		process.env.BIRDCLAW_HOME = tempDir;
+		process.env.NEO_ARCHIVE_HOME = tempDir;
 
 		expect(__test__.getContentTypeFromExtension(".png")).toBe("image/png");
 		expect(__test__.getContentTypeFromExtension(".webp")).toBe("image/webp");
@@ -118,9 +118,9 @@ describe("avatar cache", () => {
 	});
 
 	it("fetches remote avatars once and then serves the cached file", async () => {
-		const tempDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-avatar-"));
+		const tempDir = mkdtempSync(path.join(os.tmpdir(), "neo-archive-avatar-"));
 		tempDirs.push(tempDir);
-		process.env.BIRDCLAW_HOME = tempDir;
+		process.env.NEO_ARCHIVE_HOME = tempDir;
 
 		const db = getNativeDb();
 		db.prepare(
@@ -155,9 +155,9 @@ describe("avatar cache", () => {
 	});
 
 	it("covers null and invalid avatar paths", async () => {
-		const tempDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-avatar-"));
+		const tempDir = mkdtempSync(path.join(os.tmpdir(), "neo-archive-avatar-"));
 		tempDirs.push(tempDir);
-		process.env.BIRDCLAW_HOME = tempDir;
+		process.env.NEO_ARCHIVE_HOME = tempDir;
 
 		const db = getNativeDb();
 		db.prepare(
@@ -195,9 +195,9 @@ describe("avatar cache", () => {
 	});
 
 	it("returns null for blank stored avatar urls", async () => {
-		const tempDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-avatar-"));
+		const tempDir = mkdtempSync(path.join(os.tmpdir(), "neo-archive-avatar-"));
 		tempDirs.push(tempDir);
-		process.env.BIRDCLAW_HOME = tempDir;
+		process.env.NEO_ARCHIVE_HOME = tempDir;
 
 		const db = getNativeDb();
 		db.prepare(
@@ -217,9 +217,9 @@ describe("avatar cache", () => {
 	});
 
 	it("exposes cached avatar reads as Effects", async () => {
-		const tempDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-avatar-"));
+		const tempDir = mkdtempSync(path.join(os.tmpdir(), "neo-archive-avatar-"));
 		tempDirs.push(tempDir);
-		process.env.BIRDCLAW_HOME = tempDir;
+		process.env.NEO_ARCHIVE_HOME = tempDir;
 
 		const effect = readCachedAvatarEffect("missing");
 
@@ -227,9 +227,9 @@ describe("avatar cache", () => {
 	});
 
 	it("prefetches unique profile avatars and suppresses per-avatar failures", async () => {
-		const tempDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-avatar-"));
+		const tempDir = mkdtempSync(path.join(os.tmpdir(), "neo-archive-avatar-"));
 		tempDirs.push(tempDir);
-		process.env.BIRDCLAW_HOME = tempDir;
+		process.env.NEO_ARCHIVE_HOME = tempDir;
 
 		const db = getNativeDb();
 		db.prepare(
@@ -288,9 +288,9 @@ describe("avatar cache", () => {
 	});
 
 	it("throws when remote avatar fetch fails", async () => {
-		const tempDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-avatar-"));
+		const tempDir = mkdtempSync(path.join(os.tmpdir(), "neo-archive-avatar-"));
 		tempDirs.push(tempDir);
-		process.env.BIRDCLAW_HOME = tempDir;
+		process.env.NEO_ARCHIVE_HOME = tempDir;
 
 		const db = getNativeDb();
 		db.prepare(
@@ -317,9 +317,9 @@ describe("avatar cache", () => {
 	});
 
 	it("uses jpeg as the default remote avatar content type", async () => {
-		const tempDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-avatar-"));
+		const tempDir = mkdtempSync(path.join(os.tmpdir(), "neo-archive-avatar-"));
 		tempDirs.push(tempDir);
-		process.env.BIRDCLAW_HOME = tempDir;
+		process.env.NEO_ARCHIVE_HOME = tempDir;
 
 		const db = getNativeDb();
 		db.prepare(

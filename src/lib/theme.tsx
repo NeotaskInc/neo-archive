@@ -10,7 +10,7 @@ import {
 export type ThemeValue = "system" | "light" | "dark";
 export type ResolvedTheme = "light" | "dark";
 
-const THEME_STORAGE_KEY = "birdclaw-theme";
+const THEME_STORAGE_KEY = "neo-archive-theme";
 
 interface ThemeContextValue {
 	isReady: boolean;

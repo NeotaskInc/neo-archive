@@ -26,10 +26,10 @@ function resolvedVitestConfig() {
 describe("package configuration", () => {
 	it("launches the compiled CLI without source or tsx", () => {
 		const launcher = readFileSync(
-			new URL("../bin/birdclaw.mjs", import.meta.url),
+			new URL("../bin/neo-archive.mjs", import.meta.url),
 			"utf8",
 		);
-		expect(launcher).toContain("../dist/cli/birdclaw.js");
+		expect(launcher).toContain("../dist/cli/neo-archive.js");
 		expect(launcher).not.toContain("tsx");
 		expect(launcher).not.toContain("src/cli");
 		expect(packageJson.dependencies).not.toHaveProperty("tsx");
@@ -55,7 +55,7 @@ describe("package configuration", () => {
 		);
 		expect(packageJson.scripts.coverage).toContain("bun --no-env-file");
 		expect(packageJson.scripts["coverage:node"]).toContain(
-			"BIRDCLAW_COVERAGE_PROVIDER=v8 node",
+			"NEO_ARCHIVE_COVERAGE_PROVIDER=v8 node",
 		);
 		expect(packageJson.packageManager).toMatch(
 			/^bun@1\.4\.0-canary\.1\+[0-9a-f]{9}$/,
@@ -80,7 +80,7 @@ describe("package configuration", () => {
 	});
 
 	it("marks source dev server as local-only for token-free loopback APIs", () => {
-		expect(packageJson.scripts.dev).toContain("BIRDCLAW_LOCAL_WEB=1");
+		expect(packageJson.scripts.dev).toContain("NEO_ARCHIVE_LOCAL_WEB=1");
 		expect(packageJson.scripts.dev).toContain("--host 127.0.0.1");
 	});
 
@@ -115,7 +115,7 @@ describe("package configuration", () => {
 			"src/routes/api/data-sources.tsx",
 			"src/routes/api/network-map.tsx",
 		]);
-		const usesV8Coverage = process.env.BIRDCLAW_COVERAGE_PROVIDER === "v8";
+		const usesV8Coverage = process.env.NEO_ARCHIVE_COVERAGE_PROVIDER === "v8";
 		expect(config.test?.coverage?.provider).toBe(
 			usesV8Coverage ? "v8" : "istanbul",
 		);
@@ -126,7 +126,7 @@ describe("package configuration", () => {
 			"bun" in process.versions ? ["zod"] : [],
 		);
 		expect(config.test?.testTimeout).toBe(
-			process.env.BIRDCLAW_COVERAGE_RUN === "1" ? 30_000 : 10_000,
+			process.env.NEO_ARCHIVE_COVERAGE_RUN === "1" ? 30_000 : 10_000,
 		);
 	});
 });

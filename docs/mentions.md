@@ -7,27 +7,27 @@ description: "Mentions ingest, cached live export, and conversation backfill —
 
 There are two commands and they do different things:
 
-- [`birdclaw sync mentions`](sync.md#sync-mentions) is the ingest path. It pulls live mentions through `xurl` (or `bird`), writes them into the canonical local store with `kind='mention'`, and exits. Run this on cron.
-- `birdclaw mentions export` is the read-side, agent-and-script-friendly view onto what `sync mentions` already wrote. It always emits JSON, supports three modes, and caches every live response so repeated reads do not keep spending the API budget.
+- [`neo-archive sync mentions`](sync.md#sync-mentions) is the ingest path. It pulls live mentions through `xurl` (or `bird`), writes them into the canonical local store with `kind='mention'`, and exits. Run this on cron.
+- `neo-archive mentions export` is the read-side, agent-and-script-friendly view onto what `sync mentions` already wrote. It always emits JSON, supports three modes, and caches every live response so repeated reads do not keep spending the API budget.
 
 The full pipeline:
 
 ```bash
-birdclaw sync mentions --mode xurl --limit 100 --max-pages 3 --refresh --json
-birdclaw sync mention-threads --mode xurl --limit 30 --json
-birdclaw mentions export --unreplied --limit 10 --json
+neo-archive sync mentions --mode xurl --limit 100 --max-pages 3 --refresh --json
+neo-archive sync mention-threads --mode xurl --limit 30 --json
+neo-archive mentions export --unreplied --limit 10 --json
 ```
 
 `mentions export --refresh` still works as a single-shot ingest-plus-read for one-off agent calls, but `sync mentions` is the cron-friendly canonical path.
 
 ## Three modes
 
-### `birdclaw` (default)
+### `neo-archive` (default)
 
 Returns normalized items from the local SQLite store with rendered text variants:
 
 ```bash
-birdclaw mentions export "agent" --unreplied --limit 10
+neo-archive mentions export "agent" --unreplied --limit 10
 ```
 
 Each item carries:
@@ -46,10 +46,10 @@ This is what an agent should consume by default — it stays inside the local ca
 Mirrors the `xurl mentions` response shape: `data`, `includes.users`, `meta`. The payload is cached in SQLite and reused until the cache TTL expires:
 
 ```bash
-birdclaw mentions export --mode xurl --limit 5
-birdclaw mentions export --mode xurl --refresh --limit 5
-birdclaw mentions export --mode xurl --refresh --all --max-pages 9 --limit 100
-birdclaw mentions export "courtesy" --mode xurl --limit 5
+neo-archive mentions export --mode xurl --limit 5
+neo-archive mentions export --mode xurl --refresh --limit 5
+neo-archive mentions export --mode xurl --refresh --all --max-pages 9 --limit 100
+neo-archive mentions export "courtesy" --mode xurl --limit 5
 ```
 
 In paged `xurl` mode, `--limit` is the **page size**, not the total returned count.
@@ -59,14 +59,14 @@ In paged `xurl` mode, `--limit` is the **page size**, not the total returned cou
 Shells out to your local `bird` CLI, normalizes the response into the same `xurl`-compatible shape, and caches it. Useful when `xurl` is rate-limited or when an account only has cookie-backed access:
 
 ```bash
-birdclaw mentions export --mode bird --limit 20
-birdclaw mentions export --mode bird --refresh --limit 20
+neo-archive mentions export --mode bird --limit 20
+neo-archive mentions export --mode bird --refresh --limit 20
 ```
 
 ## Common flags
 
 - `--account <account-id>` — pick the account when multiple are configured
-- `--mode birdclaw|xurl|bird`
+- `--mode neo-archive|xurl|bird`
 - `--replied` / `--unreplied`
 - `--refresh` — force a live fetch
 - `--cache-ttl <seconds>` — tune cache freshness
@@ -91,14 +91,14 @@ If you use `bird` for mentions most of the time, set it once:
 }
 ```
 
-Now `birdclaw mentions export` defaults to `--mode bird` for that user. `--mode xurl` still works for one-off live API checks.
+Now `neo-archive mentions export` defaults to `--mode bird` for that user. `--mode xurl` still works for one-off live API checks.
 
 ## Wiring it into an agent
 
-The `birdclaw` mode is designed for agents:
+The `neo-archive` mode is designed for agents:
 
 ```bash
-birdclaw mentions export --unreplied --limit 20 --json | jq '.items[] | {url, plainText}'
+neo-archive mentions export --unreplied --limit 20 --json | jq '.items[] | {url, plainText}'
 ```
 
 Pair with the [profile reply scan](#profile-reply-scan) below to pre-flight whether a mention came from a likely AI/templated account before drafting a response.
@@ -108,7 +108,7 @@ Pair with the [profile reply scan](#profile-reply-scan) below to pre-flight whet
 When one mention feels borderline ("is this actually a person?"), look at the recent replies that account sent across other threads:
 
 ```bash
-birdclaw profiles replies @borderline_handle --limit 12 --json
+neo-archive profiles replies @borderline_handle --limit 12 --json
 ```
 
 What it does:

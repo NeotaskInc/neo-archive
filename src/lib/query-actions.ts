@@ -15,13 +15,13 @@ import {
 
 function e2eFakeLiveWritesEnabled() {
 	return (
-		process.env.BIRDCLAW_E2E === "1" &&
-		process.env.BIRDCLAW_E2E_FAKE_LIVE_WRITES === "1"
+		process.env.NEO_ARCHIVE_E2E === "1" &&
+		process.env.NEO_ARCHIVE_E2E_FAKE_LIVE_WRITES === "1"
 	);
 }
 
 function liveWritesDisabled() {
-	return process.env.BIRDCLAW_DISABLE_LIVE_WRITES === "1";
+	return process.env.NEO_ARCHIVE_DISABLE_LIVE_WRITES === "1";
 }
 
 function verifySelectedXurlAccountEffect(accountId: string) {
@@ -119,7 +119,7 @@ function getLocalAuthorProfileId(accountId: string) {
 let savepointCounter = 0;
 
 function preflightWrite<T>(db: Database, write: (db: Database) => T) {
-	const savepoint = `__birdclaw_preflight_${++savepointCounter}`;
+	const savepoint = `__neo_archive_preflight_${++savepointCounter}`;
 	db.exec(`savepoint ${savepoint}`);
 	try {
 		const result = write(db);

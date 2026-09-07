@@ -46,6 +46,17 @@ function selectOperationAccount(
 	command: Command,
 ): OperationAccount | undefined {
 	if (!commandHasAccountOption(command)) return undefined;
+	// Archive import validates identity from the archive and can create its account.
+	if (command.name() === "archive" && command.parent?.name() === "import") {
+		return undefined;
+	}
+	if (command.getOptionValue("allAccounts")) {
+		if (command.getOptionValueSource("account") === "cli") {
+			throw new Error("--all-accounts cannot be combined with --account");
+		}
+		command.setOptionValueWithSource("account", "all", "cli");
+		return undefined;
+	}
 
 	const source = command.getOptionValueSource("account");
 	const current = command.getOptionValue("account");
@@ -67,9 +78,9 @@ function selectOperationAccount(
 export function resetOperationAccountSelection() {
 	if (!previousXurlUsername) return;
 	if (previousXurlUsername.existed) {
-		process.env.BIRDCLAW_XURL_OAUTH2_USERNAME = previousXurlUsername.value;
+		process.env.NEO_ARCHIVE_XURL_OAUTH2_USERNAME = previousXurlUsername.value;
 	} else {
-		delete process.env.BIRDCLAW_XURL_OAUTH2_USERNAME;
+		delete process.env.NEO_ARCHIVE_XURL_OAUTH2_USERNAME;
 	}
 	previousXurlUsername = undefined;
 }
@@ -79,10 +90,10 @@ export function configureOperationAccountSelection(program: Command) {
 		const account = selectOperationAccount(actionCommand);
 		if (!account) return;
 		previousXurlUsername ??= {
-			existed: Object.hasOwn(process.env, "BIRDCLAW_XURL_OAUTH2_USERNAME"),
-			value: process.env.BIRDCLAW_XURL_OAUTH2_USERNAME,
+			existed: Object.hasOwn(process.env, "NEO_ARCHIVE_XURL_OAUTH2_USERNAME"),
+			value: process.env.NEO_ARCHIVE_XURL_OAUTH2_USERNAME,
 		};
-		process.env.BIRDCLAW_XURL_OAUTH2_USERNAME = account.username;
+		process.env.NEO_ARCHIVE_XURL_OAUTH2_USERNAME = account.username;
 	});
 	program.hook("postAction", resetOperationAccountSelection);
 }
@@ -186,10 +197,12 @@ async function autoUpdateBeforeRead() {
 	try {
 		const result = await maybeAutoUpdateBackup();
 		if (!result.ok) {
-			console.error(`birdclaw backup auto-sync failed: ${result.error}`);
+			console.error(`neo-archive backup auto-sync failed: ${result.error}`);
 		}
 	} catch (error) {
-		console.error(`birdclaw backup auto-sync failed: ${errorMessage(error)}`);
+		console.error(
+			`neo-archive backup auto-sync failed: ${errorMessage(error)}`,
+		);
 	}
 }
 
@@ -197,10 +210,10 @@ async function autoSyncAfterWrite() {
 	try {
 		const result = await maybeAutoSyncBackup();
 		if (!result.ok) {
-			console.error(`birdclaw backup sync failed: ${result.error}`);
+			console.error(`neo-archive backup sync failed: ${result.error}`);
 		}
 	} catch (error) {
-		console.error(`birdclaw backup sync failed: ${errorMessage(error)}`);
+		console.error(`neo-archive backup sync failed: ${errorMessage(error)}`);
 	}
 }
 

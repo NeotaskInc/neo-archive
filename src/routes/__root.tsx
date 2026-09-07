@@ -6,7 +6,7 @@ import {
 } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { AppNav } from "#/components/AppNav";
-import { BirdclawQueryProvider } from "#/lib/query-client";
+import { NeoArchiveQueryProvider } from "#/lib/query-client";
 import { ThemeProvider, themeScript } from "#/lib/theme";
 import {
 	bodyClass,
@@ -28,7 +28,7 @@ export const Route = createRootRoute({
 				content: "width=device-width, initial-scale=1",
 			},
 			{
-				title: "birdclaw",
+				title: "Neo Archive",
 			},
 		],
 		links: [
@@ -64,7 +64,7 @@ function RootDocument({ children }: { children: ReactNode }) {
 				<script suppressHydrationWarning>{themeScript}</script>
 			</head>
 			<body className={bodyClass}>
-				<BirdclawQueryProvider>
+				<NeoArchiveQueryProvider>
 					<ThemeProvider>
 						<div className={siteShellClass}>
 							<AppNav compact={wideMode} />
@@ -73,7 +73,7 @@ function RootDocument({ children }: { children: ReactNode }) {
 							</main>
 						</div>
 					</ThemeProvider>
-				</BirdclawQueryProvider>
+				</NeoArchiveQueryProvider>
 				<Scripts />
 			</body>
 		</html>

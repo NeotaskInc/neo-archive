@@ -5,7 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import { Effect } from "effect";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { resetBirdclawPathsForTests } from "./config";
+import { resetNeoArchivePathsForTests } from "./config";
 import { getNativeDb, resetDatabaseForTests } from "./db";
 import { listTimelineItems } from "./timeline-read-model";
 
@@ -27,16 +27,16 @@ vi.mock("./xurl", async () => {
 const tempDirs: string[] = [];
 
 function makeTempHome() {
-	const tempDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-authored-"));
+	const tempDir = mkdtempSync(path.join(os.tmpdir(), "neo-archive-authored-"));
 	tempDirs.push(tempDir);
-	process.env.BIRDCLAW_HOME = tempDir;
-	resetBirdclawPathsForTests();
+	process.env.NEO_ARCHIVE_HOME = tempDir;
+	resetNeoArchivePathsForTests();
 	resetDatabaseForTests();
 }
 
 function makeArchiveWithTweet(id: string) {
 	const root = mkdtempSync(
-		path.join(os.tmpdir(), "birdclaw-authored-archive-"),
+		path.join(os.tmpdir(), "neo-archive-authored-archive-"),
 	);
 	tempDirs.push(root);
 	const archiveDir = path.join(root, "sample", "data");
@@ -169,8 +169,8 @@ describe("live authored tweet sync", () => {
 
 	afterEach(() => {
 		resetDatabaseForTests();
-		resetBirdclawPathsForTests();
-		delete process.env.BIRDCLAW_HOME;
+		resetNeoArchivePathsForTests();
+		delete process.env.NEO_ARCHIVE_HOME;
 		for (const mock of Object.values(mocks)) {
 			mock.mockReset();
 		}
@@ -766,7 +766,7 @@ describe("live authored tweet sync", () => {
 			name: "AuthoredSyncError",
 			exitCode: 4,
 			message: expect.stringContaining(
-				"selected account acct_studio is @birdclaw_lab",
+				"selected account acct_studio is @neo_archive_lab",
 			),
 		});
 		expect(mocks.listUserTweets).not.toHaveBeenCalled();
@@ -828,7 +828,7 @@ describe("live authored tweet sync", () => {
 				| undefined;
 			expect(requestOptions?.sinceId).toBeUndefined();
 			expect(stderr).toHaveBeenCalledWith(
-				"birdclaw sync authored: no archive baseline found; starting a full backwards scan",
+				"neo-archive sync authored: no archive baseline found; starting a full backwards scan",
 			);
 		} finally {
 			stderr.mockRestore();
@@ -920,7 +920,7 @@ describe("live authored tweet sync", () => {
 				| undefined;
 			expect(requestOptions?.sinceId).toBeUndefined();
 			expect(stderr).toHaveBeenCalledWith(
-				"birdclaw sync authored: no archive baseline found; starting a full backwards scan",
+				"neo-archive sync authored: no archive baseline found; starting a full backwards scan",
 			);
 		} finally {
 			stderr.mockRestore();

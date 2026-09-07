@@ -12,7 +12,7 @@ import {
 	runBookmarkSyncJob,
 	runBookmarkSyncJobEffect,
 } from "./bookmark-sync-job";
-import { resetBirdclawPathsForTests } from "./config";
+import { resetNeoArchivePathsForTests } from "./config";
 import { getNativeDb, resetDatabaseForTests } from "./db";
 
 const syncTimelineCollectionMock = vi.hoisted(() => vi.fn());
@@ -66,8 +66,8 @@ function makeTempDir(prefix: string) {
 
 afterEach(() => {
 	resetDatabaseForTests();
-	resetBirdclawPathsForTests();
-	delete process.env.BIRDCLAW_HOME;
+	resetNeoArchivePathsForTests();
+	delete process.env.NEO_ARCHIVE_HOME;
 	syncTimelineCollectionMock.mockReset();
 	maybeAutoSyncBackupMock.mockReset();
 	execFileAsyncMock.mockReset();
@@ -78,9 +78,9 @@ afterEach(() => {
 
 describe("bookmark sync job", () => {
 	it("builds bookmark sync jobs lazily as Effect programs", async () => {
-		process.env.BIRDCLAW_HOME = makeTempDir("birdclaw-job-lazy-");
-		resetBirdclawPathsForTests();
-		const logPath = path.join(process.env.BIRDCLAW_HOME, "audit.jsonl");
+		process.env.NEO_ARCHIVE_HOME = makeTempDir("neo-archive-job-lazy-");
+		resetNeoArchivePathsForTests();
+		const logPath = path.join(process.env.NEO_ARCHIVE_HOME, "audit.jsonl");
 		syncTimelineCollectionMock.mockResolvedValue({
 			ok: true,
 			source: "xurl",
@@ -108,9 +108,9 @@ describe("bookmark sync job", () => {
 	});
 
 	it("writes a successful JSONL audit entry", async () => {
-		process.env.BIRDCLAW_HOME = makeTempDir("birdclaw-job-");
-		resetBirdclawPathsForTests();
-		const logPath = path.join(process.env.BIRDCLAW_HOME, "audit.jsonl");
+		process.env.NEO_ARCHIVE_HOME = makeTempDir("neo-archive-job-");
+		resetNeoArchivePathsForTests();
+		const logPath = path.join(process.env.NEO_ARCHIVE_HOME, "audit.jsonl");
 		syncTimelineCollectionMock.mockResolvedValue({
 			ok: true,
 			source: "xurl",
@@ -167,9 +167,9 @@ describe("bookmark sync job", () => {
 	});
 
 	it("writes a failed audit entry instead of throwing", async () => {
-		process.env.BIRDCLAW_HOME = makeTempDir("birdclaw-job-fail-");
-		resetBirdclawPathsForTests();
-		const logPath = path.join(process.env.BIRDCLAW_HOME, "audit.jsonl");
+		process.env.NEO_ARCHIVE_HOME = makeTempDir("neo-archive-job-fail-");
+		resetNeoArchivePathsForTests();
+		const logPath = path.join(process.env.NEO_ARCHIVE_HOME, "audit.jsonl");
 		syncTimelineCollectionMock.mockRejectedValue(new Error("rate limited"));
 
 		const result = await runBookmarkSyncJob({ logPath });
@@ -183,10 +183,14 @@ describe("bookmark sync job", () => {
 	});
 
 	it("logs and skips when another bookmark job is running", async () => {
-		process.env.BIRDCLAW_HOME = makeTempDir("birdclaw-job-lock-");
-		resetBirdclawPathsForTests();
-		const logPath = path.join(process.env.BIRDCLAW_HOME, "audit.jsonl");
-		const lockPath = path.join(process.env.BIRDCLAW_HOME, "locks", "job.lock");
+		process.env.NEO_ARCHIVE_HOME = makeTempDir("neo-archive-job-lock-");
+		resetNeoArchivePathsForTests();
+		const logPath = path.join(process.env.NEO_ARCHIVE_HOME, "audit.jsonl");
+		const lockPath = path.join(
+			process.env.NEO_ARCHIVE_HOME,
+			"locks",
+			"job.lock",
+		);
 		await mkdir(path.dirname(lockPath), { recursive: true });
 		await writeFile(lockPath, "{}\n", "utf8");
 
@@ -203,12 +207,12 @@ describe("bookmark sync job", () => {
 	});
 
 	it("builds and installs the launchd plist without loading when requested", async () => {
-		process.env.BIRDCLAW_HOME = makeTempDir("birdclaw-launchd-home-");
-		resetBirdclawPathsForTests();
-		const launchAgentsDir = makeTempDir("birdclaw-launchagents-");
+		process.env.NEO_ARCHIVE_HOME = makeTempDir("neo-archive-launchd-home-");
+		resetNeoArchivePathsForTests();
+		const launchAgentsDir = makeTempDir("neo-archive-launchagents-");
 		const agent = buildBookmarkSyncLaunchAgentPlist({
 			account: "acct_work",
-			program: "/opt/homebrew/bin/birdclaw",
+			program: "/opt/homebrew/bin/neo-archive",
 			intervalSeconds: 10_800,
 			maxPages: 5,
 		});
@@ -223,7 +227,7 @@ describe("bookmark sync job", () => {
 
 		const result = await installBookmarkSyncLaunchAgent({
 			launchAgentsDir,
-			program: "/opt/homebrew/bin/birdclaw",
+			program: "/opt/homebrew/bin/neo-archive",
 			load: false,
 		});
 
@@ -235,27 +239,29 @@ describe("bookmark sync job", () => {
 
 	it("builds bookmark sync through an explicit Bun runtime", () => {
 		const agent = buildBookmarkSyncLaunchAgentPlist({
-			program: "/Users/test/Projects/birdclaw/bin/birdclaw.mjs",
-			runtime: "/Users/test/.local/share/birdclaw/bun/bin/bun",
+			program: "/Users/test/Projects/neo-archive/bin/neo-archive.mjs",
+			runtime: "/Users/test/.local/share/neo-archive/bun/bin/bun",
 			runtimeArgs: ["--no-env-file"],
 		});
 
 		expect(agent.programArguments.slice(0, 4)).toEqual([
-			"/Users/test/.local/share/birdclaw/bun/bin/bun",
+			"/Users/test/.local/share/neo-archive/bun/bin/bun",
 			"--no-env-file",
-			"/Users/test/Projects/birdclaw/bin/birdclaw.mjs",
+			"/Users/test/Projects/neo-archive/bin/neo-archive.mjs",
 			"--json",
 		]);
 		expect(agent.programArguments).toContain("sync-bookmarks");
 	});
 
 	it("builds launchd install effects lazily", async () => {
-		process.env.BIRDCLAW_HOME = makeTempDir("birdclaw-launchd-lazy-home-");
-		resetBirdclawPathsForTests();
-		const launchAgentsDir = makeTempDir("birdclaw-launchagents-lazy-");
+		process.env.NEO_ARCHIVE_HOME = makeTempDir(
+			"neo-archive-launchd-lazy-home-",
+		);
+		resetNeoArchivePathsForTests();
+		const launchAgentsDir = makeTempDir("neo-archive-launchagents-lazy-");
 		const effect = installBookmarkSyncLaunchAgentEffect({
 			launchAgentsDir,
-			program: "/opt/homebrew/bin/birdclaw",
+			program: "/opt/homebrew/bin/neo-archive",
 			load: false,
 		});
 
@@ -264,7 +270,7 @@ describe("bookmark sync job", () => {
 			existsSync(
 				path.join(
 					launchAgentsDir,
-					"com.steipete.birdclaw.bookmarks-sync.plist",
+					"com.neotask.neo-archive.bookmarks-sync.plist",
 				),
 			),
 		).toBe(false);
@@ -276,7 +282,7 @@ describe("bookmark sync job", () => {
 
 	it("can source an env file before running the launchd command", () => {
 		const agent = buildBookmarkSyncLaunchAgentPlist({
-			program: "/opt/homebrew/bin/birdclaw",
+			program: "/opt/homebrew/bin/neo-archive",
 			envFile: "~/private bird/env.sh",
 			mode: "bird",
 			logPath: "~/bird audit/bookmarks.jsonl",
@@ -290,7 +296,7 @@ describe("bookmark sync job", () => {
 			`. '${path.join(os.homedir(), "private bird/env.sh")}'`,
 		);
 		expect(agent.programArguments[2]).toContain(
-			"exec '/opt/homebrew/bin/birdclaw' '--json' 'jobs' 'sync-bookmarks'",
+			"exec '/opt/homebrew/bin/neo-archive' '--json' 'jobs' 'sync-bookmarks'",
 		);
 		expect(agent.programArguments[2]).toContain("'--mode' 'bird'");
 		expect(agent.plist).toContain("private bird/env.sh");

@@ -14,13 +14,13 @@ OPENCAGE_API_KEY=...
 NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN=...
 ```
 
-`BIRDCLAW_MAPBOX_ACCESS_TOKEN` is also accepted for local-only Birdclaw runs. The Mapbox token is sent to the browser; use a public Mapbox token. If Mapbox is missing, Birdclaw renders a lightweight local scatter map. If OpenCage is missing, Birdclaw uses cached geocodes and explicit coordinate locations only.
+`NEO_ARCHIVE_MAPBOX_ACCESS_TOKEN` is also accepted for local-only Neo Archive runs. The Mapbox token is sent to the browser; use a public Mapbox token. If Mapbox is missing, Neo Archive renders a lightweight local scatter map. If OpenCage is missing, Neo Archive uses cached geocodes and explicit coordinate locations only.
 
 Useful refresh flow:
 
 ```bash
-birdclaw sync followers --yes --json
-birdclaw sync following --yes --json
-birdclaw import hydrate-profiles --json
+neo-archive sync followers --yes --json
+neo-archive sync following --yes --json
+neo-archive import hydrate-profiles --json
 ./scripts/bun-canary.sh run --bun dev
 ```

@@ -5,7 +5,7 @@ description: "Exact Bun 1.4 Rust-port build, compatibility constraints, verifica
 
 # Bun 1.4 canary
 
-Birdclaw source development and its source-backed production deployment use one experimentally verified Bun 1.4 canary. This is not a floating `bun upgrade --canary` policy.
+Neo Archive source development and its source-backed production deployment use one experimentally verified Bun 1.4 canary. This is not a floating `bun upgrade --canary` policy.
 
 ## Exact build
 
@@ -21,13 +21,13 @@ Birdclaw source development and its source-backed production deployment use one 
 | Linux x64 archive SHA-256 | `c6633a63e54d2371cfc1841f1a985fadae686a60f0b67e7d7248d8e0254772bf` |
 | Linux x64 binary SHA-256 | `f150600ea0d05d12bfb3817052760591c30f870184a3008fca9667132be957a9` |
 
-The machine-readable source of truth is `toolchains/bun-canary.conf`. `scripts/install-bun-canary.sh` downloads the revision-specific Buildkite artifact from build `90456`, verifies both checksums, then requires the exact `bun --revision`. A cached archive can be supplied through `BIRDCLAW_BUN_ARCHIVE`.
+The machine-readable source of truth is `toolchains/bun-canary.conf`. `scripts/install-bun-canary.sh` downloads the revision-specific Buildkite artifact from build `90456`, verifies both checksums, then requires the exact `bun --revision`. A cached archive can be supplied through `NEO_ARCHIVE_BUN_ARCHIVE`.
 
-The GitHub `canary` release replaces same-named assets as Bun's `main` branch advances; its observed asset ids are retained only as provenance. Birdclaw never downloads that moving alias. If the immutable Buildkite artifact is unavailable, installation fails closed and requests a cached exact archive rather than substituting a newer canary.
+The GitHub `canary` release replaces same-named assets as Bun's `main` branch advances; its observed asset ids are retained only as provenance. Neo Archive never downloads that moving alias. If the immutable Buildkite artifact is unavailable, installation fails closed and requests a cached exact archive rather than substituting a newer canary.
 
 ## What “Rust port” means
 
-Bun 1.4 is the first release line after Bun's Zig-to-Rust port. It preserves Bun's architecture rather than becoming a pure-Rust runtime: JavaScriptCore, SQLite, BoringSSL, and other native components remain embedded. Birdclaw describes it as the Rust-port Bun 1.4 canary, not as an all-Rust stack.
+Bun 1.4 is the first release line after Bun's Zig-to-Rust port. It preserves Bun's architecture rather than becoming a pure-Rust runtime: JavaScriptCore, SQLite, BoringSSL, and other native components remain embedded. Neo Archive describes it as the Rust-port Bun 1.4 canary, not as an all-Rust stack.
 
 ## Compatibility constraints
 
@@ -35,25 +35,25 @@ Bun 1.4 is the first release line after Bun's Zig-to-Rust port. It preserves Bun
 
 The npm and Homebrew package remains a Node CLI with `#!/usr/bin/env node` and `engines.node: >=26.5.1 <27`. CI builds and runs the installed package under real Node 26.5.1 as well as the exact Bun binary.
 
-Bun reports Node compatibility `26.3.0`, below Birdclaw's public Node floor. Birdclaw does not weaken that floor or pretend Bun is a qualifying Node binary; Bun is identified through `process.versions.bun` and its own exact revision.
+Bun reports Node compatibility `26.3.0`, below Neo Archive's public Node floor. Neo Archive does not weaken that floor or pretend Bun is a qualifying Node binary; Bun is identified through `process.versions.bun` and its own exact revision.
 
 ### SQLite and WAL
 
-Birdclaw keeps the shared `node:sqlite` adapter. Bun's implementation supports the APIs Birdclaw uses, including FTS5, WAL, transactions, iterators, and BLOBs.
+Neo Archive keeps the shared `node:sqlite` adapter. Bun's implementation supports the APIs Neo Archive uses, including FTS5, WAL, transactions, iterators, and BLOBs.
 
-SQLite WAL readers sometimes need to create `-wal`/`-shm` coordination files after a clean process exit. Birdclaw therefore opens managed readers normally under Bun and immediately applies `pragma query_only = on`; Node keeps its native read-only open. Both connections remain unable to execute application writes or DDL, while Bun's SQLite library can establish WAL coordination. Dual-runtime package smoke covers MCP startup from a clean installed database, the case that exposed this constraint.
+SQLite WAL readers sometimes need to create `-wal`/`-shm` coordination files after a clean process exit. Neo Archive therefore opens managed readers normally under Bun and immediately applies `pragma query_only = on`; Node keeps its native read-only open. Both connections remain unable to execute application writes or DDL, while Bun's SQLite library can establish WAL coordination. Dual-runtime package smoke covers MCP startup from a clean installed database, the case that exposed this constraint.
 
 ### Tests and coverage
 
 Vitest runs under both runtimes. Bun needs `zod` inlined through Vitest's dependency server to avoid an externalization interop failure in the exact canary.
 
-Bun uses JavaScriptCore, so the primary Bun coverage gate uses Istanbul. The same suite reports 79.08% Istanbul branch coverage versus 80.20% under Node/V8 because the providers count generated/default branches differently. Birdclaw keeps the original 80% Node/V8 branch gate and an explicit 79% Bun/Istanbul gate rather than disguising the provider change; line, statement, and function thresholds remain 85%. Coverage runs get a 30-second per-test ceiling for instrumentation overhead, while ordinary tests retain the tighter 10-second ceiling.
+Bun uses JavaScriptCore, so the primary Bun coverage gate uses Istanbul. The same suite reports 79.08% Istanbul branch coverage versus 80.20% under Node/V8 because the providers count generated/default branches differently. Neo Archive keeps the original 80% Node/V8 branch gate and an explicit 79% Bun/Istanbul gate rather than disguising the provider change; line, statement, and function thresholds remain 85%. Coverage runs get a 30-second per-test ceiling for instrumentation overhead, while ordinary tests retain the tighter 10-second ceiling.
 
-Playwright 1.63.0 is not generally documented as a Bun-supported runtime, but its full Birdclaw Chromium suite passes on this exact canary. CI pins that observed combination and tests the built production server, rather than claiming compatibility with arbitrary Bun versions.
+Playwright 1.63.0 is not generally documented as a Bun-supported runtime, but its full Neo Archive Chromium suite passes on this exact canary. CI pins that observed combination and tests the built production server, rather than claiming compatibility with arbitrary Bun versions.
 
 ### Environment and telemetry
 
-Direct Bun execution loads `.env` files unless disabled. Birdclaw's wrapper and launchd examples always pass `--no-env-file`. The wrapper also defaults `DO_NOT_TRACK=1` so Bun does not upload crash reports from private local archives.
+Direct Bun execution loads `.env` files unless disabled. Neo Archive's wrapper and launchd examples always pass `--no-env-file`. The wrapper also defaults `DO_NOT_TRACK=1` so Bun does not upload crash reports from private local archives.
 
 ## Verification
 
@@ -77,7 +77,7 @@ fnm use
 Installed-package proof creates npm and Bun tarballs with identical file lists, installs the npm tarball, then runs CLI, SQLite, SSR, static assets, MCP, and SIGTERM checks under both runtimes:
 
 ```bash
-BIRDCLAW_NODE_BIN="$(command -v node)" \
+NEO_ARCHIVE_NODE_BIN="$(command -v node)" \
   ./scripts/bun-canary.sh scripts/package-smoke.mjs --json
 ```
 
@@ -90,8 +90,8 @@ BIRDCLAW_NODE_BIN="$(command -v node)" \
   --label=migration-bun \
   --runtime="$(./scripts/install-bun-canary.sh)" \
   --runtime-arg=--no-env-file \
-  --entry=bin/birdclaw.mjs \
-  --home=/tmp/birdclaw-perf-home \
+  --entry=bin/neo-archive.mjs \
+  --home=/tmp/neo-archive-perf-home \
   --iterations=30 > runtime-perf-bun.json
 ```
 

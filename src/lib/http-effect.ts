@@ -55,7 +55,7 @@ function requestCookie(request: Request, name: string) {
 }
 
 function configuredWebToken() {
-	const token = process.env.BIRDCLAW_WEB_TOKEN?.trim();
+	const token = process.env.NEO_ARCHIVE_WEB_TOKEN?.trim();
 	return token || null;
 }
 
@@ -68,8 +68,8 @@ function requestWebTokenStatus(request: Request) {
 			fromCookie: false,
 			provided: false,
 		};
-	const headerToken = request.headers.get("x-birdclaw-token");
-	const cookieToken = requestCookie(request, "birdclaw_token");
+	const headerToken = request.headers.get("x-neo-archive-token");
+	const cookieToken = requestCookie(request, "neo_archive_token");
 	const provided = headerToken !== null || cookieToken.found;
 	const cookieValue = cookieToken.value;
 	const valid = headerToken === token || cookieValue === token;
@@ -87,7 +87,7 @@ function isLocalWebHost(value: string) {
 }
 
 function allowsUnauthenticatedLocalWeb(request: Request) {
-	const mode = process.env.BIRDCLAW_LOCAL_WEB;
+	const mode = process.env.NEO_ARCHIVE_LOCAL_WEB;
 	if (mode === "socket") {
 		return request.headers.get(LOCAL_WEB_PEER_HEADER) === "1";
 	}
@@ -146,7 +146,7 @@ export function sensitiveRequestErrorResponse(request: Request) {
 		!hasForwardedRequestHeaders(request);
 	const fetchSite = request.headers.get("sec-fetch-site");
 	const origin = request.headers.get("origin");
-	const allowRemoteEnv = process.env.BIRDCLAW_ALLOW_REMOTE_WEB === "1";
+	const allowRemoteEnv = process.env.NEO_ARCHIVE_ALLOW_REMOTE_WEB === "1";
 	const allowTrustedRemote = allowRemoteEnv && !token.configured;
 
 	if (isTestEnvironment() && !token.valid) return null;
@@ -175,7 +175,7 @@ export function sensitiveRequestErrorResponse(request: Request) {
 			{
 				ok: false,
 				message:
-					"Remote API access requires BIRDCLAW_ALLOW_REMOTE_WEB=1 for a trusted private proxy, or BIRDCLAW_WEB_TOKEN for tokened access",
+					"Remote API access requires NEO_ARCHIVE_ALLOW_REMOTE_WEB=1 for a trusted private proxy, or NEO_ARCHIVE_WEB_TOKEN for tokened access",
 			},
 			{ status: 403 },
 		);

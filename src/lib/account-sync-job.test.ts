@@ -81,7 +81,7 @@ describe("account sync job", () => {
 	it("builds an account-scoped launchd command", () => {
 		const agent = buildAccountSyncLaunchAgentPlist({
 			account: "acct_openclaw",
-			program: "/opt/homebrew/bin/birdclaw",
+			program: "/opt/homebrew/bin/neo-archive",
 			steps: ["timeline", "mentions", "dms"],
 			allowBirdAccount: true,
 			envFile: "~/.config/bird/openclaw.env",
@@ -96,21 +96,21 @@ describe("account sync job", () => {
 			"'--steps' 'timeline,mentions,dms'",
 		);
 		expect(agent.programArguments[2]).toContain("'--allow-bird-account'");
-		expect(agent.plist).toContain("com.steipete.birdclaw.account-sync");
+		expect(agent.plist).toContain("com.neotask.neo-archive.account-sync");
 	});
 
 	it("builds an account sync command through an explicit Bun runtime", () => {
 		const agent = buildAccountSyncLaunchAgentPlist({
-			program: "/Users/test/Projects/birdclaw/bin/birdclaw.mjs",
-			runtime: "/Users/test/.local/share/birdclaw/bun/bin/bun",
+			program: "/Users/test/Projects/neo-archive/bin/neo-archive.mjs",
+			runtime: "/Users/test/.local/share/neo-archive/bun/bin/bun",
 			runtimeArgs: ["--no-env-file"],
 			steps: ["timeline"],
 		});
 
 		expect(agent.programArguments.slice(0, 4)).toEqual([
-			"/Users/test/.local/share/birdclaw/bun/bin/bun",
+			"/Users/test/.local/share/neo-archive/bun/bin/bun",
 			"--no-env-file",
-			"/Users/test/Projects/birdclaw/bin/birdclaw.mjs",
+			"/Users/test/Projects/neo-archive/bin/neo-archive.mjs",
 			"--json",
 		]);
 		expect(agent.programArguments).toContain("sync-account");
@@ -118,22 +118,22 @@ describe("account sync job", () => {
 
 	it("builds default launchd arguments through env lookup when no program path is supplied", () => {
 		const agent = buildAccountSyncLaunchAgentPlist({
-			label: "com.example.birdclaw.sync&test",
+			label: "com.example.neo-archive.sync&test",
 			refresh: false,
 			cacheTtlSeconds: 60,
-			logPath: "~/birdclaw audit/account-sync.jsonl",
-			stdoutPath: "~/birdclaw logs/out.log",
-			stderrPath: "~/birdclaw logs/err.log",
+			logPath: "~/neo-archive audit/account-sync.jsonl",
+			stdoutPath: "~/neo-archive logs/out.log",
+			stderrPath: "~/neo-archive logs/err.log",
 		});
 
 		expect(agent.programArguments.slice(0, 2)).toEqual([
 			"/usr/bin/env",
-			"birdclaw",
+			"neo-archive",
 		]);
 		expect(agent.programArguments).not.toContain("--refresh");
 		expect(agent.programArguments).toContain("--cache-ttl");
 		expect(agent.programArguments).toContain("60");
-		expect(agent.plist).toContain("com.example.birdclaw.sync&amp;test");
+		expect(agent.plist).toContain("com.example.neo-archive.sync&amp;test");
 		expect(agent.envFile).toBeUndefined();
 	});
 
@@ -143,24 +143,24 @@ describe("account sync job", () => {
 	});
 
 	it("installs without loading when requested", async () => {
-		tempDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-account-job-"));
+		tempDir = mkdtempSync(path.join(os.tmpdir(), "neo-archive-account-job-"));
 		const result = await installAccountSyncLaunchAgent({
 			account: "acct_openclaw",
 			launchAgentsDir: tempDir,
 			load: false,
-			program: "/opt/homebrew/bin/birdclaw",
+			program: "/opt/homebrew/bin/neo-archive",
 		});
 
 		expect(result.loaded).toBe(false);
 		expect(result.plistPath).toBe(
-			path.join(tempDir, "com.steipete.birdclaw.account-sync.plist"),
+			path.join(tempDir, "com.neotask.neo-archive.account-sync.plist"),
 		);
 		expect(result.programArguments).toContain("--account");
 		expect(result.programArguments).toContain("acct_openclaw");
 	});
 
 	it("writes an audit entry when backup sync fails", async () => {
-		tempDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-account-job-"));
+		tempDir = mkdtempSync(path.join(os.tmpdir(), "neo-archive-account-job-"));
 		const logPath = path.join(tempDir, "audit.jsonl");
 		const lockPath = path.join(tempDir, "sync.lock");
 		syncMentionsMock.mockResolvedValue({
@@ -191,7 +191,7 @@ describe("account sync job", () => {
 	});
 
 	it("fails when all sync steps succeed but backup returns a failure", async () => {
-		tempDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-account-job-"));
+		tempDir = mkdtempSync(path.join(os.tmpdir(), "neo-archive-account-job-"));
 		const logPath = path.join(tempDir, "audit.jsonl");
 		const lockPath = path.join(tempDir, "sync.lock");
 		syncMentionsMock.mockResolvedValue({
@@ -202,7 +202,7 @@ describe("account sync job", () => {
 			ok: false,
 			enabled: true,
 			skipped: false,
-			repoPath: "/tmp/backup-birdclaw",
+			repoPath: "/tmp/backup-neo-archive",
 			error: "backup export failed",
 		});
 
@@ -220,7 +220,7 @@ describe("account sync job", () => {
 				ok: false,
 				enabled: true,
 				skipped: false,
-				repoPath: "/tmp/backup-birdclaw",
+				repoPath: "/tmp/backup-neo-archive",
 				error: "backup export failed",
 			},
 		});
@@ -229,7 +229,7 @@ describe("account sync job", () => {
 	});
 
 	it("succeeds when all sync steps and a disabled backup skip succeed", async () => {
-		tempDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-account-job-"));
+		tempDir = mkdtempSync(path.join(os.tmpdir(), "neo-archive-account-job-"));
 		const logPath = path.join(tempDir, "audit.jsonl");
 		const lockPath = path.join(tempDir, "sync.lock");
 		syncMentionsMock.mockResolvedValue({
@@ -263,7 +263,7 @@ describe("account sync job", () => {
 	});
 
 	it("fails when a sync step fails even though backup succeeds", async () => {
-		tempDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-account-job-"));
+		tempDir = mkdtempSync(path.join(os.tmpdir(), "neo-archive-account-job-"));
 		const logPath = path.join(tempDir, "audit.jsonl");
 		const lockPath = path.join(tempDir, "sync.lock");
 		syncMentionsMock.mockRejectedValue(new Error("mentions failed"));
@@ -295,7 +295,7 @@ describe("account sync job", () => {
 	});
 
 	it("refuses Bird-backed non-default account sync without an assertion", async () => {
-		tempDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-account-job-"));
+		tempDir = mkdtempSync(path.join(os.tmpdir(), "neo-archive-account-job-"));
 		const logPath = path.join(tempDir, "audit.jsonl");
 		const lockPath = path.join(tempDir, "sync.lock");
 		const db = {
@@ -327,7 +327,7 @@ describe("account sync job", () => {
 	});
 
 	it("forces non-default saved collection syncs through xurl without an assertion", async () => {
-		tempDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-account-job-"));
+		tempDir = mkdtempSync(path.join(os.tmpdir(), "neo-archive-account-job-"));
 		const logPath = path.join(tempDir, "audit.jsonl");
 		const lockPath = path.join(tempDir, "sync.lock");
 		const db = {
@@ -362,7 +362,7 @@ describe("account sync job", () => {
 	});
 
 	it("refuses explicit Bird saved collection syncs for non-default accounts without an assertion", async () => {
-		tempDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-account-job-"));
+		tempDir = mkdtempSync(path.join(os.tmpdir(), "neo-archive-account-job-"));
 		const logPath = path.join(tempDir, "audit.jsonl");
 		const lockPath = path.join(tempDir, "sync.lock");
 		const db = {
@@ -394,7 +394,7 @@ describe("account sync job", () => {
 	});
 
 	it("skips cleanly when another account sync job holds the lock", async () => {
-		tempDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-account-job-"));
+		tempDir = mkdtempSync(path.join(os.tmpdir(), "neo-archive-account-job-"));
 		const logPath = path.join(tempDir, "audit.jsonl");
 		const lockPath = path.join(tempDir, "sync.lock");
 		writeFileSync(lockPath, "{}\n");
@@ -421,7 +421,7 @@ describe("account sync job", () => {
 	});
 
 	it("runs Bird-backed non-default account steps when explicitly allowed", async () => {
-		tempDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-account-job-"));
+		tempDir = mkdtempSync(path.join(os.tmpdir(), "neo-archive-account-job-"));
 		const logPath = path.join(tempDir, "audit.jsonl");
 		const lockPath = path.join(tempDir, "sync.lock");
 		const db = {
@@ -500,7 +500,7 @@ describe("account sync job", () => {
 	});
 
 	it("uses bird timeline mode for allowed non-default auto jobs", async () => {
-		tempDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-account-job-"));
+		tempDir = mkdtempSync(path.join(os.tmpdir(), "neo-archive-account-job-"));
 		const logPath = path.join(tempDir, "audit.jsonl");
 		const lockPath = path.join(tempDir, "sync.lock");
 		const db = {
@@ -532,7 +532,7 @@ describe("account sync job", () => {
 	});
 
 	it("records mention-thread sync errors as failed step results", async () => {
-		tempDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-account-job-"));
+		tempDir = mkdtempSync(path.join(os.tmpdir(), "neo-archive-account-job-"));
 		const logPath = path.join(tempDir, "audit.jsonl");
 		const lockPath = path.join(tempDir, "sync.lock");
 		syncMentionThreadsMock.mockRejectedValue(new Error("xurl failed"));

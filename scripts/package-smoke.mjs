@@ -18,10 +18,10 @@ import { promisify } from "node:util";
 const execFileAsync = promisify(execFile);
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const bunBin = process.execPath;
-const nodeBin = process.env.BIRDCLAW_NODE_BIN || "node";
+const nodeBin = process.env.NEO_ARCHIVE_NODE_BIN || "node";
 const jsonOutput = process.argv.includes("--json");
 const tempRoot = await mkdtemp(
-	path.join(os.tmpdir(), "birdclaw-package-smoke-"),
+	path.join(os.tmpdir(), "neo-archive-package-smoke-"),
 );
 
 async function run(command, args, options = {}) {
@@ -130,14 +130,14 @@ async function smokeRuntime({
 	const home = path.join(tempRoot, `home-${runtime.name}`);
 	const env = {
 		...process.env,
-		BIRDCLAW_BACKUP_AUTO_SYNC: "0",
-		BIRDCLAW_DISABLE_LIVE_PROFILE_LOOKUP: "1",
-		BIRDCLAW_DISABLE_LIVE_WRITES: "1",
-		BIRDCLAW_HOME: home,
+		NEO_ARCHIVE_BACKUP_AUTO_SYNC: "0",
+		NEO_ARCHIVE_DISABLE_LIVE_PROFILE_LOOKUP: "1",
+		NEO_ARCHIVE_DISABLE_LIVE_WRITES: "1",
+		NEO_ARCHIVE_HOME: home,
 		DO_NOT_TRACK: "1",
 	};
-	delete env.BIRDCLAW_MCP_ACCOUNT;
-	delete env.BIRDCLAW_WEB_TOKEN;
+	delete env.NEO_ARCHIVE_MCP_ACCOUNT;
+	delete env.NEO_ARCHIVE_WEB_TOKEN;
 
 	const versionStarted = performance.now();
 	const { stdout: versionOutput } = await runRuntime(runtime, ["--version"], {
@@ -166,7 +166,7 @@ async function smokeRuntime({
 	if (
 		init.demo?.seeded !== true ||
 		init.demo?.counts?.accounts !== 2 ||
-		!init.nextSteps?.includes("birdclaw serve")
+		!init.nextSteps?.includes("neo-archive serve")
 	) {
 		throw new Error(
 			`${runtime.name}: installed CLI demo init failed: ${initOutput}`,
@@ -181,11 +181,11 @@ async function smokeRuntime({
 
 	const port = await reserveLoopbackPort();
 	const expectedBaseUrl = `http://127.0.0.1:${String(port)}`;
-	const mcpToken = `birdclaw-${runtime.name}-smoke-token-0123456789-abcdef`;
+	const mcpToken = `neo-archive-${runtime.name}-smoke-token-0123456789-abcdef`;
 	const serverEnv = {
 		...env,
-		BIRDCLAW_MCP_PUBLIC_URL: `${expectedBaseUrl}/mcp`,
-		BIRDCLAW_MCP_TOKEN: mcpToken,
+		NEO_ARCHIVE_MCP_PUBLIC_URL: `${expectedBaseUrl}/mcp`,
+		NEO_ARCHIVE_MCP_TOKEN: mcpToken,
 	};
 	const child = spawnRuntime(
 		runtime,
@@ -205,7 +205,10 @@ async function smokeRuntime({
 			);
 		}
 		const page = await fetch(baseUrl);
-		if (!page.ok || !(await page.text()).toLowerCase().includes("birdclaw")) {
+		if (
+			!page.ok ||
+			!(await page.text()).toLowerCase().includes("neo-archive")
+		) {
 			throw new Error(
 				`${runtime.name}: production SSR smoke failed with ${String(page.status)}`,
 			);
@@ -226,7 +229,7 @@ async function smokeRuntime({
 			},
 		);
 		const client = new Client({
-			name: `birdclaw-package-smoke-${runtime.name}`,
+			name: `neo-archive-package-smoke-${runtime.name}`,
 			version: "1.0.0",
 		});
 		try {
@@ -370,8 +373,8 @@ try {
 		throw new Error("npm pack and bun pm pack produced different file lists");
 	}
 	for (const required of [
-		"package/bin/birdclaw.mjs",
-		"package/dist/cli/birdclaw.js",
+		"package/bin/neo-archive.mjs",
+		"package/dist/cli/neo-archive.js",
 		"package/dist/server/server.js",
 	]) {
 		if (!npmFiles.includes(required))
@@ -392,25 +395,25 @@ try {
 	await mkdir(installDir, { recursive: true });
 	await writeFile(
 		path.join(installDir, "package.json"),
-		`${JSON.stringify({ name: "birdclaw-package-smoke", private: true, type: "module" })}\n`,
+		`${JSON.stringify({ name: "neo-archive-package-smoke", private: true, type: "module" })}\n`,
 	);
 	await run(
 		"npm",
 		["install", "--ignore-scripts", "--no-audit", "--no-fund", npmTarball],
 		{ cwd: installDir, env: nodeToolEnv },
 	);
-	const installedRoot = path.join(installDir, "node_modules", "birdclaw");
+	const installedRoot = path.join(installDir, "node_modules", "neo-archive");
 	const manifest = JSON.parse(
 		await readFile(path.join(installedRoot, "package.json"), "utf8"),
 	);
 	if (manifest.dependencies?.tsx || manifest.dependencies?.vite) {
 		throw new Error("Installed runtime dependencies include tsx or vite");
 	}
-	const launcher = path.join(installedRoot, "bin", "birdclaw.mjs");
-	const bin = path.join(installDir, "node_modules", ".bin", "birdclaw");
+	const launcher = path.join(installedRoot, "bin", "neo-archive.mjs");
+	const bin = path.join(installDir, "node_modules", ".bin", "neo-archive");
 	const normalBinEnv = {
 		...nodeToolEnv,
-		BIRDCLAW_HOME: path.join(tempRoot, "home-bin"),
+		NEO_ARCHIVE_HOME: path.join(tempRoot, "home-bin"),
 	};
 	const { stdout: normalBinVersion } = await run(bin, ["--version"], {
 		cwd: installDir,
@@ -487,7 +490,7 @@ try {
 		);
 	}
 } finally {
-	if (process.env.BIRDCLAW_KEEP_PACKAGE_SMOKE === "1") {
+	if (process.env.NEO_ARCHIVE_KEEP_PACKAGE_SMOKE === "1") {
 		console.error(`Package smoke workspace retained at ${tempRoot}`);
 	} else {
 		await rm(tempRoot, { recursive: true, force: true });

@@ -42,17 +42,19 @@ vi.mock("./timeline-live", () => ({
 		}),
 }));
 
-import { resetBirdclawPathsForTests } from "./config";
+import { resetNeoArchivePathsForTests } from "./config";
 import { resetDatabaseForTests } from "./db";
 import { streamPeriodDigest } from "./period-digest";
 
 const tempRoots: string[] = [];
 
 function setupTempHome() {
-	const tempRoot = mkdtempSync(path.join(os.tmpdir(), "birdclaw-digest-live-"));
+	const tempRoot = mkdtempSync(
+		path.join(os.tmpdir(), "neo-archive-digest-live-"),
+	);
 	tempRoots.push(tempRoot);
-	process.env.BIRDCLAW_HOME = tempRoot;
-	resetBirdclawPathsForTests();
+	process.env.NEO_ARCHIVE_HOME = tempRoot;
+	resetNeoArchivePathsForTests();
 	resetDatabaseForTests();
 }
 
@@ -103,8 +105,8 @@ describe("period digest live refresh", () => {
 
 	afterEach(() => {
 		resetDatabaseForTests();
-		resetBirdclawPathsForTests();
-		delete process.env.BIRDCLAW_HOME;
+		resetNeoArchivePathsForTests();
+		delete process.env.NEO_ARCHIVE_HOME;
 		delete process.env.OPENAI_API_KEY;
 		vi.unstubAllGlobals();
 		for (const tempRoot of tempRoots.splice(0)) {

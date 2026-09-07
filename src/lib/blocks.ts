@@ -45,7 +45,7 @@ export function removeBlockEffect(
 }
 
 function remoteBlockSyncDisabled() {
-	return process.env.BIRDCLAW_DISABLE_LIVE_WRITES === "1";
+	return process.env.NEO_ARCHIVE_DISABLE_LIVE_WRITES === "1";
 }
 
 export function listBlocks({

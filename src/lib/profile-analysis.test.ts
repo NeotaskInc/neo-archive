@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { Effect } from "effect";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { resetBirdclawPathsForTests } from "./config";
+import { resetNeoArchivePathsForTests } from "./config";
 import { getNativeDb, resetDatabaseForTests } from "./db";
 import { streamProfileAnalysis } from "./profile-analysis";
 import { listTimelineItems } from "./timeline-read-model";
@@ -27,10 +27,12 @@ vi.mock("./xurl", () => ({
 const tempRoots: string[] = [];
 
 function setupTempHome() {
-	const tempRoot = mkdtempSync(path.join(os.tmpdir(), "birdclaw-profile-ai-"));
+	const tempRoot = mkdtempSync(
+		path.join(os.tmpdir(), "neo-archive-profile-ai-"),
+	);
 	tempRoots.push(tempRoot);
-	process.env.BIRDCLAW_HOME = tempRoot;
-	resetBirdclawPathsForTests();
+	process.env.NEO_ARCHIVE_HOME = tempRoot;
+	resetNeoArchivePathsForTests();
 	resetDatabaseForTests();
 }
 
@@ -47,9 +49,9 @@ const profileUser = {
 beforeEach(() => {
 	setupTempHome();
 	process.env.OPENAI_API_KEY = "test-key";
-	process.env.BIRDCLAW_PROFILE_ANALYSIS_CONVERSATION_DELAY_MS = "0";
-	process.env.BIRDCLAW_PROFILE_ANALYSIS_RATE_LIMIT_RETRY_MS = "0";
-	process.env.BIRDCLAW_PROFILE_ANALYSIS_RATE_LIMIT_MAX_RETRIES = "0";
+	process.env.NEO_ARCHIVE_PROFILE_ANALYSIS_CONVERSATION_DELAY_MS = "0";
+	process.env.NEO_ARCHIVE_PROFILE_ANALYSIS_RATE_LIMIT_RETRY_MS = "0";
+	process.env.NEO_ARCHIVE_PROFILE_ANALYSIS_RATE_LIMIT_MAX_RETRIES = "0";
 	mocks.lookupUsersByHandlesEffect.mockReset();
 	mocks.listUserTweetsEffect.mockReset();
 	mocks.searchRecentByConversationIdEffect.mockReset();
@@ -118,13 +120,13 @@ beforeEach(() => {
 
 afterEach(() => {
 	resetDatabaseForTests();
-	resetBirdclawPathsForTests();
-	delete process.env.BIRDCLAW_HOME;
+	resetNeoArchivePathsForTests();
+	delete process.env.NEO_ARCHIVE_HOME;
 	delete process.env.OPENAI_API_KEY;
-	delete process.env.BIRDCLAW_PROFILE_ANALYSIS_CONVERSATION_DELAY_MS;
-	delete process.env.BIRDCLAW_PROFILE_ANALYSIS_RATE_LIMIT_RETRY_MS;
-	delete process.env.BIRDCLAW_PROFILE_ANALYSIS_RATE_LIMIT_MAX_RETRIES;
-	delete process.env.BIRDCLAW_PROFILE_ANALYSIS_ACCOUNT;
+	delete process.env.NEO_ARCHIVE_PROFILE_ANALYSIS_CONVERSATION_DELAY_MS;
+	delete process.env.NEO_ARCHIVE_PROFILE_ANALYSIS_RATE_LIMIT_RETRY_MS;
+	delete process.env.NEO_ARCHIVE_PROFILE_ANALYSIS_RATE_LIMIT_MAX_RETRIES;
+	delete process.env.NEO_ARCHIVE_PROFILE_ANALYSIS_ACCOUNT;
 	vi.unstubAllGlobals();
 	for (const tempRoot of tempRoots.splice(0)) {
 		rmSync(tempRoot, { recursive: true, force: true });
@@ -377,7 +379,7 @@ describe("profile analysis", () => {
 				0,
 				"2026-05-31T00:00:00.000Z",
 			);
-		process.env.BIRDCLAW_PROFILE_ANALYSIS_ACCOUNT = "openclaw";
+		process.env.NEO_ARCHIVE_PROFILE_ANALYSIS_ACCOUNT = "openclaw";
 
 		await streamProfileAnalysis({
 			handle: "alice",

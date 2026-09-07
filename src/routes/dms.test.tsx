@@ -121,7 +121,10 @@ describe("dms route", () => {
 			},
 		);
 		vi.stubGlobal("fetch", fetchMock);
-		window.localStorage.setItem("birdclaw:selected-account-id", "acct_primary");
+		window.localStorage.setItem(
+			"neo-archive:selected-account-id",
+			"acct_primary",
+		);
 
 		render(<DmsRoute />);
 

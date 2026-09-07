@@ -41,14 +41,17 @@ function readLocalAccounts(): LiveDataSourceAccount[] {
 	}));
 }
 
-function getBirdclawStatusEffect(): Effect.Effect<LiveDataSourceStatus, never> {
+function getNeoArchiveStatusEffect(): Effect.Effect<
+	LiveDataSourceStatus,
+	never
+> {
 	return Effect.try({
 		try: () => readLocalAccounts(),
 		catch: (error) => error,
 	}).pipe(
 		Effect.map((accounts) => ({
-			source: "birdclaw" as const,
-			label: "Birdclaw local",
+			source: "neo-archive" as const,
+			label: "Neo Archive local",
 			works: true,
 			installed: true,
 			status: "ok" as const,
@@ -60,8 +63,8 @@ function getBirdclawStatusEffect(): Effect.Effect<LiveDataSourceStatus, never> {
 		})),
 		Effect.catchAll((error) =>
 			Effect.succeed({
-				source: "birdclaw" as const,
-				label: "Birdclaw local",
+				source: "neo-archive" as const,
+				label: "Neo Archive local",
 				works: false,
 				installed: true,
 				status: "error" as const,
@@ -171,28 +174,28 @@ const capabilities: LiveDataSourceCapability[] = [
 		key: "mentions",
 		label: "Mentions",
 		primary: "xurl",
-		fallbacks: ["bird", "birdclaw"],
+		fallbacks: ["bird", "neo-archive"],
 		notes: "bird fallback is skipped when a since/start cursor requires xurl.",
 	},
 	{
 		key: "search",
 		label: "Fresh search",
 		primary: "bird",
-		fallbacks: ["xurl", "birdclaw"],
+		fallbacks: ["xurl", "neo-archive"],
 		notes: "dated searches require xurl.",
 	},
 	{
 		key: "dms",
 		label: "DMs",
 		primary: "xurl",
-		fallbacks: ["bird", "birdclaw"],
+		fallbacks: ["bird", "neo-archive"],
 		notes: "message requests require bird.",
 	},
 	{
 		key: "follow-graph",
 		label: "Followers / following",
 		primary: "bird",
-		fallbacks: ["xurl", "birdclaw"],
+		fallbacks: ["xurl", "neo-archive"],
 	},
 ];
 
@@ -202,7 +205,11 @@ export function getLiveDataSourcesEffect(): Effect.Effect<
 > {
 	return Effect.gen(function* () {
 		const sources = yield* Effect.all(
-			[getBirdclawStatusEffect(), getBirdStatusEffect(), getXurlStatusEffect()],
+			[
+				getNeoArchiveStatusEffect(),
+				getBirdStatusEffect(),
+				getXurlStatusEffect(),
+			],
 			{ concurrency: "unbounded" },
 		);
 		return {

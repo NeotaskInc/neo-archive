@@ -31,7 +31,7 @@ function findPackageRoot(entryUrl: string) {
 		if (existsSync(join(directory, "package.json"))) return directory;
 		const parent = dirname(directory);
 		if (parent === directory) {
-			throw new Error("Could not locate birdclaw package.json");
+			throw new Error("Could not locate neo-archive package.json");
 		}
 		directory = parent;
 	}
@@ -42,7 +42,7 @@ const packageVersion = JSON.parse(
 	readFileSync(join(packageRoot, "package.json"), "utf8"),
 ) as { version?: string };
 export const program = new Command()
-	.name("birdclaw")
+	.name("neo-archive")
 	.description("Local-first Twitter workspace")
 	.version(packageVersion.version ?? "0.0.0")
 	.option("--json", "Emit JSON output");

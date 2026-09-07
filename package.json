@@ -1,15 +1,16 @@
 {
-	"name": "birdclaw",
-	"version": "0.12.3",
+	"name": "neo-archive",
+	"version": "0.12.3-neo.1",
+	"private": true,
 	"description": "Local Twitter memory in SQLite for archives, DMs, likes, bookmarks, and moderation",
-	"homepage": "https://github.com/steipete/birdclaw#readme",
+	"homepage": "https://github.com/NeotaskInc/neo-archive#readme",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/steipete/birdclaw.git"
+		"url": "git+https://github.com/NeotaskInc/neo-archive.git"
 	},
 	"bin": {
-		"birdclaw": "bin/birdclaw.mjs"
+		"neo-archive": "bin/neo-archive.mjs"
 	},
 	"files": [
 		"bin/",
@@ -29,16 +30,16 @@
 		"access": "public"
 	},
 	"scripts": {
-		"dev": "BIRDCLAW_LOCAL_WEB=1 vite dev --host 127.0.0.1 --port 3000",
-		"dev:node": "BIRDCLAW_LOCAL_WEB=1 node ./node_modules/vite/bin/vite.js dev --host 127.0.0.1 --port 3000",
+		"dev": "NEO_ARCHIVE_LOCAL_WEB=1 vite dev --host 127.0.0.1 --port 3000",
+		"dev:node": "NEO_ARCHIVE_LOCAL_WEB=1 node ./node_modules/vite/bin/vite.js dev --host 127.0.0.1 --port 3000",
 		"build": "vite build && bun --no-env-file scripts/build-cli.mjs",
 		"build:node": "node ./node_modules/vite/bin/vite.js build && node scripts/build-cli.mjs",
-		"preview": "bun --no-env-file bin/birdclaw.mjs serve",
-		"preview:node": "node bin/birdclaw.mjs serve",
+		"preview": "bun --no-env-file bin/neo-archive.mjs serve",
+		"preview:node": "node bin/neo-archive.mjs serve",
 		"test": "bun --no-env-file ./scripts/run-vitest.mjs run",
 		"test:node": "node ./scripts/run-vitest.mjs run",
-		"coverage": "BIRDCLAW_COVERAGE_RUN=1 bun --no-env-file ./scripts/run-vitest.mjs run --coverage",
-		"coverage:node": "BIRDCLAW_COVERAGE_RUN=1 BIRDCLAW_COVERAGE_PROVIDER=v8 node ./scripts/run-vitest.mjs run --coverage",
+		"coverage": "NEO_ARCHIVE_COVERAGE_RUN=1 bun --no-env-file ./scripts/run-vitest.mjs run --coverage",
+		"coverage:node": "NEO_ARCHIVE_COVERAGE_RUN=1 NEO_ARCHIVE_COVERAGE_PROVIDER=v8 node ./scripts/run-vitest.mjs run --coverage",
 		"e2e": "bun --no-env-file run --bun build && bun --no-env-file ./node_modules/@playwright/test/cli.js test",
 		"e2e:node": "node ./node_modules/vite/bin/vite.js build && node scripts/build-cli.mjs && node ./node_modules/@playwright/test/cli.js test",
 		"typecheck": "tsc --noEmit",

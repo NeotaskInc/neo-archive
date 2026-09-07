@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { Effect } from "effect";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { resetBirdclawPathsForTests } from "./config";
+import { resetNeoArchivePathsForTests } from "./config";
 import { getNativeDb, resetDatabaseForTests } from "./db";
 import { syncIdentitySearchIndexForProfileIds } from "./identity-search-index";
 import { recordProfileSnapshot } from "./profile-history";
@@ -48,9 +48,9 @@ describe("profile hydration", () => {
 	let homeDir = "";
 
 	beforeEach(() => {
-		homeDir = mkdtempSync(path.join(os.tmpdir(), "birdclaw-hydrate-"));
-		process.env.BIRDCLAW_HOME = homeDir;
-		resetBirdclawPathsForTests();
+		homeDir = mkdtempSync(path.join(os.tmpdir(), "neo-archive-hydrate-"));
+		process.env.NEO_ARCHIVE_HOME = homeDir;
+		resetNeoArchivePathsForTests();
 		resetDatabaseForTests();
 		mocks.getTransportStatus.mockReset();
 		mocks.lookupAuthenticatedUser.mockReset();
@@ -63,8 +63,8 @@ describe("profile hydration", () => {
 
 	afterEach(() => {
 		resetDatabaseForTests();
-		resetBirdclawPathsForTests();
-		delete process.env.BIRDCLAW_HOME;
+		resetNeoArchivePathsForTests();
+		delete process.env.NEO_ARCHIVE_HOME;
 		rmSync(homeDir, { recursive: true, force: true });
 	});
 
@@ -673,7 +673,7 @@ describe("profile hydration", () => {
 			entities_json:
 				'{"description":{"urls":[{"expanded_url":"https://previous.example"}]}}',
 			raw_json:
-				'{"id":"25401953","username":"steipete","previous":true,"birdclaw_identity_conflicts":["987654323"]}',
+				'{"id":"25401953","username":"steipete","previous":true,"neo_archive_identity_conflicts":["987654323"]}',
 		});
 		expect(
 			db
@@ -774,7 +774,7 @@ describe("profile hydration", () => {
 				"select handle, raw_json from profiles where id = 'profile_user_987654324'",
 			)
 			.get() as { handle: string; raw_json: string };
-		expect(firstCanonical.handle).toMatch(/^birdclaw_stub_/);
+		expect(firstCanonical.handle).toMatch(/^neo_archive_stub_/);
 		expect(JSON.parse(firstCanonical.raw_json)).toMatchObject({
 			id: "987654324",
 			username: "steipete",
@@ -798,7 +798,7 @@ describe("profile hydration", () => {
 			bio: "same-handle history",
 			followers_count: 500,
 			raw_json:
-				'{"id":"25401953","username":"steipete","previous":true,"birdclaw_identity_conflicts":["987654324"]}',
+				'{"id":"25401953","username":"steipete","previous":true,"neo_archive_identity_conflicts":["987654324"]}',
 		});
 		expect(
 			db
@@ -869,7 +869,7 @@ describe("profile hydration", () => {
 			followers_count: 55,
 		});
 		expect(JSON.parse(String(preserved.raw_json))).toMatchObject({
-			birdclaw_identity_conflicts: ["987654325"],
+			neo_archive_identity_conflicts: ["987654325"],
 		});
 		expect(
 			db

@@ -22,6 +22,7 @@ import type {
 } from "./types";
 
 interface ParseDirectMessagesParams {
+	accountId?: string;
 	archivePath: string;
 	entries: string[];
 	db: Database;
@@ -34,10 +35,10 @@ interface ParseDirectMessagesParams {
 }
 
 export function parseDirectMessagesEffect({
+	accountId = "acct_primary",
 	archivePath,
 	entries: dmEntries,
 	db,
-	selection,
 	accountPayload,
 	localProfile,
 	plan,
@@ -61,10 +62,10 @@ export function parseDirectMessagesEffect({
 		          select m.id
 		          from dm_messages m
 		          join dm_conversations c on c.id = m.conversation_id
-		          where c.account_id <> 'acct_primary'
+		          where c.account_id <> ?
 		        `,
 					)
-					.all() as Array<{ id: string }>
+					.all(accountId) as Array<{ id: string }>
 			).map((row) => row.id),
 		);
 		const archiveDmConversationIdAliases = new Map<string, string>();
@@ -78,7 +79,7 @@ export function parseDirectMessagesEffect({
 			let index = 1;
 			while (true) {
 				const suffix = index === 1 ? "" : `:${index}`;
-				const candidate = `acct_primary:${baseId}${suffix}`;
+				const candidate = `${accountId}:${baseId}${suffix}`;
 				if (!isTakenByOtherAccount(candidate) && !isPending(candidate)) {
 					return candidate;
 				}
@@ -89,14 +90,10 @@ export function parseDirectMessagesEffect({
 		function resolveArchiveDmConversationId(conversationId: string) {
 			const existingAlias = archiveDmConversationIdAliases.get(conversationId);
 			if (existingAlias) return existingAlias;
-			if (!selection) {
-				archiveDmConversationIdAliases.set(conversationId, conversationId);
-				return conversationId;
-			}
 
 			const takenByOtherAccount = (candidate: string) => {
-				const accountId = existingDmConversationAccounts.get(candidate);
-				return accountId !== undefined && accountId !== "acct_primary";
+				const storedAccountId = existingDmConversationAccounts.get(candidate);
+				return storedAccountId !== undefined && storedAccountId !== accountId;
 			};
 			const resolved = takenByOtherAccount(conversationId)
 				? uniquePrimaryArchiveId(
@@ -116,8 +113,7 @@ export function parseDirectMessagesEffect({
 			const existingAlias = archiveDmMessageIdAliases.get(messageId);
 			if (existingAlias) return existingAlias;
 			const shouldRemap =
-				selection &&
-				(conversationIdChanged || existingOtherDmMessageIds.has(messageId));
+				conversationIdChanged || existingOtherDmMessageIds.has(messageId);
 			const resolved = shouldRemap
 				? uniquePrimaryArchiveId(
 						messageId,
@@ -312,7 +308,7 @@ export function parseDirectMessagesEffect({
 						profiles.get(resolvedParticipantProfileId)?.displayName ||
 						conversationName ||
 						conversationId,
-					accountId: "acct_primary",
+					accountId,
 					participantProfileId: resolvedParticipantProfileId,
 					lastMessageAt: lastMessage.createdAt,
 					unreadCount: 0,

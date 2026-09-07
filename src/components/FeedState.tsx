@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { BirdclawEmpty, BirdclawLoading } from "./BrandMark";
+import { NeoArchiveEmpty, NeoArchiveLoading } from "./BrandMark";
 
 function SkeletonBlock({
 	className,
@@ -106,7 +106,7 @@ export function FeedLoading({
 }) {
 	return (
 		<div className="border-b border-[var(--line)]">
-			<BirdclawLoading detail={detail} label={label} />
+			<NeoArchiveLoading detail={detail} label={label} />
 			{children}
 		</div>
 	);
@@ -143,5 +143,5 @@ export function FeedEmpty({
 	detail?: string;
 	label: string;
 }) {
-	return <BirdclawEmpty detail={detail} label={label} />;
+	return <NeoArchiveEmpty detail={detail} label={label} />;
 }
