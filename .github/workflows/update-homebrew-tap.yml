@@ -17,7 +17,7 @@ jobs:
   update-homebrew-tap:
     # Upstream publication infrastructure is not configured for Neo Archive.
     if: github.repository == 'steipete/birdclaw'
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - name: Resolve release tag
         id: release
