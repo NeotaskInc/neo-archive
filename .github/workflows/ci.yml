@@ -23,7 +23,7 @@ env:
 jobs:
   bun-primary:
     name: Bun primary
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 25
     steps:
       - name: Checkout
@@ -90,7 +90,7 @@ jobs:
 
   node-compatibility:
     name: Node 26 compatibility
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 25
     steps:
       - name: Checkout
@@ -129,7 +129,7 @@ jobs:
 
   package:
     name: npm package under Node and Bun
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 25
     steps:
       - name: Checkout
@@ -178,7 +178,7 @@ jobs:
 
   e2e:
     name: Playwright on Bun production server
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 25
     steps:
       - name: Checkout

@@ -32,7 +32,7 @@ jobs:
     # Upstream publication infrastructure is not configured for Neo Archive.
     if: github.repository == 'steipete/birdclaw'
     name: Deploy docs
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 15
     environment:
       name: github-pages
